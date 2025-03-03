@@ -20,5 +20,17 @@
     ],
     "env": {
         "VUE_APP_API_BASE_URL": "https://car-reliability-app.vercel.app"
-    }
+    },
+    "github": {
+        "enabled": true
+    },
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "nodeVersion": "18.x"
+            }
+        }
+    ]
 }
