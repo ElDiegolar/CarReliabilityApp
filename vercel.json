@@ -1,13 +1,9 @@
 {
-    "rewrites": [
-        {
-            "source": "/api/(.*)",
-            "destination": "/api/server.js"
-        }
-    ],
-    "functions": {
-        "api/**/*.js": {
-            "runtime": "vercel-node@1.15.4"
-        }
+    "version": 2,
+    "framework": "vue",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "env": {
+        "VUE_APP_API_BASE_URL": "https://your-production-api-url.com"
     }
 }
