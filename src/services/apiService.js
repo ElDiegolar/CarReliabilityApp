@@ -1,8 +1,29 @@
 // src/services/apiService.js
 
 import axios from 'axios';
+const API_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://car-reliability-app.vercel.app/api"
+    : "http://localhost:3000";
 
-const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000';
+console.log("Using API base URL:", API_BASE_URL); // Debugging
+
+export const fetchCarReliability = async (year, make, model, mileage) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/car-reliability`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ year, make, model, mileage }),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("API error:", error);
+    return null;
+  }
+};
+
 
 /**
  * Service for interacting with the car reliability API
