@@ -3,7 +3,10 @@
     "builds": [
         {
             "src": "api/server.js",
-            "use": "@vercel/node"
+            "use": "@vercel/node",
+            "config": {
+                "maxDuration": 55
+            }
         },
         {
             "src": "package.json",
@@ -45,10 +48,5 @@
     ],
     "env": {
         "NODE_ENV": "production"
-    },
-    "functions": {
-        "app/api/**/*": {
-            "maxDuration": 55
-        }
     }
 }
