@@ -1,43 +1,49 @@
 {
     "version": 2,
-    "framework": "vue",
-    "buildCommand": "npm run build",
-    "outputDirectory": "dist",
+    "builds": [
+        {
+            "src": "api/server.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        }
+    ],
     "routes": [
         {
             "src": "/api/(.*)",
-            "dest": "/api/$1"
+            "dest": "/api/server.js"
         },
         {
             "src": "/js/(.*)",
-            "dest": "/js/$1"
+            "dest": "/dist/js/$1"
         },
         {
             "src": "/css/(.*)",
-            "dest": "/css/$1"
+            "dest": "/dist/css/$1"
         },
         {
             "src": "/img/(.*)",
-            "dest": "/img/$1"
+            "dest": "/dist/img/$1"
         },
         {
             "src": "/fonts/(.*)",
-            "dest": "/fonts/$1"
+            "dest": "/dist/fonts/$1"
         },
         {
             "src": "/(.*\\.[a-z0-9]+)$",
-            "dest": "/$1"
+            "dest": "/dist/$1"
         },
         {
             "src": "/(.*)",
-            "dest": "/index.html"
+            "dest": "/dist/index.html"
         }
     ],
     "env": {
-        "VUE_APP_API_BASE_URL": "https://car-reliability-app.vercel.app",
-        "NODE_VERSION": "18.x"
-    },
-    "github": {
-        "enabled": true
+        "NODE_ENV": "production"
     }
 }

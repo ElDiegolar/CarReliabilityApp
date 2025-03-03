@@ -20,6 +20,9 @@ export default {
         const currentYear = new Date().getFullYear();
         const years = ref([...Array(30)].map((_, i) => currentYear - i));
 
+        // Get API base URL - same origin for both production and development
+        const apiBaseUrl = window.location.origin;
+
 
         // Data store (would connect to API in production)
         const carData = {
@@ -93,19 +96,34 @@ export default {
             searchPerformed.value = true;
 
             try {
-                // In a production environment, this would call your backend API
-                // For now, we'll use the fallback API endpoint
-                //test
-                const response = await axios.post('https://car-reliability-app.vercel.app/api/car-reliability', {
+                // Use the apiBaseUrl variable for the API endpoint
+                const response = await axios.post(`${apiBaseUrl}/api/car-reliability`, {
                     year: year.value,
                     make: make.value,
                     model: model.value,
                     mileage: mileage.value
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 });
                 console.log('Reliability data:', response.data);
                 reliability.value = response.data;
             } catch (error) {
                 console.error('Error fetching reliability data:', error);
+                // Add more detailed error logging
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    console.error('Response data:', error.response.data);
+                    console.error('Response status:', error.response.status);
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.error('Request was made but no response:', error.request);
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.error('Error message:', error.message);
+                }
                 // Handle error state
                 reliability.value = null;
             } finally {
