@@ -4,6 +4,6 @@
     "buildCommand": "npm run build",
     "outputDirectory": "dist",
     "env": {
-        "VUE_APP_API_BASE_URL": "https://your-production-api-url.com"
+        "VUE_APP_API_BASE_URL": "https://car-reliability-app.vercel.app/"
     }
 }
