@@ -20,6 +20,8 @@ coverage
 .env.*.local
 
 # Editor directories and files
+node_modules
+.history
 .vscode/*
 !.vscode/extensions.json
 .idea
