@@ -75,7 +75,7 @@ app.post('/api/car-reliability', async (req, res) => {
           "fuelSystem": 0
         },
         "commonIssues":[
-          {description: [description of issue here], costToFix: [cost to fix here], occurrence: [occurrences you found], mileage: [mileage at which issue occurs]},
+          {description: [description of issue here], costToFix: [cost to fix here in $], occurrence: [occurrences you found], mileage: [mileage at which issue occurs]},
         ],
         "aiAnalysis": ""
       }

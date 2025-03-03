@@ -337,26 +337,29 @@ export default {
             </div>
 
             <!-- Common Issues -->
-            <div v-if="reliability.commonIssues && reliability.commonIssues.length > 0">
+            <div v-if="reliability.commonIssues && reliability.commonIssues.length > 0" class="w-full">
                 <h3 class="text-lg font-medium mb-3">Common Issues</h3>
-                <table class="w-full border-collapse border border-gray-300">
-                    <thead class="bg-gray-200">
-                        <tr>
-                            <th class="border border-gray-300 px-4 py-2">Issue</th>
-                            <th class="border border-gray-300 px-4 py-2">Estimated Cost to Fix</th>
-                            <th class="border border-gray-300 px-4 py-2">No. of issues found</th>
-                            <th class="border border-gray-300 px-4 py-2">Mileage</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(issue, index) in reliability.commonIssues" :key="index" class="text-gray-700">
-                            <td class="border border-gray-300 px-4 py-2">{{ issue.description }}</td>
-                            <td class="border border-gray-300 px-4 py-2">{{ issue.costToFix }}</td>
-                            <td class="border border-gray-300 px-4 py-2">{{ issue.occurrence }}</td>
-                            <td class="border border-gray-300 px-4 py-2">{{ issue.mileage }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse border border-gray-300 min-w-[600px]">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-2 text-sm md:text-base">Issue</th>
+                                <th class="border border-gray-300 px-4 py-2 text-sm md:text-base">Estimated Cost</th>
+                                <th class="border border-gray-300 px-4 py-2 text-sm md:text-base">Occurrences</th>
+                                <th class="border border-gray-300 px-4 py-2 text-sm md:text-base">Mileage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(issue, index) in reliability.commonIssues" :key="index"
+                                class="text-gray-700 text-sm md:text-base">
+                                <td class="border border-gray-300 px-3 py-2">{{ issue.description }}</td>
+                                <td class="border border-gray-300 px-3 py-2">{{ issue.costToFix }}</td>
+                                <td class="border border-gray-300 px-3 py-2">{{ issue.occurrence }}</td>
+                                <td class="border border-gray-300 px-3 py-2">{{ issue.mileage }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <!-- AI Analysis -->
             <div class="mt-6 p-4 bg-blue-50 rounded-md border border-blue-200">
