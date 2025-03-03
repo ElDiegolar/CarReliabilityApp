@@ -14,6 +14,26 @@
             "dest": "/api/$1"
         },
         {
+            "src": "/js/(.*)",
+            "dest": "/js/$1"
+        },
+        {
+            "src": "/css/(.*)",
+            "dest": "/css/$1"
+        },
+        {
+            "src": "/img/(.*)",
+            "dest": "/img/$1"
+        },
+        {
+            "src": "/fonts/(.*)",
+            "dest": "/fonts/$1"
+        },
+        {
+            "src": "/(.*\\.[a-z0-9]+)$",
+            "dest": "/$1"
+        },
+        {
             "src": "/(.*)",
             "dest": "/index.html"
         }
