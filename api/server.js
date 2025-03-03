@@ -10,7 +10,12 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+// 
+app.use(cors({
+  origin: "*",  // Allow all domains (you can restrict it later)
+  methods: "GET,POST,OPTIONS",
+  allowedHeaders: "Content-Type, Authorization"
+}));
 app.use(express.json());
 
 // OpenAI configuration
