@@ -27,23 +27,70 @@ export default {
         // Data store (would connect to API in production)
         const carData = {
             makes: {
-                // Sample data for demonstration
-                // In production, this would come from an API
-                '2024': ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz', 'Audi', 'Tesla', 'Hyundai', 'Kia'],
-                '2023': ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz', 'Audi', 'Tesla', 'Hyundai', 'Kia'],
-                '2022': ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz', 'Audi', 'Tesla', 'Hyundai', 'Kia'],
+                '2025': [
+                    'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick', 'Cadillac',
+                    'Chevrolet', 'Chrysler', 'Dodge', 'Ferrari', 'Fiat', 'Ford', 'Genesis', 'GMC', 'Honda',
+                    'Hyundai', 'Infiniti', 'Jaguar', 'Jeep', 'Kia', 'Lamborghini', 'Land Rover', 'Lexus',
+                    'Lincoln', 'Maserati', 'Mazda', 'McLaren', 'Mercedes-Benz', 'Mini', 'Mitsubishi', 'Nissan',
+                    'Porsche', 'Ram', 'Rolls-Royce', 'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
+                ],
+                '2024': [
+                    'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick', 'Cadillac',
+                    'Chevrolet', 'Chrysler', 'Dodge', 'Ferrari', 'Fiat', 'Ford', 'Genesis', 'GMC', 'Honda',
+                    'Hyundai', 'Infiniti', 'Jaguar', 'Jeep', 'Kia', 'Lamborghini', 'Land Rover', 'Lexus',
+                    'Lincoln', 'Maserati', 'Mazda', 'McLaren', 'Mercedes-Benz', 'Mini', 'Mitsubishi', 'Nissan',
+                    'Porsche', 'Ram', 'Rolls-Royce', 'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
+                ],
+                '2023': [
+                    'Acura', 'Alfa Romeo', 'Aston Martin', 'Audi', 'Bentley', 'BMW', 'Buick', 'Cadillac',
+                    'Chevrolet', 'Chrysler', 'Dodge', 'Ferrari', 'Fiat', 'Ford', 'Genesis', 'GMC', 'Honda',
+                    'Hyundai', 'Infiniti', 'Jaguar', 'Jeep', 'Kia', 'Lamborghini', 'Land Rover', 'Lexus',
+                    'Lincoln', 'Maserati', 'Mazda', 'McLaren', 'Mercedes-Benz', 'Mini', 'Mitsubishi', 'Nissan',
+                    'Porsche', 'Ram', 'Rolls-Royce', 'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
+                ]
             },
             models: {
-                'Toyota': ['Camry', 'Corolla', 'RAV4', 'Highlander', 'Tacoma', 'Tundra'],
-                'Honda': ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey'],
-                'Ford': ['F-150', 'Mustang', 'Explorer', 'Escape', 'Edge'],
-                'Chevrolet': ['Silverado', 'Equinox', 'Malibu', 'Tahoe', 'Corvette'],
-                'BMW': ['3 Series', '5 Series', 'X3', 'X5', '7 Series'],
-                'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class'],
-                'Audi': ['A4', 'A6', 'Q5', 'Q7', 'e-tron'],
-                'Tesla': ['Model 3', 'Model Y', 'Model S', 'Model X', 'Cybertruck'],
-                'Hyundai': ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Palisade'],
-                'Kia': ['Forte', 'K5', 'Sportage', 'Sorento', 'Telluride']
+                'Acura': ['ILX', 'MDX', 'RDX', 'TLX'],
+                'Alfa Romeo': ['Giulia', 'Stelvio'],
+                'Aston Martin': ['DB11', 'Vantage'],
+                'Audi': ['A3', 'A4', 'A6', 'Q5', 'Q7'],
+                'Bentley': ['Bentayga', 'Continental GT'],
+                'BMW': ['3 Series', '5 Series', 'X3', 'X5'],
+                'Buick': ['Enclave', 'Encore', 'Envision'],
+                'Cadillac': ['CT4', 'CT5', 'Escalade'],
+                'Chevrolet': ['Blazer', 'Camaro', 'Equinox', 'Silverado'],
+                'Chrysler': ['300', 'Pacifica'],
+                'Dodge': ['Challenger', 'Charger', 'Durango'],
+                'Ferrari': ['488', 'Roma'],
+                'Fiat': ['500X'],
+                'Ford': ['Bronco', 'Edge', 'Escape', 'F-150', 'Mustang'],
+                'Genesis': ['G70', 'G80', 'GV80'],
+                'GMC': ['Acadia', 'Sierra', 'Yukon'],
+                'Honda': ['Accord', 'Civic', 'CR-V', 'Pilot'],
+                'Hyundai': ['Elantra', 'Kona', 'Santa Fe', 'Tucson'],
+                'Infiniti': ['Q50', 'QX60'],
+                'Jaguar': ['E-PACE', 'F-PACE'],
+                'Jeep': ['Cherokee', 'Grand Cherokee', 'Wrangler'],
+                'Kia': ['Forte', 'Sorento', 'Sportage', 'Telluride'],
+                'Lamborghini': ['Aventador', 'Huracan'],
+                'Land Rover': ['Defender', 'Discovery', 'Range Rover'],
+                'Lexus': ['ES', 'RX'],
+                'Lincoln': ['Aviator', 'Navigator'],
+                'Maserati': ['Ghibli', 'Levante'],
+                'Mazda': ['CX-30', 'CX-5', 'Mazda3'],
+                'McLaren': ['720S', 'Artura'],
+                'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE'],
+                'Mini': ['Cooper', 'Countryman'],
+                'Mitsubishi': ['Outlander', 'Pajero'],
+                'Nissan': ['Altima', 'Rogue', 'Sentra'],
+                'Porsche': ['911', 'Cayenne', 'Macan'],
+                'Ram': ['1500'],
+                'Rolls-Royce': ['Ghost', 'Phantom'],
+                'Subaru': ['Forester', 'Impreza', 'Outback'],
+                'Tesla': ['Model 3', 'Model S', 'Model X', 'Model Y'],
+                'Toyota': ['Camry', 'Corolla', 'Highlander', 'RAV4'],
+                'Volkswagen': ['Atlas', 'Golf', 'Jetta', 'Tiguan'],
+                'Volvo': ['S60', 'XC40', 'XC90']
             },
             mileageOptions: [
                 'Under 10,000 miles',
@@ -294,7 +341,7 @@ export default {
                 <h3 class="text-lg font-medium mb-3">Common Issues</h3>
                 <ul class="list-disc list-inside space-y-1">
                     <li v-for="(issue, index) in reliability.commonIssues" :key="index" class="text-gray-700">
-                        {{ issue.description + ' Estimated cost to fix:' + issue.costToFix + ' Occurrences ' +
+                        {{ issue.description + ' Estimated <b>cost to fix</b>:' + issue.costToFix + ' Occurrences ' +
                             issue.occurrence + ' @' + issue.mileage }}
                     </li>
                 </ul>
