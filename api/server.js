@@ -19,6 +19,10 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
+app.post('/api/test', (req, res) => {
+  res.json({ message: "Backend is running!", data: req.body });
+});
+
 // API endpoint to get car reliability data
 app.post('/api/car-reliability', async (req, res) => {
   try {
