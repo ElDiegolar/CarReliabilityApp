@@ -1,4 +1,4 @@
-<!-- src/components/CarReliabilityApp.vue -->
+`<!-- src/components/CarReliabilityApp.vue -->
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
 import axios from 'axios';
@@ -294,7 +294,8 @@ export default {
                 <h3 class="text-lg font-medium mb-3">Common Issues</h3>
                 <ul class="list-disc list-inside space-y-1">
                     <li v-for="(issue, index) in reliability.commonIssues" :key="index" class="text-gray-700">
-                        {{ issue.description + ' ' + issue.costToFix + ' ' + issue.occurrence + ' ' + issue.mileage }}
+                        {{ issue.description + ' Estimated cost to fix:' + issue.costToFix + ' Occurrences ' +
+                            issue.occurrence + ' @' + issue.mileage }}
                     </li>
                 </ul>
             </div>
@@ -326,4 +327,4 @@ export default {
                 different combination.</p>
         </div>
     </div>
-</template>
+</template>`
