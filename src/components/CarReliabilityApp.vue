@@ -95,7 +95,7 @@ export default {
             try {
                 // In a production environment, this would call your backend API
                 // For now, we'll use the fallback API endpoint
-                const response = await axios.post('http://localhost:3000/api/car-reliability', {
+                const response = await axios.post('https://car-reliability-app.vercel.app/api/car-reliability', {
                     year: year.value,
                     make: make.value,
                     model: model.value,
