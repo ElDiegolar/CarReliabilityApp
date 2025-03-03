@@ -222,13 +222,13 @@ export default {
     <div class="max-w-6xl mx-auto px-4 py-8">
         <!-- Header -->
         <header class="mb-8">
-            <h1 class="text-4xl font-bold text-blue-800">Car Reliability Checker</h1>
-            <p class="text-gray-600 mt-2">Find out how reliable your car is with AI-powered insights</p>
+            <h1 class="text-4xl font-bold text-blue-800">Vehicle Reliability Checker</h1>
+            <p class="text-gray-600 mt-2">Find out how reliable your Vehicle is with AI-powered insights</p>
         </header>
 
         <!-- Search Form -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-2xl font-semibold mb-4">Search for a Car</h2>
+            <h2 class="text-2xl font-semibold mb-4">Search for a Vehicle</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Year Selection -->
                 <div>
