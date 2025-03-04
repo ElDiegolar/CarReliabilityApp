@@ -46,9 +46,9 @@ app.post('/api/car-reliability', async (req, res) => {
       Make: ${make}
       Model: ${model}
       Mileage: ${mileage}
-      Overall Score: Provide a reliability score between 70 and 100.
+      Overall Score: Provide a reliability score between 1 and 100.
       Average Price: Provide an average price for this vehicle in USD.
-      Categories: Provide reliability scores (each between 70 and 100) for the following categories:
+      Categories: Provide reliability scores (each between 1 and 100) for the following categories:
       - Engine
       - Transmission
       - Electrical System
