@@ -1,12 +1,23 @@
-`<!-- src/components/CarReliabilityApp.vue -->
+<!-- src/components/CarReliabilityApp.vue (updated with token-based premium features) -->
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
 import axios from 'axios';
 
 export default {
     name: 'CarReliabilityApp',
+    props: {
+        isPremiumUser: {
+            type: Boolean,
+            default: false
+        },
+        premiumToken: {
+            type: String,
+            default: ''
+        }
+    },
+    emits: ['show-premium'],
 
-    setup() {
+    setup(props, { emit }) {
         // Form data
         const year = ref('');
         const make = ref('');
@@ -21,8 +32,7 @@ export default {
         const years = ref([...Array(30)].map((_, i) => currentYear - i));
 
         // Get API base URL - same origin for both production and development
-        const apiBaseUrl = window.location.origin;
-
+        const apiBaseUrl = 'https://car-reliability-app.vercel.app';
 
         // Data store (would connect to API in production)
         const carData = {
@@ -103,7 +113,6 @@ export default {
         // Computed properties
         const makes = computed(() => {
             if (!year.value) return [];
-            // Get makes for the selected year, fallback to the closest available year
             return carData.makes[year.value] || Object.values(carData.makes)[0] || [];
         });
 
@@ -121,6 +130,11 @@ export default {
             if (score >= 80) return 'bg-green-500';
             if (score >= 60) return 'bg-yellow-500';
             return 'bg-red-500';
+        });
+
+        // Check if we should show upgrade prompt
+        const showUpgradePrompt = computed(() => {
+            return reliability.value && !reliability.value.isPremium && !props.isPremiumUser;
         });
 
         // Watchers to reset dependent fields
@@ -143,32 +157,36 @@ export default {
             searchPerformed.value = true;
 
             try {
-                // Use the apiBaseUrl variable for the API endpoint
-                const response = await axios.post(`${apiBaseUrl}/api/car-reliability`, {
+                // Include premium token if available
+                const requestBody = {
                     year: year.value,
                     make: make.value,
                     model: model.value,
                     mileage: mileage.value
-                }, {
+                };
+
+                // Add token if the user is premium
+                if (props.isPremiumUser && props.premiumToken) {
+                    requestBody.premiumToken = props.premiumToken;
+                }
+
+                const response = await axios.post(`${apiBaseUrl}/api/car-reliability`, requestBody, {
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
+
                 console.log('Reliability data:', response.data);
                 reliability.value = response.data;
             } catch (error) {
                 console.error('Error fetching reliability data:', error);
                 // Add more detailed error logging
                 if (error.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
                     console.error('Response data:', error.response.data);
                     console.error('Response status:', error.response.status);
                 } else if (error.request) {
-                    // The request was made but no response was received
                     console.error('Request was made but no response:', error.request);
                 } else {
-                    // Something happened in setting up the request that triggered an Error
                     console.error('Error message:', error.message);
                 }
                 // Handle error state
@@ -191,6 +209,10 @@ export default {
             return 'bg-red-500';
         };
 
+        const handleUpgradeClick = () => {
+            emit('show-premium');
+        };
+
         return {
             year,
             make,
@@ -205,9 +227,12 @@ export default {
             searchPerformed,
             isFormValid,
             reliabilityColorClass,
+            showUpgradePrompt,
             getReliabilityData,
             formatCategory,
-            getCategoryColorClass
+            getCategoryColorClass,
+            handleUpgradeClick,
+            isPremiumUser: props.isPremiumUser
         };
     },
 
@@ -301,10 +326,32 @@ export default {
             </button>
         </div>
 
+        <!-- Premium Upgrade Banner (shown when results come back and user isn't premium) -->
+        <div v-if="showUpgradePrompt" class="bg-blue-50 border border-blue-200 rounded-lg shadow-md p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-2">Unlock Premium Reliability Report</h3>
+                    <p class="text-gray-600">Get detailed insights, common issues, repair costs, and expert analysis.
+                    </p>
+                </div>
+                <button @click="handleUpgradeClick"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md transition duration-300">
+                    Upgrade for $9.95
+                </button>
+            </div>
+        </div>
+
         <!-- Results Section -->
         <div v-if="reliability" class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-2xl font-semibold mb-4">{{ year }} {{ make }} {{ model }} Reliability</h2>
             <p class="text-gray-600 mb-4">Mileage: {{ mileage }}</p>
+
+            <!-- Premium Badge -->
+            <div v-if="isPremiumUser || reliability.isPremium" class="mb-6">
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                    Premium Report
+                </span>
+            </div>
 
             <!-- Overall Rating -->
             <div class="mb-6">
@@ -327,17 +374,23 @@ export default {
                         <h4 class="font-medium mb-2">{{ formatCategory(category) }}</h4>
                         <div class="flex items-center">
                             <div class="w-full bg-gray-200 rounded-full h-4">
-                                <div class="h-4 rounded-full" :class="getCategoryColorClass(score)"
-                                    :style="`width: ${score}%`"></div>
+                                <div v-if="score !== null" class="h-4 rounded-full"
+                                    :class="getCategoryColorClass(score)" :style="`width: ${score}%`"></div>
+                                <div v-else
+                                    class="h-4 bg-gray-300 rounded-full w-full flex items-center justify-center">
+                                    <span class="text-xs text-gray-600">Premium Feature</span>
+                                </div>
                             </div>
-                            <span class="ml-2 font-semibold">{{ score }}/100</span>
+                            <span v-if="score !== null" class="ml-2 font-semibold">{{ score }}/100</span>
+                            <span v-else class="ml-2 font-semibold text-gray-400">—</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Common Issues -->
-            <div v-if="reliability.commonIssues && reliability.commonIssues.length > 0" class="w-full">
+            <!-- Common Issues (Premium Feature) -->
+            <div v-if="(isPremiumUser || reliability.isPremium) && reliability.commonIssues && reliability.commonIssues.length > 0"
+                class="w-full mb-6">
                 <h3 class="text-lg font-medium mb-3">Common Issues</h3>
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse border border-gray-300 min-w-[600px]">
@@ -361,6 +414,29 @@ export default {
                     </table>
                 </div>
             </div>
+            <!-- Premium Upgrade Prompt (inline) -->
+            <div v-else-if="!isPremiumUser && !reliability.isPremium" class="w-full mb-6">
+                <div class="border border-blue-200 rounded-md p-4 bg-blue-50">
+                    <h3 class="text-lg font-medium mb-2 flex items-center text-blue-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Common Issues Data
+                    </h3>
+                    <p class="text-gray-600 mb-3">
+                        Upgrade to premium to see detailed information about common issues, repair costs, and when they
+                        typically occur.
+                    </p>
+                    <button @click="handleUpgradeClick"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                        Unlock Premium Features
+                    </button>
+                </div>
+            </div>
+
             <!-- AI Analysis -->
             <div class="mt-6 p-4 bg-blue-50 rounded-md border border-blue-200">
                 <h3 class="text-lg font-medium mb-2 flex items-center">
@@ -372,7 +448,17 @@ export default {
                     </svg>
                     AI Analysis
                 </h3>
-                <p class="text-gray-700">{{ reliability.aiAnalysis }}</p>
+                <div v-if="isPremiumUser || reliability.isPremium">
+                    <p class="text-gray-700">{{ reliability.aiAnalysis }}</p>
+                </div>
+                <div v-else class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-600 mb-3 md:mb-0 md:mr-4">Unlock the full AI-powered analysis with a premium
+                        subscription.</p>
+                    <button @click="handleUpgradeClick"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                        Get Premium Analysis
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -389,4 +475,4 @@ export default {
                 different combination.</p>
         </div>
     </div>
-</template>`
+</template>
