@@ -6,7 +6,7 @@ import axios from 'axios';
 
 // Configure axios with base URL for API
 // Replace with your actual API URL in production
-axios.defaults.baseURL = process.env.VUE_APP_API_URL || 'http://localhost:3000';
+axios.defaults.baseURL = process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000';
 
 // Check for stored token and set default auth header
 const token = localStorage.getItem('token');
