@@ -2,9 +2,7 @@
 
 import axios from 'axios';
 const API_BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://car-reliability-app.vercel.app/api"
-    : "http://localhost:3000";
+  process.env.NODE_ENV === "https://car-reliability-app.vercel.app/api";
 
 console.log("Using API base URL:", API_BASE_URL); // Debugging
 
