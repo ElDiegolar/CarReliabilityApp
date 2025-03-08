@@ -354,7 +354,7 @@ app.post('/api/car-reliability', async (req, res) => {
     // Check if premium based on token
     let isPremium = false;
     let user_id = null;
-    consol
+    
     
     if (premiumToken) {
       // Verify token
