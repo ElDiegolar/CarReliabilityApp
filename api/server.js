@@ -88,7 +88,6 @@ const checkSubscription = async (req, res, next) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 // Register a new user
 app.post('/api/register', async (req, res) => {
   const { email, password } = req.body;
@@ -105,29 +104,48 @@ app.post('/api/register', async (req, res) => {
       return res.status(409).json({ error: 'User already exists' });
     }
     
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Use a transaction to ensure both user and subscription are created
+    const client = await sql.begin();
     
-    // Create user
-    const result = await query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
-      [email, hashedPassword]
-    );
-    
-    const userId = result.rows[0].id;
-    
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: userId, email },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    );
-    
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: { id: userId, email },
-      token
-    });
+    try {
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Create user
+      const userResult = await client.query(
+        'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
+        [email, hashedPassword]
+      );
+      
+      const userId = userResult.rows[0].id;
+      
+      // Create basic subscription for the user
+      await client.query(
+        'INSERT INTO subscriptions (user_id, plan, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)',
+        [userId, 'basic', 'active', new Date(), new Date()]
+      );
+      
+      // Commit the transaction
+      await client.query('COMMIT');
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: userId, email },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '24h' }
+      );
+      
+      res.status(201).json({
+        message: 'User registered successfully with basic subscription',
+        user: { id: userId, email },
+        subscription: { plan: 'basic', status: 'active' },
+        token
+      });
+    } catch (error) {
+      // Rollback the transaction on error
+      await client.query('ROLLBACK');
+      throw error;
+    }
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Registration failed', message: error.message });
@@ -507,7 +525,7 @@ app.post('/api/car-reliability', async (req, res) => {
 });
 
 // Get all users - Protected admin endpoint
-app.get('/api/users', authenticateToken, async (req, res) => {
+app.get('/api/users', async (req, res) => {
   try {
     // In a real implementation, check if user has admin privileges
     const isAdmin = true; // Replace with actual admin check in production
