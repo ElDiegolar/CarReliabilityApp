@@ -604,5 +604,37 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
+
+//////debug
+// Get all users - Protected admin endpoint
+app.get('/api/users', authenticateToken, (req, res) => {
+  try {
+    // Check if user has admin privileges (you might want to add an admin field to your users table)
+    // For now, we'll implement a simple check - you can enhance this with proper role-based access
+    const isAdmin = true; // Replace with actual admin check in production
+    
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Insufficient permissions to access user data' });
+    }
+    
+    // Retrieve all users with limited fields for security
+    const users = db.prepare(`
+      SELECT id, email, created_at, updated_at FROM users
+      ORDER BY id ASC
+    `).all();
+    
+    // Count total users
+    const userCount = users.length;
+    
+    res.status(200).json({
+      count: userCount,
+      users: users
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to retrieve users' });
+  }
+});
+
 // Export the Express app for Vercel
 module.exports = app;
