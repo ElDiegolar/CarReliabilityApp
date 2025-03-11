@@ -252,7 +252,7 @@ export default {
             tokenError.value = '';
 
             try {
-                const response = await axios.post('/api/verify-token', {
+                const response = await axios.post('/verify-token', {
                     token: tokenInput.value
                 });
 

@@ -49,7 +49,7 @@
           
           try {
             // Verify payment status
-            const response = await fetch(`/api/payment-status/${id}`);
+            const response = await fetch(`/payment-status/${id}`);
             const data = await response.json();
             
             paymentStatus.value = data.status;

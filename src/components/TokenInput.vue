@@ -66,7 +66,7 @@ export default {
 
             try {
                 // In a real implementation, verify with your backend
-                const response = await axios.post('/api/verify-premium', {
+                const response = await axios.post('/verify-premium', {
                     token: tokenInput.value
                 });
 
