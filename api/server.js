@@ -1,15 +1,14 @@
-// server/server.js - Express server with SQLite integration and user management
+// api/server.js - Express server with PostgreSQL integration and user management
 const express = require('express');
 const cors = require('cors');
 const { Configuration, OpenAIApi } = require('openai');
 const dotenv = require('dotenv');
-const sqlite3 = require('better-sqlite3');
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
-const os = require('os');
+const path = require('path');
+const { initializeDatabase, query, updateTimestamp } = require('./database');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Load environment variables
 dotenv.config();
@@ -32,82 +31,8 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-// SQLite Configuration - Updated for Vercel compatibility
-// Use /tmp directory for database file on Vercel or other serverless environments
-// On local development, we'll use the project directory
-const dbDirectory = process.env.NODE_ENV === 'production' ? '/tmp' : __dirname;
-const dbPath = path.join(dbDirectory, 'car_reliability.db');
-
-// Ensure the directory exists (not needed for /tmp but good practice)
-if (!fs.existsSync(dbDirectory)) {
-  fs.mkdirSync(dbDirectory, { recursive: true });
-}
-
-// Initialize database connection
-const db = sqlite3(dbPath, { verbose: console.log });
-
-// Log the database location
-console.log(`Using SQLite database at: ${dbPath}`);
-
-// Initialize the database tables if they don't exist
-function initializeDatabase() {
-  try {
-    // Create users table
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    // Create subscriptions table
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS subscriptions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        plan TEXT NOT NULL,
-        status TEXT NOT NULL,
-        stripe_session_id TEXT,
-        stripe_customer_id TEXT,
-        access_token TEXT,
-        expires_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-      )
-    `);
-    
-    // Create searches table
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS searches (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        year TEXT,
-        make TEXT,
-        model TEXT,
-        mileage TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-      )
-    `);
-    
-    console.log('SQLite database initialized successfully');
-  } catch (error) {
-    console.error('Database initialization error:', error);
-  }
-}
-
 // Initialize database on startup
 initializeDatabase();
-
-// Helper function to update timestamp
-function updateTimestamp(table, id) {
-  const now = new Date().toISOString();
-  db.prepare(`UPDATE ${table} SET updated_at = ? WHERE id = ?`).run(now, id);
-}
 
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
@@ -126,17 +51,19 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Check subscription status middleware
-const checkSubscription = (req, res, next) => {
+const checkSubscription = async (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'Authentication required' });
   
   try {
     const now = new Date().toISOString();
     
-    const subscription = db.prepare(`
+    const subscriptionResult = await query(`
       SELECT * FROM subscriptions 
-      WHERE user_id = ? AND status = ? 
-      AND (expires_at IS NULL OR expires_at > ?)
-    `).get(req.user.id, 'active', now);
+      WHERE user_id = $1 AND status = $2 
+      AND (expires_at IS NULL OR expires_at > $3)
+    `, [req.user.id, 'active', now]);
+    
+    const subscription = subscriptionResult.rows[0];
     
     if (!subscription) {
       req.isPremium = false;
@@ -162,9 +89,9 @@ app.post('/api/register', async (req, res) => {
   
   try {
     // Check if user already exists
-    const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    const existingUserResult = await query('SELECT id FROM users WHERE email = $1', [email]);
     
-    if (existingUser) {
+    if (existingUserResult.rows.length > 0) {
       return res.status(409).json({ error: 'User already exists' });
     }
     
@@ -172,8 +99,12 @@ app.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // Create user
-    const result = db.prepare('INSERT INTO users (email, password) VALUES (?, ?)').run(email, hashedPassword);
-    const userId = result.lastInsertRowid;
+    const result = await query(
+      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
+      [email, hashedPassword]
+    );
+    
+    const userId = result.rows[0].id;
     
     // Generate JWT token
     const token = jwt.sign(
@@ -189,7 +120,7 @@ app.post('/api/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Registration failed', message: error });
+    res.status(500).json({ error: 'Registration failed', message: error.message });
   }
 });
 
@@ -203,11 +134,13 @@ app.post('/api/login', async (req, res) => {
   
   try {
     // Get user
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    const userResult = await query('SELECT * FROM users WHERE email = $1', [email]);
     
-    if (!user) {
+    if (userResult.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
+    
+    const user = userResult.rows[0];
     
     // Verify password
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -225,12 +158,13 @@ app.post('/api/login', async (req, res) => {
     
     // Get subscription status
     const now = new Date().toISOString();
-    const subscription = db.prepare(`
+    const subscriptionResult = await query(`
       SELECT * FROM subscriptions 
-      WHERE user_id = ? AND status = ? 
-      AND (expires_at IS NULL OR expires_at > ?)
-    `).get(user.id, 'active', now);
+      WHERE user_id = $1 AND status = $2 
+      AND (expires_at IS NULL OR expires_at > $3)
+    `, [user.id, 'active', now]);
     
+    const subscription = subscriptionResult.rows[0];
     const isPremium = !!subscription;
     
     res.status(200).json({
@@ -246,22 +180,28 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Get user profile and subscription status
-app.get('/api/profile', authenticateToken, (req, res) => {
+app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
-    const user = db.prepare('SELECT id, email, created_at FROM users WHERE id = ?').get(req.user.id);
+    const userResult = await query(
+      'SELECT id, email, created_at FROM users WHERE id = $1', 
+      [req.user.id]
+    );
     
-    if (!user) {
+    if (userResult.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
     
+    const user = userResult.rows[0];
+    
     // Get subscription status
     const now = new Date().toISOString();
-    const subscription = db.prepare(`
+    const subscriptionResult = await query(`
       SELECT * FROM subscriptions 
-      WHERE user_id = ? AND status = ? 
-      AND (expires_at IS NULL OR expires_at > ?)
-    `).get(user.id, 'active', now);
+      WHERE user_id = $1 AND status = $2 
+      AND (expires_at IS NULL OR expires_at > $3)
+    `, [user.id, 'active', now]);
     
+    const subscription = subscriptionResult.rows[0];
     const isPremium = !!subscription;
     
     res.status(200).json({
@@ -276,7 +216,7 @@ app.get('/api/profile', authenticateToken, (req, res) => {
 });
 
 // Handle successful payment verification and token generation
-app.post('/api/payment/verify', authenticateToken, (req, res) => {
+app.post('/api/payment/verify', authenticateToken, async (req, res) => {
   const { sessionId, plan } = req.body;
   
   if (!sessionId || !plan) {
@@ -291,23 +231,26 @@ app.post('/api/payment/verify', authenticateToken, (req, res) => {
     const accessToken = uuidv4();
     
     // Find existing subscription
-    const existingSubscription = db.prepare('SELECT * FROM subscriptions WHERE user_id = ? AND plan = ?')
-      .get(req.user.id, plan);
+    const existingSubscriptionResult = await query(
+      'SELECT * FROM subscriptions WHERE user_id = $1 AND plan = $2',
+      [req.user.id, plan]
+    );
     
-    if (existingSubscription) {
+    if (existingSubscriptionResult.rows.length > 0) {
       // Update existing subscription
-      db.prepare(`
+      const existingSubscription = existingSubscriptionResult.rows[0];
+      await query(`
         UPDATE subscriptions 
-        SET status = ?, stripe_session_id = ?, access_token = ?, updated_at = CURRENT_TIMESTAMP 
-        WHERE id = ?
-      `).run('active', sessionId, accessToken, existingSubscription.id);
+        SET status = $1, stripe_session_id = $2, access_token = $3, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $4
+      `, ['active', sessionId, accessToken, existingSubscription.id]);
     } else {
       // Create new subscription
-      db.prepare(`
+      await query(`
         INSERT INTO subscriptions 
         (user_id, plan, status, stripe_session_id, access_token) 
-        VALUES (?, ?, ?, ?, ?)
-      `).run(req.user.id, plan, 'active', sessionId, accessToken);
+        VALUES ($1, $2, $3, $4, $5)
+      `, [req.user.id, plan, 'active', sessionId, accessToken]);
     }
     
     res.status(200).json({
@@ -322,7 +265,7 @@ app.post('/api/payment/verify', authenticateToken, (req, res) => {
 });
 
 // Verify premium token for non-authenticated users
-app.post('/api/verify-token', (req, res) => {
+app.post('/api/verify-token', async (req, res) => {
   const { token } = req.body;
   
   if (!token) {
@@ -332,18 +275,20 @@ app.post('/api/verify-token', (req, res) => {
   try {
     // Check if token exists in any active subscription
     const now = new Date().toISOString();
-    const subscription = db.prepare(`
+    const subscriptionResult = await query(`
       SELECT * FROM subscriptions 
-      WHERE access_token = ? AND status = ? 
-      AND (expires_at IS NULL OR expires_at > ?)
-    `).get(token, 'active', now);
+      WHERE access_token = $1 AND status = $2 
+      AND (expires_at IS NULL OR expires_at > $3)
+    `, [token, 'active', now]);
     
-    if (!subscription) {
+    if (subscriptionResult.rows.length === 0) {
       return res.status(401).json({ 
         isPremium: false,
         message: 'Invalid or expired token'
       });
     }
+    
+    const subscription = subscriptionResult.rows[0];
     
     res.status(200).json({
       isPremium: true,
@@ -370,19 +315,18 @@ app.post('/api/car-reliability', async (req, res) => {
     let isPremium = false;
     let user_id = null;
     
-    
     if (premiumToken) {
       // Verify token
       const now = new Date().toISOString();
-      const subscription = db.prepare(`
+      const subscriptionResult = await query(`
         SELECT user_id FROM subscriptions 
-        WHERE access_token = ? AND status = ? 
-        AND (expires_at IS NULL OR expires_at > ?)
-      `).get(premiumToken, 'active', now);
+        WHERE access_token = $1 AND status = $2 
+        AND (expires_at IS NULL OR expires_at > $3)
+      `, [premiumToken, 'active', now]);
       
-      if (subscription) {
+      if (subscriptionResult.rows.length > 0) {
         isPremium = true;
-        user_id = subscription.user_id;
+        user_id = subscriptionResult.rows[0].user_id;
       }
     } else if (userId) {
       // If user is authenticated but no token provided
@@ -390,23 +334,23 @@ app.post('/api/car-reliability', async (req, res) => {
       
       // Check if user has active subscription
       const now = new Date().toISOString();
-      const subscription = db.prepare(`
+      const subscriptionResult = await query(`
         SELECT id FROM subscriptions 
-        WHERE user_id = ? AND status = ? 
-        AND (expires_at IS NULL OR expires_at > ?)
-      `).get(userId, 'active', now);
+        WHERE user_id = $1 AND status = $2 
+        AND (expires_at IS NULL OR expires_at > $3)
+      `, [userId, 'active', now]);
       
-      if (subscription) {
+      if (subscriptionResult.rows.length > 0) {
         isPremium = true;
       }
     }
     
     // Log the search
     if (user_id) {
-      db.prepare(`
+      await query(`
         INSERT INTO searches (user_id, year, make, model, mileage) 
-        VALUES (?, ?, ?, ?, ?)
-      `).run(user_id, year, make, model, mileage);
+        VALUES ($1, $2, $3, $4, $5)
+      `, [user_id, year, make, model, mileage]);
     }
 
     // Construct prompt for ChatGPT
@@ -580,22 +524,48 @@ app.get('/api', (req, res) => {
 });
 
 // Get user's search history
-app.get('/api/user/searches', authenticateToken, (req, res) => {
+app.get('/api/user/searches', authenticateToken, async (req, res) => {
   try {
     // Get user's search history
-    const searches = db.prepare(`
+    const searchesResult = await query(`
       SELECT * FROM searches 
-      WHERE user_id = ? 
+      WHERE user_id = $1 
       ORDER BY created_at DESC 
       LIMIT 10
-    `).all(req.user.id);
+    `, [req.user.id]);
     
-    res.status(200).json(searches);
+    res.status(200).json(searchesResult.rows);
   } catch (error) {
     console.error('Search history error:', error);
     res.status(500).json({ error: 'Failed to fetch search history' });
   }
 });
+
+// Stripe endpoints (if needed)
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    const { priceId } = req.body;
+    
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId || process.env.STRIPE_PRICE_ID,
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL || 'http://localhost:8080'}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:8080'}/payment-cancel`,
+    });
+    
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Stripe session error:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
 // For local development
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
@@ -603,38 +573,6 @@ if (process.env.NODE_ENV !== 'production') {
     console.log(`Server running on port ${PORT}`);
   });
 }
-
-
-//////debug
-// Get all users - Protected admin endpoint
-app.get('/api/users', (req, res) => {
-  try {
-    // Check if user has admin privileges (you might want to add an admin field to your users table)
-    // For now, we'll implement a simple check - you can enhance this with proper role-based access
-    const isAdmin = true; // Replace with actual admin check in production
-    
-    if (!isAdmin) {
-      return res.status(403).json({ error: 'Insufficient permissions to access user data' });
-    }
-    
-    // Retrieve all users with limited fields for security
-    const users = db.prepare(`
-      SELECT id, email, created_at, updated_at FROM users
-      ORDER BY id ASC
-    `).all();
-    
-    // Count total users
-    const userCount = users.length;
-    
-    res.status(200).json({
-      count: userCount,
-      users: users
-    });
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ error: 'Failed to retrieve users' });
-  }
-});
 
 // Export the Express app for Vercel
 module.exports = app;
