@@ -8,6 +8,8 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+const os = require('os');
 
 // Load environment variables
 dotenv.config();
@@ -30,9 +32,22 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-// SQLite Configuration
-const dbPath = path.join(__dirname, 'car_reliability.db');
+// SQLite Configuration - Updated for Vercel compatibility
+// Use /tmp directory for database file on Vercel or other serverless environments
+// On local development, we'll use the project directory
+const dbDirectory = process.env.NODE_ENV === 'production' ? '/tmp' : __dirname;
+const dbPath = path.join(dbDirectory, 'car_reliability.db');
+
+// Ensure the directory exists (not needed for /tmp but good practice)
+if (!fs.existsSync(dbDirectory)) {
+  fs.mkdirSync(dbDirectory, { recursive: true });
+}
+
+// Initialize database connection
 const db = sqlite3(dbPath, { verbose: console.log });
+
+// Log the database location
+console.log(`Using SQLite database at: ${dbPath}`);
 
 // Initialize the database tables if they don't exist
 function initializeDatabase() {
