@@ -113,7 +113,7 @@ export default {
             if (!authStore.isLoggedIn.value) return;
 
             try {
-                const response = await axios.get('/api/user/searches', {
+                const response = await axios.get('/user/searches', {
                     headers: {
                         'Authorization': `Bearer ${authStore.token.value}`
                     }
