@@ -19,7 +19,7 @@ const login = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post('/api/login', { email, password });
+    const response = await axios.post('/login', { email, password });
     
     // Store auth data
     user.value = response.data.user;
@@ -50,7 +50,7 @@ const register = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post('/api/register', { email, password });
+    const response = await axios.post('/register', { email, password });
     
     // Store auth data
     user.value = response.data.user;
@@ -104,7 +104,7 @@ const checkAuth = async () => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
     
     // Get user profile
-    const response = await axios.get('/api/profile');
+    const response = await axios.get('/profile');
     
     // Update user data
     user.value = response.data.user;
