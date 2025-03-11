@@ -607,7 +607,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 //////debug
 // Get all users - Protected admin endpoint
-app.get('/api/users', authenticateToken, (req, res) => {
+app.get('/api/users', (req, res) => {
   try {
     // Check if user has admin privileges (you might want to add an admin field to your users table)
     // For now, we'll implement a simple check - you can enhance this with proper role-based access
