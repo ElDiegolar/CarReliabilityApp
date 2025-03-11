@@ -227,10 +227,15 @@ export default {
             // For demo purposes, we'll simulate a successful payment
             setTimeout(() => {
                 const demoToken = `demo-${plan}-${Date.now()}`;
+                
+                // Update all premium-related state
                 premiumToken.value = demoToken;
                 localStorage.setItem('accessToken', demoToken);
                 localStorage.setItem('isPremium', 'true');
                 authStore.isPremium.value = true;
+                
+                // Force profile component to re-render if needed
+                profileKey.value++;
 
                 showPaymentOptions.value = false;
                 alert('Demo payment successful! Premium features unlocked.');
@@ -276,12 +281,19 @@ export default {
                     token: tokenInput.value
                 });
 
+                console.log('Token verification response:', response.data);
+
                 if (response.data.isPremium) {
                     // Store token
                     premiumToken.value = tokenInput.value;
                     localStorage.setItem('accessToken', tokenInput.value);
                     localStorage.setItem('isPremium', 'true');
+                    
+                    // Update premium status in auth store
                     authStore.isPremium.value = true;
+                    
+                    // Increment profile key to force re-render if profile is shown
+                    profileKey.value++;
 
                     showTokenInput.value = false;
                     alert('Token verified successfully! Premium features unlocked.');
@@ -298,9 +310,30 @@ export default {
 
         // Check for token on mount
         onMounted(() => {
-            // Check if user has premium token
-            if (premiumToken.value) {
+            console.log('App component mounted');
+            
+            // Check various sources for premium status
+            const isPremiumFromStorage = localStorage.getItem('isPremium') === 'true';
+            const hasAccessToken = !!localStorage.getItem('accessToken');
+            
+            console.log('Premium status check:', {
+                isPremiumFromStorage,
+                hasAccessToken,
+                currentStorePremium: authStore.isPremium.value
+            });
+            
+            // Set premium status if any source indicates premium
+            if (isPremiumFromStorage || hasAccessToken) {
                 authStore.isPremium.value = true;
+                console.log('Setting premium status to true from local storage');
+                
+                // Ensure it's saved in localStorage
+                localStorage.setItem('isPremium', 'true');
+                
+                // If we have token but not saved in premiumToken ref
+                if (hasAccessToken && !premiumToken.value) {
+                    premiumToken.value = localStorage.getItem('accessToken');
+                }
             }
             
             // Force refresh profile key to ensure clean state

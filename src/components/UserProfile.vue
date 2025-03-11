@@ -23,7 +23,7 @@
             <div>
                 <h3 class="text-lg font-medium mb-2">Subscription Status</h3>
                 <div class="bg-gray-50 p-4 rounded-md">
-                    <div v-if="isPremium" class="flex items-center">
+                    <div v-if="userPremiumStatus" class="flex items-center">
                         <div class="rounded-full bg-green-100 p-1 mr-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20"
                                 fill="currentColor">
@@ -45,6 +45,14 @@
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <!-- Debug Status (Remove in production) -->
+            <div class="bg-gray-100 p-3 text-sm rounded-md border border-gray-300">
+                <p>Debug Info (Remove in production):</p>
+                <p>authStore.isPremium: {{ authStore.isPremium }}</p>
+                <p>localStorage.isPremium: {{ localStorage.getItem('isPremium') === 'true' }}</p>
+                <p>userPremiumStatus: {{ userPremiumStatus }}</p>
             </div>
 
             <!-- Search History -->
@@ -103,7 +111,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, reactive } from 'vue';
 import axios from 'axios';
 import authStore from '../store/auth';
 
@@ -115,8 +123,21 @@ export default {
         const userDetails = ref(null);
         const searches = ref([]);
         const searchesLoading = ref(true);
-        const isPremium = computed(() => authStore.isPremium.value);
         const baseApiUrl = process.env.VUE_APP_API_BASE_URL || 'https://car-reliability-app.vercel.app';
+        
+        // Get localStorage directly for debugging
+        const localStorage = window.localStorage;
+        
+        // Computed property for premium status that checks multiple sources
+        const userPremiumStatus = computed(() => {
+            // Check multiple sources to ensure we catch the premium status
+            return (
+                authStore.isPremium.value === true || 
+                localStorage.getItem('isPremium') === 'true' ||
+                (userDetails.value && userDetails.value.subscription && 
+                 userDetails.value.subscription.status === 'active')
+            );
+        });
 
         // Format date for display
         const formatDate = (dateString) => {
@@ -151,16 +172,23 @@ export default {
                     }
                 });
 
+                console.log('Profile API response:', response.data);
+
                 if (response.data && response.data.user) {
                     userDetails.value = response.data.user;
                     
                     // Update auth store with the latest data
                     authStore.user.value = response.data.user;
-                    authStore.isPremium.value = response.data.isPremium;
+                    
+                    // Very important: update the premium status
+                    if (response.data.isPremium) {
+                        authStore.isPremium.value = true;
+                        localStorage.setItem('isPremium', 'true');
+                        console.log('Setting premium status to true from API');
+                    }
                     
                     // Update localStorage
                     localStorage.setItem('user', JSON.stringify(response.data.user));
-                    localStorage.setItem('isPremium', String(response.data.isPremium));
                 } else {
                     // Fallback to stored user data
                     userDetails.value = authStore.user.value;
@@ -186,6 +214,8 @@ export default {
                     }
                 });
 
+                console.log('Search history API response:', response.data);
+
                 if (response.data && Array.isArray(response.data)) {
                     searches.value = response.data;
                 }
@@ -197,6 +227,14 @@ export default {
         };
 
         onMounted(() => {
+            console.log('UserProfile mounted');
+            console.log('Current auth store state:', {
+                user: authStore.user.value,
+                isLoggedIn: authStore.isLoggedIn.value,
+                isPremium: authStore.isPremium.value
+            });
+            console.log('localStorage isPremium:', localStorage.getItem('isPremium'));
+            
             // Initialize with data from auth store
             userDetails.value = authStore.user.value;
             
@@ -209,9 +247,11 @@ export default {
             userDetails,
             searches,
             searchesLoading,
-            isPremium,
+            userPremiumStatus,
             formatDate,
-            handleLogout
+            handleLogout,
+            authStore,
+            localStorage // For debugging only, remove in production
         };
     }
 };

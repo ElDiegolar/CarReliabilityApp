@@ -2,10 +2,24 @@
 import { ref, computed } from 'vue';
 import axios from 'axios';
 
+// Define API base URL
+const apiBaseUrl = process.env.VUE_APP_API_BASE_URL || 'https://car-reliability-app.vercel.app';
+
 // Create a reactive state with proper parsing of localStorage data
 const user = ref(null);
 const token = ref(localStorage.getItem('token') || null);
-const isPremium = ref(localStorage.getItem('isPremium') === 'true');
+
+// Check multiple sources for premium status at initialization
+const isPremiumFromStorage = localStorage.getItem('isPremium') === 'true';
+const hasAccessToken = !!localStorage.getItem('accessToken');
+const isPremium = ref(isPremiumFromStorage || hasAccessToken);
+
+// If we detect premium status from any source, synchronize it
+if (isPremium.value) {
+  localStorage.setItem('isPremium', 'true');
+  console.log('Initial premium status set to true');
+}
+
 const loading = ref(false);
 const error = ref(null);
 
@@ -21,8 +35,33 @@ try {
   localStorage.removeItem('user');
 }
 
-// Define API base URL
-const apiBaseUrl = process.env.VUE_APP_API_BASE_URL || 'https://car-reliability-app.vercel.app';
+// Add a new synchronize function to check all sources of premium status
+const synchronizePremiumStatus = () => {
+  const sources = {
+    isPremiumValue: isPremium.value,
+    isPremiumFromStorage: localStorage.getItem('isPremium') === 'true',
+    hasAccessToken: !!localStorage.getItem('accessToken'),
+    userHasActiveSubscription: user.value && 
+                              user.value.subscription && 
+                              user.value.subscription.status === 'active'
+  };
+  
+  console.log('Synchronizing premium status from sources:', sources);
+  
+  // If any source indicates premium, set all to premium
+  const shouldBePremium = Object.values(sources).some(source => source === true);
+  
+  if (shouldBePremium) {
+    isPremium.value = true;
+    localStorage.setItem('isPremium', 'true');
+    console.log('Premium status synchronized to true');
+  }
+  
+  return shouldBePremium;
+};
+
+// Call this after initialization
+synchronizePremiumStatus();
 
 // Computed properties
 const isLoggedIn = computed(() => !!token.value);
@@ -33,7 +72,7 @@ const login = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post(`${apiBaseUrl}/login`, { 
+    const response = await axios.post(`${apiBaseUrl}/api/login`, { 
       email, 
       password 
     });
@@ -51,6 +90,9 @@ const login = async (email, password) => {
     // Set auth header for future requests
     axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
     
+    // Synchronize premium status
+    synchronizePremiumStatus();
+    
     return response.data;
   } catch (err) {
     console.error('Login error:', err);
@@ -67,7 +109,7 @@ const register = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post(`${apiBaseUrl}/register`, { 
+    const response = await axios.post(`${apiBaseUrl}/api/register`, { 
       email, 
       password 
     });
@@ -125,7 +167,7 @@ const checkAuth = async () => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
     
     // Get user profile
-    const response = await axios.get(`${apiBaseUrl}/profile`);
+    const response = await axios.get(`${apiBaseUrl}/api/profile`);
     
     // Update user data
     user.value = response.data.user;
@@ -135,6 +177,9 @@ const checkAuth = async () => {
     localStorage.setItem('user', JSON.stringify(response.data.user));
     localStorage.setItem('isPremium', String(response.data.isPremium));
     
+    // Synchronize premium status across all sources
+    synchronizePremiumStatus();
+    
     return true;
   } catch (err) {
     console.error('Auth check failed:', err);
@@ -142,6 +187,9 @@ const checkAuth = async () => {
     // If token is invalid, logout
     if (err.response && (err.response.status === 401 || err.response.status === 403)) {
       logout();
+    } else {
+      // Still check if we should be premium from other sources
+      synchronizePremiumStatus();
     }
     
     return false;
@@ -152,6 +200,12 @@ const checkAuth = async () => {
 const updatePremiumStatus = (status) => {
   isPremium.value = status;
   localStorage.setItem('isPremium', String(status));
+  console.log('Premium status explicitly set to:', status);
+  
+  if (status) {
+    // If setting to premium, make sure we synchronize
+    synchronizePremiumStatus();
+  }
 };
 
 // Initialize: check auth on page load if token exists
@@ -170,5 +224,6 @@ export default {
   register,
   logout,
   checkAuth,
-  updatePremiumStatus
+  updatePremiumStatus,
+  synchronizePremiumStatus
 };
