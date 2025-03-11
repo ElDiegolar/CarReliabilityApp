@@ -9,13 +9,13 @@
             </button>
         </div>
 
-        <div v-if="authStore.user" class="space-y-6">
+        <div v-if="userDetails" class="space-y-6">
             <!-- User Details -->
             <div>
                 <h3 class="text-lg font-medium mb-2">User Information</h3>
                 <div class="bg-gray-50 p-4 rounded-md">
-                    <p class="mb-1"><span class="font-medium">Email:</span> {{ authStore.user.email }}</p>
-                    <p><span class="font-medium">Member since:</span> {{ formatDate(authStore.user.created_at) }}</p>
+                    <p class="mb-1"><span class="font-medium">Email:</span> {{ userDetails.email }}</p>
+                    <p><span class="font-medium">Member since:</span> {{ formatDate(userDetails.created_at) }}</p>
                 </div>
             </div>
 
@@ -23,7 +23,7 @@
             <div>
                 <h3 class="text-lg font-medium mb-2">Subscription Status</h3>
                 <div class="bg-gray-50 p-4 rounded-md">
-                    <div v-if="authStore.isPremium" class="flex items-center">
+                    <div v-if="isPremium" class="flex items-center">
                         <div class="rounded-full bg-green-100 p-1 mr-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" viewBox="0 0 20 20"
                                 fill="currentColor">
@@ -79,12 +79,31 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- No Search History Message -->
+            <div v-else-if="!searchesLoading" class="bg-gray-50 p-4 rounded-md text-center">
+                <p class="text-gray-600">No search history available</p>
+            </div>
+            
+            <!-- Loading Search History -->
+            <div v-else class="bg-gray-50 p-4 rounded-md text-center">
+                <p class="text-gray-600">Loading search history...</p>
+            </div>
+        </div>
+        
+        <!-- Loading User Data -->
+        <div v-else class="py-8 text-center">
+            <svg class="animate-spin h-10 w-10 mx-auto text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-gray-600">Loading user profile...</p>
         </div>
     </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import authStore from '../store/auth';
 
@@ -93,13 +112,22 @@ export default {
     emits: ['logout', 'upgrade'],
 
     setup(props, { emit }) {
+        const userDetails = ref(null);
         const searches = ref([]);
+        const searchesLoading = ref(true);
+        const isPremium = computed(() => authStore.isPremium.value);
+        const baseApiUrl = process.env.VUE_APP_API_BASE_URL || 'https://car-reliability-app.vercel.app';
 
         // Format date for display
         const formatDate = (dateString) => {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleDateString();
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString();
+            } catch (e) {
+                console.error('Error formatting date:', e);
+                return 'N/A';
+            }
         };
 
         // Logout handler
@@ -108,30 +136,80 @@ export default {
             emit('logout');
         };
 
-        // Fetch user's search history
-        const fetchSearchHistory = async () => {
-            if (!authStore.isLoggedIn.value) return;
+        // Fetch user profile data
+        const fetchUserProfile = async () => {
+            if (!authStore.isLoggedIn.value || !authStore.token.value) {
+                // If not logged in, use local storage data
+                userDetails.value = authStore.user.value;
+                return;
+            }
 
             try {
-                const response = await axios.get('/user/searches', {
+                const response = await axios.get(`${baseApiUrl}/api/profile`, {
                     headers: {
                         'Authorization': `Bearer ${authStore.token.value}`
                     }
                 });
 
-                searches.value = response.data || [];
+                if (response.data && response.data.user) {
+                    userDetails.value = response.data.user;
+                    
+                    // Update auth store with the latest data
+                    authStore.user.value = response.data.user;
+                    authStore.isPremium.value = response.data.isPremium;
+                    
+                    // Update localStorage
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    localStorage.setItem('isPremium', String(response.data.isPremium));
+                } else {
+                    // Fallback to stored user data
+                    userDetails.value = authStore.user.value;
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+                // Fallback to stored user data
+                userDetails.value = authStore.user.value;
+            }
+        };
+
+        // Fetch user's search history
+        const fetchSearchHistory = async () => {
+            if (!authStore.isLoggedIn.value || !authStore.token.value) {
+                searchesLoading.value = false;
+                return;
+            }
+
+            try {
+                const response = await axios.get(`${baseApiUrl}/api/user/searches`, {
+                    headers: {
+                        'Authorization': `Bearer ${authStore.token.value}`
+                    }
+                });
+
+                if (response.data && Array.isArray(response.data)) {
+                    searches.value = response.data;
+                }
             } catch (error) {
                 console.error('Error fetching search history:', error);
+            } finally {
+                searchesLoading.value = false;
             }
         };
 
         onMounted(() => {
+            // Initialize with data from auth store
+            userDetails.value = authStore.user.value;
+            
+            // Fetch the latest data from the server
+            fetchUserProfile();
             fetchSearchHistory();
         });
 
         return {
-            authStore,
+            userDetails,
             searches,
+            searchesLoading,
+            isPremium,
             formatDate,
             handleLogout
         };

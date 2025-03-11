@@ -33,7 +33,7 @@
             <!-- Profile Modal -->
             <div v-if="showProfile"
                 class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-                <div class="max-w-2xl w-full">
+                <div class="max-w-2xl w-full mx-4">
                     <div class="bg-white rounded-lg shadow-xl p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-2xl font-semibold">My Profile</h2>
@@ -45,8 +45,11 @@
                                 </svg>
                             </button>
                         </div>
-                        <UserProfile @logout="showProfile = false"
-                            @upgrade="showProfile = false; showPaymentOptions = true" />
+                        <UserProfile 
+                            @logout="handleProfileLogout" 
+                            @upgrade="showProfile = false; showPaymentOptions = true" 
+                            :key="profileKey" 
+                        />
                     </div>
                 </div>
             </div>
@@ -199,6 +202,7 @@ export default {
         const showAuth = ref(false);
         const authMode = ref('login');
         const showProfile = ref(false);
+        const profileKey = ref(0); // Used to force re-render the profile component
 
         // Payment state
         const showPaymentOptions = ref(false);
@@ -211,6 +215,8 @@ export default {
         // Handle successful login/registration
         const handleAuthSuccess = (userData) => {
             showAuth.value = false;
+            // Increment profile key to force re-render if profile is shown
+            profileKey.value++;
         };
 
         // Handle payment selection
@@ -231,8 +237,11 @@ export default {
             }, 1500);
         };
 
+        // Handle logout from main navigation
         const handleLogout = () => {
             console.log("App received logout event");
+            authStore.logout();
+            
             // Show the login form
             showAuth.value = true;
             authMode.value = 'login';
@@ -241,9 +250,17 @@ export default {
             showProfile.value = false;
             showPaymentOptions.value = false;
             showTokenInput.value = false;
+            
             // Force page refresh to clear UI state
             window.location.reload();
         };
+
+        // Handle logout from profile page specifically
+        const handleProfileLogout = () => {
+            showProfile.value = false;
+            handleLogout();
+        };
+        
         // Verify token
         const verifyToken = async () => {
             if (!tokenInput.value) return;
@@ -252,7 +269,10 @@ export default {
             tokenError.value = '';
 
             try {
-                const response = await axios.post('/api/verify-token', {
+                // Get API base URL
+                const apiBaseUrl = process.env.VUE_APP_API_BASE_URL || 'https://car-reliability-app.vercel.app';
+                
+                const response = await axios.post(`${apiBaseUrl}/api/verify-token`, {
                     token: tokenInput.value
                 });
 
@@ -282,6 +302,9 @@ export default {
             if (premiumToken.value) {
                 authStore.isPremium.value = true;
             }
+            
+            // Force refresh profile key to ensure clean state
+            profileKey.value = Date.now();
         });
 
         return {
@@ -289,6 +312,7 @@ export default {
             showAuth,
             authMode,
             showProfile,
+            profileKey,
             showPaymentOptions,
             showTokenInput,
             tokenInput,
@@ -297,6 +321,8 @@ export default {
             premiumToken,
             handleAuthSuccess,
             handlePayment,
+            handleLogout,
+            handleProfileLogout,
             verifyToken
         };
     }

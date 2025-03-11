@@ -2,15 +2,29 @@
 import { ref, computed } from 'vue';
 import axios from 'axios';
 
-// Create a reactive state
-const user = ref(JSON.parse(localStorage.getItem('user')) || null);
+// Create a reactive state with proper parsing of localStorage data
+const user = ref(null);
 const token = ref(localStorage.getItem('token') || null);
 const isPremium = ref(localStorage.getItem('isPremium') === 'true');
 const loading = ref(false);
 const error = ref(null);
 
-// Computed properties
+// Try to parse user from localStorage
+try {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    user.value = JSON.parse(storedUser);
+  }
+} catch (e) {
+  console.error('Error parsing user from localStorage:', e);
+  // Clear potentially corrupted data
+  localStorage.removeItem('user');
+}
 
+// Define API base URL
+const apiBaseUrl = process.env.VUE_APP_API_BASE_URL || 'https://car-reliability-app.vercel.app';
+
+// Computed properties
 const isLoggedIn = computed(() => !!token.value);
 
 // Login function
@@ -19,7 +33,10 @@ const login = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post('/login', { email, password });
+    const response = await axios.post(`${apiBaseUrl}/api/login`, { 
+      email, 
+      password 
+    });
     
     // Store auth data
     user.value = response.data.user;
@@ -50,7 +67,10 @@ const register = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post('/register', { email, password });
+    const response = await axios.post(`${apiBaseUrl}/api/register`, { 
+      email, 
+      password 
+    });
     
     // Store auth data
     user.value = response.data.user;
@@ -88,6 +108,7 @@ const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('isPremium');
   localStorage.removeItem('accessToken');
+  localStorage.removeItem('premiumToken');
   
   // Clear auth header
   delete axios.defaults.headers.common['Authorization'];
@@ -104,11 +125,15 @@ const checkAuth = async () => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
     
     // Get user profile
-    const response = await axios.get('/api/profile');
+    const response = await axios.get(`${apiBaseUrl}/api/profile`);
     
     // Update user data
     user.value = response.data.user;
     isPremium.value = response.data.isPremium;
+    
+    // Update localStorage with fresh data
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    localStorage.setItem('isPremium', String(response.data.isPremium));
     
     return true;
   } catch (err) {
@@ -123,8 +148,16 @@ const checkAuth = async () => {
   }
 };
 
-// Initialize: check auth on page load
-checkAuth();
+// Update premium status (useful when premium token is verified)
+const updatePremiumStatus = (status) => {
+  isPremium.value = status;
+  localStorage.setItem('isPremium', String(status));
+};
+
+// Initialize: check auth on page load if token exists
+if (token.value) {
+  checkAuth().catch(console.error);
+}
 
 export default {
   user,
@@ -136,5 +169,6 @@ export default {
   login,
   register,
   logout,
-  checkAuth
+  checkAuth,
+  updatePremiumStatus
 };
