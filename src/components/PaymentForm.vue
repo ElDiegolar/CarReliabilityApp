@@ -147,7 +147,7 @@
         
         // Create a payment intent
         try {
-          const response = await fetch('/create-payment-intent', {
+          const response = await fetch('/api/create-payment-intent', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ currency: 'usd' })
@@ -240,7 +240,7 @@
         try {
           paymentProcessing.value = true;
           
-          const response = await fetch('/create-checkout-session', {
+          const response = await fetch('/api/create-checkout-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ priceId: process.env.VUE_APP_STRIPE_PRICE_ID })
