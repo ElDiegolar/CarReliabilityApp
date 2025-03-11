@@ -166,7 +166,7 @@ export default {
             }
 
             try {
-                const response = await axios.get(`${baseApiUrl}/api/profile`, {
+                const response = await axios.get(`${baseApiUrl}/profile`, {
                     headers: {
                         'Authorization': `Bearer ${authStore.token.value}`
                     }
@@ -208,7 +208,7 @@ export default {
             }
 
             try {
-                const response = await axios.get(`${baseApiUrl}/api/user/searches`, {
+                const response = await axios.get(`${baseApiUrl}/user/searches`, {
                     headers: {
                         'Authorization': `Bearer ${authStore.token.value}`
                     }

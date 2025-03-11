@@ -167,7 +167,7 @@ const checkAuth = async () => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
     
     // Get user profile
-    const response = await axios.get(`${apiBaseUrl}/api/profile`);
+    const response = await axios.get(`${apiBaseUrl}/profile`);
     
     // Update user data
     user.value = response.data.user;
