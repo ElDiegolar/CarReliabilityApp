@@ -33,7 +33,7 @@ const login = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post(`${apiBaseUrl}/api/login`, { 
+    const response = await axios.post(`${apiBaseUrl}/login`, { 
       email, 
       password 
     });
@@ -67,7 +67,7 @@ const register = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post(`${apiBaseUrl}/api/register`, { 
+    const response = await axios.post(`${apiBaseUrl}/register`, { 
       email, 
       password 
     });
@@ -125,7 +125,7 @@ const checkAuth = async () => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
     
     // Get user profile
-    const response = await axios.get(`${apiBaseUrl}/api/profile`);
+    const response = await axios.get(`${apiBaseUrl}/profile`);
     
     // Update user data
     user.value = response.data.user;
