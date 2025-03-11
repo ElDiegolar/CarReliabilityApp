@@ -72,7 +72,7 @@ const login = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post(`${apiBaseUrl}/api/login`, { 
+    const response = await axios.post(`${apiBaseUrl}/login`, { 
       email, 
       password 
     });
@@ -109,7 +109,7 @@ const register = async (email, password) => {
   error.value = null;
   
   try {
-    const response = await axios.post(`${apiBaseUrl}/api/register`, { 
+    const response = await axios.post(`${apiBaseUrl}/register`, { 
       email, 
       password 
     });
