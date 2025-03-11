@@ -47,9 +47,6 @@
         }
     ],
     "env": {
-        "NODE_ENV": "production",
-        "JWT_SECRET": "@jwt_secret",
-        "OPENAI_API_KEY": "@openai_api_key",
-        "POSTGRES_URL": "@postgres_url"
+        "NODE_ENV": "production"
     }
 }
