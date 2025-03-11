@@ -1,4 +1,4 @@
-<!-- src/components/CarReliabilityApp.vue with Premium Status Fix -->
+<!-- src/components/CarReliabilityApp.vue with User Account Status Update -->
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
 import axios from 'axios';
@@ -10,7 +10,15 @@ export default {
             type: Boolean,
             default: false
         },
+        isBasicUser: {
+            type: Boolean,
+            default: false
+        },
         premiumToken: {
+            type: String,
+            default: ''
+        },
+        userToken: {
             type: String,
             default: ''
         }
@@ -140,9 +148,9 @@ export default {
             return 'bg-red-500';
         });
 
-        // Check if we should show upgrade prompt
+        // Check if we should show upgrade prompt - only for basic users who aren't premium
         const showUpgradePrompt = computed(() => {
-            return reliability.value && !reliability.value.isPremium && !props.isPremiumUser;
+            return reliability.value && !reliability.value.isPremium && !props.isPremiumUser && props.isBasicUser;
         });
 
         // Watchers to reset dependent fields
@@ -157,9 +165,13 @@ export default {
             mileage.value = '';
         });
 
-        // Debug premium status on mount and when it changes
+        // Debug user status on mount and when it changes
         watch(() => props.isPremiumUser, (newValue) => {
             console.log('isPremiumUser prop changed:', newValue);
+        });
+
+        watch(() => props.isBasicUser, (newValue) => {
+            console.log('isBasicUser prop changed:', newValue);
         });
 
         // Methods
@@ -170,7 +182,7 @@ export default {
             searchPerformed.value = true;
 
             try {
-                // Include premium token if available
+                // Prepare the request body
                 const requestBody = {
                     year: year.value,
                     make: make.value,
@@ -178,10 +190,14 @@ export default {
                     mileage: mileage.value || 'Not specified'
                 };
 
-                // Add token if the user is premium
+                // Add relevant tokens based on user status
                 if (props.isPremiumUser && props.premiumToken) {
                     requestBody.premiumToken = props.premiumToken;
                     console.log('Using premium token:', props.premiumToken);
+                } else if (props.isBasicUser && props.userToken) {
+                    // Add user token for basic users - allows tracking searches to user account
+                    requestBody.userToken = props.userToken;
+                    console.log('Using basic user token:', props.userToken);
                 }
 
                 console.log('Sending request:', requestBody);
@@ -232,7 +248,9 @@ export default {
         onMounted(() => {
             console.log('CarReliabilityApp mounted');
             console.log('isPremiumUser:', props.isPremiumUser);
+            console.log('isBasicUser:', props.isBasicUser);
             console.log('premiumToken:', props.premiumToken);
+            console.log('userToken:', props.userToken);
             console.log('localStorage isPremium:', localStorage.getItem('isPremium'));
         });
 
@@ -272,6 +290,7 @@ export default {
         <div class="bg-gray-100 border border-gray-300 rounded-md p-3 mb-4 text-sm">
             <p>Debug Info:</p>
             <p>isPremiumUser prop: {{ isPremiumUser }}</p>
+            <p>isBasicUser prop: {{ isBasicUser }}</p>
             <p>effectivePremiumStatus: {{ effectivePremiumStatus }}</p>
             <p v-if="reliability">reliability.isPremium: {{ reliability.isPremium }}</p>
         </div>
@@ -357,7 +376,7 @@ export default {
             </button>
         </div>
 
-        <!-- Premium Upgrade Banner (shown when results come back and user isn't premium) -->
+        <!-- Premium Upgrade Banner (shown when results come back and user is basic but not premium) -->
         <div v-if="showUpgradePrompt" class="bg-blue-50 border border-blue-200 rounded-lg shadow-md p-6 mb-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-4 md:mb-0">
@@ -381,6 +400,13 @@ export default {
             <div v-if="effectivePremiumStatus" class="mb-6">
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
                     Premium Report
+                </span>
+            </div>
+            
+            <!-- Basic Account Badge -->
+            <div v-else-if="isBasicUser" class="mb-6">
+                <span class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
+                    Basic Report
                 </span>
             </div>
 
@@ -445,8 +471,8 @@ export default {
                     </table>
                 </div>
             </div>
-            <!-- Premium Upgrade Prompt (inline) -->
-            <div v-else-if="!effectivePremiumStatus" class="w-full mb-6">
+            <!-- Premium Upgrade Prompt (inline) - Only show for basic users -->
+            <div v-else-if="isBasicUser && !effectivePremiumStatus" class="w-full mb-6">
                 <div class="border border-blue-200 rounded-md p-4 bg-blue-50">
                     <h3 class="text-lg font-medium mb-2 flex items-center text-blue-800">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
@@ -482,13 +508,16 @@ export default {
                 <div v-if="effectivePremiumStatus">
                     <p class="text-gray-700">{{ reliability.aiAnalysis }}</p>
                 </div>
-                <div v-else class="flex flex-col md:flex-row justify-between items-center">
+                <div v-else-if="isBasicUser" class="flex flex-col md:flex-row justify-between items-center">
                     <p class="text-gray-600 mb-3 md:mb-0 md:mr-4">Unlock the full AI-powered analysis with a premium
                         subscription.</p>
                     <button @click="handleUpgradeClick"
                         class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
                         Get Premium Analysis
                     </button>
+                </div>
+                <div v-else>
+                    <p class="text-gray-600">Create an account to access AI-powered analysis and many more features.</p>
                 </div>
             </div>
 
@@ -504,6 +533,3 @@ export default {
             <h3 class="text-xl font-medium text-gray-700 mb-2">No reliability data found</h3>
             <p class="text-gray-500">We couldn't find reliability information for the selected vehicle. Please try a
                 different combination.</p>
-        </div>
-    </div>
-</template>
