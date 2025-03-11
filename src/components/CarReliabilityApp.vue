@@ -1,4 +1,4 @@
-<!-- src/components/CarReliabilityApp.vue (updated with token-based premium features) -->
+<!-- src/components/CarReliabilityApp.vue with Premium Status Fix -->
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
 import axios from 'axios';
@@ -26,6 +26,14 @@ export default {
         const loading = ref(false);
         const reliability = ref(null);
         const searchPerformed = ref(false);
+        
+        // Track effective premium status
+        const effectivePremiumStatus = computed(() => {
+            // User is premium if either:
+            // 1. isPremiumUser prop is true
+            // 2. The reliability data indicates premium status
+            return props.isPremiumUser || (reliability.value && reliability.value.isPremium) || false;
+        });
 
         // Generate years from current year back 30 years
         const currentYear = new Date().getFullYear();
@@ -149,6 +157,11 @@ export default {
             mileage.value = '';
         });
 
+        // Debug premium status on mount and when it changes
+        watch(() => props.isPremiumUser, (newValue) => {
+            console.log('isPremiumUser prop changed:', newValue);
+        });
+
         // Methods
         const getReliabilityData = async () => {
             if (!isFormValid.value) return;
@@ -162,13 +175,16 @@ export default {
                     year: year.value,
                     make: make.value,
                     model: model.value,
-                    mileage: mileage.value
+                    mileage: mileage.value || 'Not specified'
                 };
 
                 // Add token if the user is premium
                 if (props.isPremiumUser && props.premiumToken) {
                     requestBody.premiumToken = props.premiumToken;
+                    console.log('Using premium token:', props.premiumToken);
                 }
+
+                console.log('Sending request:', requestBody);
 
                 const response = await axios.post(`${apiBaseUrl}/api/car-reliability`, requestBody, {
                     headers: {
@@ -213,6 +229,13 @@ export default {
             emit('show-premium');
         };
 
+        onMounted(() => {
+            console.log('CarReliabilityApp mounted');
+            console.log('isPremiumUser:', props.isPremiumUser);
+            console.log('premiumToken:', props.premiumToken);
+            console.log('localStorage isPremium:', localStorage.getItem('isPremium'));
+        });
+
         return {
             year,
             make,
@@ -232,7 +255,7 @@ export default {
             formatCategory,
             getCategoryColorClass,
             handleUpgradeClick,
-            isPremiumUser: props.isPremiumUser
+            effectivePremiumStatus
         };
     },
 
@@ -245,6 +268,14 @@ export default {
 
 <template>
     <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Debug Banner - Remove in production -->
+        <div class="bg-gray-100 border border-gray-300 rounded-md p-3 mb-4 text-sm">
+            <p>Debug Info:</p>
+            <p>isPremiumUser prop: {{ isPremiumUser }}</p>
+            <p>effectivePremiumStatus: {{ effectivePremiumStatus }}</p>
+            <p v-if="reliability">reliability.isPremium: {{ reliability.isPremium }}</p>
+        </div>
+
         <!-- Header -->
         <header class="mb-8">
             <h1 class="text-4xl font-bold text-blue-800">Vehicle Reliability Checker</h1>
@@ -344,10 +375,10 @@ export default {
         <!-- Results Section -->
         <div v-if="reliability" class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-2xl font-semibold mb-4">{{ year }} {{ make }} {{ model }} Reliability</h2>
-            <p class="text-gray-600 mb-4">Mileage: {{ mileage }}</p>
+            <p class="text-gray-600 mb-4">Mileage: {{ mileage || 'Not specified' }}</p>
 
             <!-- Premium Badge -->
-            <div v-if="isPremiumUser || reliability.isPremium" class="mb-6">
+            <div v-if="effectivePremiumStatus" class="mb-6">
                 <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
                     Premium Report
                 </span>
@@ -389,7 +420,7 @@ export default {
             </div>
 
             <!-- Common Issues (Premium Feature) -->
-            <div v-if="(isPremiumUser || reliability.isPremium) && reliability.commonIssues && reliability.commonIssues.length > 0"
+            <div v-if="effectivePremiumStatus && reliability.commonIssues && reliability.commonIssues.length > 0"
                 class="w-full mb-6">
                 <h3 class="text-lg font-medium mb-3">Common Issues</h3>
                 <div class="overflow-x-auto">
@@ -415,7 +446,7 @@ export default {
                 </div>
             </div>
             <!-- Premium Upgrade Prompt (inline) -->
-            <div v-else-if="!isPremiumUser && !reliability.isPremium" class="w-full mb-6">
+            <div v-else-if="!effectivePremiumStatus" class="w-full mb-6">
                 <div class="border border-blue-200 rounded-md p-4 bg-blue-50">
                     <h3 class="text-lg font-medium mb-2 flex items-center text-blue-800">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
@@ -448,7 +479,7 @@ export default {
                     </svg>
                     AI Analysis
                 </h3>
-                <div v-if="isPremiumUser || reliability.isPremium">
+                <div v-if="effectivePremiumStatus">
                     <p class="text-gray-700">{{ reliability.aiAnalysis }}</p>
                 </div>
                 <div v-else class="flex flex-col md:flex-row justify-between items-center">
