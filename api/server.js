@@ -243,7 +243,7 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
   }
 });
 
-// Handle successful payment verification and token generation
+// Verify payment and set up subscription
 app.post('/api/payment/verify', authenticateToken, async (req, res) => {
   const { sessionId, plan } = req.body;
   
@@ -252,10 +252,20 @@ app.post('/api/payment/verify', authenticateToken, async (req, res) => {
   }
   
   try {
+    // In production, verify the session with Stripe
+    // For example:
+
+    // const session = await stripe.checkout.sessions.retrieve(sessionId);
+    // if (session.payment_status !== 'paid') {
+    //   return res.status(400).json({ error: 'Payment not completed' });
+    // }
+    
+    // For demo purposes, we'll trust the session ID
+    
     // Generate a unique access token
     const accessToken = uuidv4();
     
-    // Find existing subscription
+    // Check for existing subscription
     const existingSubscriptionResult = await query(
       'SELECT * FROM subscriptions WHERE user_id = $1 AND plan = $2',
       [req.user.id, plan]
@@ -263,18 +273,18 @@ app.post('/api/payment/verify', authenticateToken, async (req, res) => {
     
     if (existingSubscriptionResult.rows.length > 0) {
       // Update existing subscription
-      const existingSubscription = existingSubscriptionResult.rows[0];
+      const existingSub = existingSubscriptionResult.rows[0];
       await query(`
         UPDATE subscriptions 
         SET status = $1, stripe_session_id = $2, access_token = $3, updated_at = CURRENT_TIMESTAMP 
         WHERE id = $4
-      `, ['active', sessionId, accessToken, existingSubscription.id]);
+      `, ['active', sessionId, accessToken, existingSub.id]);
     } else {
       // Create new subscription
       await query(`
         INSERT INTO subscriptions 
-        (user_id, plan, status, stripe_session_id, access_token) 
-        VALUES ($1, $2, $3, $4, $5)
+        (user_id, plan, status, stripe_session_id, access_token, created_at, updated_at) 
+        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       `, [req.user.id, plan, 'active', sessionId, accessToken]);
     }
     
@@ -615,11 +625,10 @@ app.get('/api/user/searches', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch search history' });
   }
 });
-
-// Stripe endpoints (if needed)
+// Update your Stripe checkout session creation
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
-    const { priceId } = req.body;
+    const { priceId, plan } = req.body;
     
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -632,6 +641,9 @@ app.post('/api/create-checkout-session', async (req, res) => {
       mode: 'payment',
       success_url: `${process.env.FRONTEND_URL || 'http://localhost:8080'}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:8080'}/payment-cancel`,
+      metadata: {
+        plan: plan || 'premium' // Store the plan in metadata
+      }
     });
     
     res.json({ url: session.url });
@@ -639,6 +651,68 @@ app.post('/api/create-checkout-session', async (req, res) => {
     console.error('Stripe session error:', error);
     res.status(500).json({ error: 'Failed to create checkout session' });
   }
+});
+
+
+// Stripe webhook endpoint
+app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  
+  let event;
+  
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    console.error(`Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+  
+  // Handle the checkout.session.completed event
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    
+    // Extract plan from metadata
+    const plan = session.metadata.plan || 'premium';
+    
+    try {
+      // Look up user by client_reference_id or customer email
+      // This assumes you've set client_reference_id to the user ID when creating the session
+      if (session.client_reference_id) {
+        const userId = session.client_reference_id;
+        
+        // Generate access token
+        const accessToken = uuidv4();
+        
+        // Update or create subscription
+        const existingSubscriptionResult = await query(
+          'SELECT * FROM subscriptions WHERE user_id = $1 AND plan = $2',
+          [userId, plan]
+        );
+        
+        if (existingSubscriptionResult.rows.length > 0) {
+          await query(`
+            UPDATE subscriptions 
+            SET status = $1, stripe_session_id = $2, access_token = $3, updated_at = CURRENT_TIMESTAMP 
+            WHERE id = $4
+          `, ['active', session.id, accessToken, existingSubscriptionResult.rows[0].id]);
+        } else {
+          await query(`
+            INSERT INTO subscriptions 
+            (user_id, plan, status, stripe_session_id, access_token, created_at, updated_at) 
+            VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          `, [userId, plan, 'active', session.id, accessToken]);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing webhook:', error);
+    }
+  }
+  
+  res.status(200).json({received: true});
 });
 
 // For local development

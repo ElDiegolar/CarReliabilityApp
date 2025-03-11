@@ -156,19 +156,52 @@
         </div>
     </div>
 </template>
-
 <script>
+import { ref } from 'vue';
+import axios from 'axios';
+
 export default {
-    name: 'PaymentOptions',
-    props: {
-        basicPaymentLink: {
-            type: String,
-            default: 'https://buy.stripe.com/test_dR616k9Jpbqk3jabIK'
-        },
-        premiumPaymentLink: {
-            type: String,
-            default: 'https://buy.stripe.com/test_7sI6qEg7N6601b2289'
-        }
-    }
-}
+  name: 'PaymentOptions',
+  emits: ['payment-complete'],
+  
+  setup() {
+    const loading = ref(false);
+    const error = ref('');
+    
+    const handlePayment = async (plan) => {
+      loading.value = true;
+      error.value = '';
+      
+      try {
+        // Store selected plan for later verification
+        localStorage.setItem('selectedPlan', plan);
+        
+        // Determine price ID based on plan
+        const priceId = plan === 'premium' 
+          ? 'price_premium_id' 
+          : 'price_basic_id';
+        
+        // Create checkout session
+        const response = await axios.post('/api/create-checkout-session', {
+          priceId,
+          plan
+        });
+        
+        // Redirect to Stripe checkout
+        window.location.href = response.data.url;
+      } catch (err) {
+        console.error('Payment error:', err);
+        error.value = 'Failed to initialize payment. Please try again.';
+        loading.value = false;
+      }
+    };
+    
+    return {
+      loading,
+      error,
+      handlePayment
+    };
+  }
+};
+
 </script>

@@ -78,7 +78,7 @@
                         <h3 class="text-lg font-medium mb-4">Choose a Payment Option</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Basic Plan -->
-                            <div class="border border-gray-200 rounded-lg p-4">
+                            <!-- <div class="border border-gray-200 rounded-lg p-4">
                                 <div class="mb-4">
                                     <h4 class="text-xl font-medium">Basic Plan</h4>
                                     <p class="text-gray-600 mb-2">Access to expanded vehicle data</p>
@@ -88,7 +88,7 @@
                                     class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">
                                     Purchase Basic
                                 </button>
-                            </div>
+                            </div> -->
 
                             <!-- Premium Plan -->
                             <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
@@ -218,30 +218,44 @@ export default {
             // Increment profile key to force re-render if profile is shown
             profileKey.value++;
         };
+// Handle payment selection
+const handlePayment = (plan) => {
+    // Determine the appropriate Stripe payment link based on plan
+    let stripeLink = '';
+    
+    if (plan === 'basic') {
+        stripeLink = 'https://buy.stripe.com/test_9AQg0ibVPaA22icdQR';
+    } else if (plan === 'premium') {
+        stripeLink = 'https://buy.stripe.com/test_9AQg0ibVPaA22icdQR';
+        // Replace with premium-specific link if you have one
+    }
+    
+    // Store the selected plan in localStorage
+    localStorage.setItem('selectedPlan', plan);
+    
+    // If in development mode, enable demo functionality
+    if (process.env.NODE_ENV === 'development' && confirm('Use demo payment instead of Stripe? (Cancel to use real Stripe checkout)')) {
+        // For demo purposes, we'll simulate a successful payment
+        setTimeout(() => {
+            const demoToken = `demo-${plan}-${Date.now()}`;
+            
+            // Update all premium-related state
+            premiumToken.value = demoToken;
+            localStorage.setItem('accessToken', demoToken);
+            localStorage.setItem('isPremium', 'true');
+            authStore.isPremium.value = true;
+            
+            // Force profile component to re-render if needed
+            profileKey.value++;
 
-        // Handle payment selection
-        const handlePayment = (plan) => {
-            // In a real app, this would redirect to Stripe or another payment processor
-            alert(`Selected plan: ${plan}. In a real app, this would redirect to a payment page.`);
-
-            // For demo purposes, we'll simulate a successful payment
-            setTimeout(() => {
-                const demoToken = `demo-${plan}-${Date.now()}`;
-                
-                // Update all premium-related state
-                premiumToken.value = demoToken;
-                localStorage.setItem('accessToken', demoToken);
-                localStorage.setItem('isPremium', 'true');
-                authStore.isPremium.value = true;
-                
-                // Force profile component to re-render if needed
-                profileKey.value++;
-
-                showPaymentOptions.value = false;
-                alert('Demo payment successful! Premium features unlocked.');
-            }, 1500);
-        };
-
+            showPaymentOptions.value = false;
+            alert('Demo payment successful! Premium features unlocked.');
+        }, 1500);
+    } else {
+        // Redirect to Stripe payment page
+        window.location.href = stripeLink;
+    }
+};
         // Handle logout from main navigation
         const handleLogout = () => {
             console.log("App received logout event");
