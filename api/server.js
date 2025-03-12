@@ -136,6 +136,7 @@ app.post('/api/register', async (req, res) => {
     res.status(500).json({ error: 'Registration failed', message: error.message });
   }
 });
+
 // Login
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
@@ -651,7 +652,6 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.status(500).json({ error: 'Failed to create checkout session' });
   }
 });
-
 // Stripe webhook endpoint
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -666,8 +666,20 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 
   // Handle different event types
   switch (event.type) {
+    case 'checkout.session.async_payment_failed':
+      await handleAsyncPaymentFailed(event.data.object);
+      break;
+    
+    case 'checkout.session.async_payment_succeeded':
+      await handleAsyncPaymentSucceeded(event.data.object);
+      break;
+
     case 'checkout.session.completed':
       await handleCheckoutSessionCompleted(event.data.object);
+      break;
+
+    case 'checkout.session.expired':
+      await handleCheckoutSessionExpired(event.data.object);
       break;
 
     default:
@@ -676,6 +688,22 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
 
   res.status(200).json({ received: true });
 });
+
+/**
+ * Handle async payment failed event
+ */
+async function handleAsyncPaymentFailed(session) {
+  console.log("❌ Async Payment Failed:", session);
+  // You can notify the user via email, log the failure, etc.
+}
+
+/**
+ * Handle async payment succeeded event
+ */
+async function handleAsyncPaymentSucceeded(session) {
+  console.log("✅ Async Payment Succeeded:", session);
+  // You might update the database or send a confirmation email
+}
 
 /**
  * Handle checkout session completed event
@@ -691,27 +719,35 @@ async function handleCheckoutSessionCompleted(session) {
       const accessToken = uuidv4();
 
       const existingSubscriptionResult = await query(
-        'SELECT * FROM subscriptions WHERE user_id = $1',
-        [userId]
+        'SELECT * FROM subscriptions WHERE user_id = $1 AND plan = $2',
+        [userId, plan]
       );
 
       if (existingSubscriptionResult.rows.length > 0) {
         await query(`
           UPDATE subscriptions 
-          SET plan = $1, status = $2, stripe_session_id = $3, access_token = $4, updated_at = CURRENT_TIMESTAMP 
-          WHERE id = $5
-        `, [plan, 'active', session.id, accessToken, existingSubscriptionResult.rows[0].id]);
+          SET status = $1, stripe_session_id = $2, access_token = $3, updated_at = CURRENT_TIMESTAMP 
+          WHERE id = $4
+        `, ['active', session.id, accessToken, existingSubscriptionResult.rows[0].id]);
       } else {
         await query(`
           INSERT INTO subscriptions 
-          (user_id, plan, status, stripe_session_id, access_token) 
-          VALUES ($1, $2, $3, $4, $5)
+          (user_id, plan, status, stripe_session_id, access_token, created_at, updated_at) 
+          VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         `, [userId, plan, 'active', session.id, accessToken]);
       }
     }
   } catch (error) {
     console.error('Error processing checkout session completed:', error);
   }
+}
+
+/**
+ * Handle checkout session expired event
+ */
+async function handleCheckoutSessionExpired(session) {
+  console.log("⚠️ Checkout Session Expired:", session);
+  // You may want to notify the user or clean up pending records
 }
 
 // For local development
