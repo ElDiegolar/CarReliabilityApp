@@ -85,7 +85,6 @@ const checkSubscription = async (req, res, next) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 // Register a new user
 app.post('/api/register', async (req, res) => {
   const { email, password } = req.body;
@@ -102,57 +101,41 @@ app.post('/api/register', async (req, res) => {
       return res.status(409).json({ error: 'User already exists' });
     }
     
-    // Start a transaction
-    const client = await sql.begin();
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
     
-    try {
-      // Hash password
-      const hashedPassword = await bcrypt.hash(password, 10);
-      
-      // Create user
-      const userResult = await client.query(
-        'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
-        [email, hashedPassword]
-      );
-      
-      const userId = userResult.rows[0].id;
-      
-      // Create basic subscription for the user
-      await client.query(
-        'INSERT INTO subscriptions (user_id, plan, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)',
-        [userId, 'basic', 'active', new Date(), new Date()]
-      );
-      
-      // Commit the transaction
-      await client.query('COMMIT');
-      
-      // Generate JWT token
-      const token = jwt.sign(
-        { id: userId, email },
-        process.env.JWT_SECRET || 'your-secret-key',
-        { expiresIn: '24h' }
-      );
-      
-      res.status(201).json({
-        message: 'User registered successfully with basic subscription',
-        user: { id: userId, email },
-        subscription: { plan: 'basic', status: 'active' },
-        token
-      });
-    } catch (error) {
-      // Rollback the transaction on error
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      // Release client
-      client.release();
-    }
+    // Create user and get the ID
+    const userResult = await query(
+      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
+      [email, hashedPassword]
+    );
+    
+    const userId = userResult.rows[0].id;
+    
+    // Create basic subscription for the user
+    await query(
+      'INSERT INTO subscriptions (user_id, plan, status) VALUES ($1, $2, $3)',
+      [userId, 'basic', 'active']
+    );
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: userId, email },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+    
+    res.status(201).json({
+      message: 'User registered successfully with basic subscription',
+      user: { id: userId, email },
+      subscription: { plan: 'basic', status: 'active' },
+      token
+    });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Registration failed', message: error.message });
   }
 });
-
 // Login
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
