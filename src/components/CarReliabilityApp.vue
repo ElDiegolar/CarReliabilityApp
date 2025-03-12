@@ -533,3 +533,6 @@ export default {
             <h3 class="text-xl font-medium text-gray-700 mb-2">No reliability data found</h3>
             <p class="text-gray-500">We couldn't find reliability information for the selected vehicle. Please try a
                 different combination.</p>
+        </div>
+    </div>
+</template>
