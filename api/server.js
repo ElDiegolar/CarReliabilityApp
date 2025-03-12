@@ -85,6 +85,7 @@ const checkSubscription = async (req, res, next) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 // Register a new user
 app.post('/api/register', async (req, res) => {
   const { email, password } = req.body;
@@ -698,56 +699,88 @@ async function handleAsyncPaymentFailed(session) {
 }
 
 /**
+ * Handle checkout session expired event
+ */
+async function handleCheckoutSessionExpired(session) {
+  console.log("⚠️ Checkout Session Expired:", session);
+  // You may want to notify the user or clean up pending records
+}
+
+
+/**
  * Handle async payment succeeded event
  */
 async function handleAsyncPaymentSucceeded(session) {
   console.log("✅ Async Payment Succeeded:", session);
-  // You might update the database or send a confirmation email
+
+  try {
+    if (session.client_reference_id) {
+      const userId = session.client_reference_id;
+      const accessToken = uuidv4();
+      
+      // Upgrade subscription to premium
+      const existingSubscriptionResult = await query(
+        'SELECT * FROM subscriptions WHERE user_id = $1',
+        [userId]
+      );
+
+      if (existingSubscriptionResult.rows.length > 0) {
+        await query(`
+          UPDATE subscriptions 
+          SET plan = 'premium', status = 'active', stripe_session_id = $1, access_token = $2, updated_at = CURRENT_TIMESTAMP 
+          WHERE user_id = $3
+        `, [session.id, accessToken, userId]);
+      } else {
+        await query(`
+          INSERT INTO subscriptions 
+          (user_id, plan, status, stripe_session_id, access_token, created_at, updated_at) 
+          VALUES ($1, 'premium', 'active', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `, [userId, session.id, accessToken]);
+      }
+
+      console.log(`✅ User ${userId} upgraded to premium.`);
+    }
+  } catch (error) {
+    console.error('Error processing async payment succeeded:', error);
+  }
 }
 
 /**
- * Handle checkout session completed event
+ * Handle checkout session completed event (one-time payments)
  */
 async function handleCheckoutSessionCompleted(session) {
   console.log("🎉 Checkout Session Completed:", session);
-
-  const plan = session.metadata?.plan || 'premium';
 
   try {
     if (session.client_reference_id) {
       const userId = session.client_reference_id;
       const accessToken = uuidv4();
 
+      // Upgrade subscription to premium
       const existingSubscriptionResult = await query(
-        'SELECT * FROM subscriptions WHERE user_id = $1 AND plan = $2',
-        [userId, plan]
+        'SELECT * FROM subscriptions WHERE user_id = $1',
+        [userId]
       );
 
       if (existingSubscriptionResult.rows.length > 0) {
         await query(`
           UPDATE subscriptions 
-          SET status = $1, stripe_session_id = $2, access_token = $3, updated_at = CURRENT_TIMESTAMP 
-          WHERE id = $4
-        `, ['active', session.id, accessToken, existingSubscriptionResult.rows[0].id]);
+          SET plan = 'premium', status = 'active', stripe_session_id = $1, access_token = $2, updated_at = CURRENT_TIMESTAMP 
+          WHERE user_id = $3
+        `, [session.id, accessToken, userId]);
       } else {
         await query(`
           INSERT INTO subscriptions 
           (user_id, plan, status, stripe_session_id, access_token, created_at, updated_at) 
-          VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-        `, [userId, plan, 'active', session.id, accessToken]);
+          VALUES ($1, 'premium', 'active', $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        `, [userId, session.id, accessToken]);
       }
+
+      console.log(`✅ User ${userId} upgraded to premium.`);
     }
   } catch (error) {
     console.error('Error processing checkout session completed:', error);
   }
-}
-
-/**
- * Handle checkout session expired event
- */
-async function handleCheckoutSessionExpired(session) {
-  console.log("⚠️ Checkout Session Expired:", session);
-  // You may want to notify the user or clean up pending records
 }
 
 // For local development
