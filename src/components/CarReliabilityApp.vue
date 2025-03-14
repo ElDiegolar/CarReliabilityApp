@@ -1,4 +1,3 @@
-<!-- src/components/CarReliabilityApp.vue with User Account Status Update -->
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
 import axios from 'axios';
@@ -34,13 +33,34 @@ export default {
         const loading = ref(false);
         const reliability = ref(null);
         const searchPerformed = ref(false);
-        
+
         // Track effective premium status
         const effectivePremiumStatus = computed(() => {
             // User is premium if either:
             // 1. isPremiumUser prop is true
             // 2. The reliability data indicates premium status
             return props.isPremiumUser || (reliability.value && reliability.value.isPremium) || false;
+        });
+
+        // Track effective basic status
+        const effectiveBasicStatus = computed(() => {
+            // User is basic if:
+            // 1. isBasicUser prop is true AND isPremiumUser is false
+            // 2. The reliability data indicates basic status AND not premium
+            return (props.isBasicUser && !props.isPremiumUser) ||
+                (reliability.value && reliability.value.isBasic && !reliability.value.isPremium) ||
+                false;
+        });
+
+        // Check if we should show upgrade prompt - only for basic users who aren't premium
+        const showUpgradePrompt = computed(() => {
+            // Show upgrade prompt when:
+            // 1. We have reliability data
+            // 2. User is not a premium user (from props or API response)
+            // 3. User is a basic user (from props or API response)
+            return reliability.value &&
+                !effectivePremiumStatus.value &&
+                effectiveBasicStatus.value;
         });
 
         // Generate years from current year back 30 years
@@ -146,11 +166,6 @@ export default {
             if (score >= 80) return 'bg-green-500';
             if (score >= 60) return 'bg-yellow-500';
             return 'bg-red-500';
-        });
-
-        // Check if we should show upgrade prompt - only for basic users who aren't premium
-        const showUpgradePrompt = computed(() => {
-            return reliability.value && !reliability.value.isPremium && !props.isPremiumUser && props.isBasicUser;
         });
 
         // Watchers to reset dependent fields
@@ -273,7 +288,8 @@ export default {
             formatCategory,
             getCategoryColorClass,
             handleUpgradeClick,
-            effectivePremiumStatus
+            effectivePremiumStatus,
+            effectiveBasicStatus
         };
     },
 
@@ -292,7 +308,9 @@ export default {
             <p>isPremiumUser prop: {{ isPremiumUser }}</p>
             <p>isBasicUser prop: {{ isBasicUser }}</p>
             <p>effectivePremiumStatus: {{ effectivePremiumStatus }}</p>
+            <p>effectiveBasicStatus: {{ effectiveBasicStatus }}</p>
             <p v-if="reliability">reliability.isPremium: {{ reliability.isPremium }}</p>
+            <p v-if="reliability">reliability.isBasic: {{ reliability.isBasic }}</p>
         </div>
 
         <!-- Header -->
@@ -402,9 +420,9 @@ export default {
                     Premium Report
                 </span>
             </div>
-            
+
             <!-- Basic Account Badge -->
-            <div v-else-if="isBasicUser" class="mb-6">
+            <div v-else-if="effectiveBasicStatus" class="mb-6">
                 <span class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
                     Basic Report
                 </span>
@@ -472,7 +490,7 @@ export default {
                 </div>
             </div>
             <!-- Premium Upgrade Prompt (inline) - Only show for basic users -->
-            <div v-else-if="isBasicUser && !effectivePremiumStatus" class="w-full mb-6">
+            <div v-else-if="effectiveBasicStatus && !effectivePremiumStatus" class="w-full mb-6">
                 <div class="border border-blue-200 rounded-md p-4 bg-blue-50">
                     <h3 class="text-lg font-medium mb-2 flex items-center text-blue-800">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
@@ -508,7 +526,7 @@ export default {
                 <div v-if="effectivePremiumStatus">
                     <p class="text-gray-700">{{ reliability.aiAnalysis }}</p>
                 </div>
-                <div v-else-if="isBasicUser" class="flex flex-col md:flex-row justify-between items-center">
+                <div v-else-if="effectiveBasicStatus" class="flex flex-col md:flex-row justify-between items-center">
                     <p class="text-gray-600 mb-3 md:mb-0 md:mr-4">Unlock the full AI-powered analysis with a premium
                         subscription.</p>
                     <button @click="handleUpgradeClick"

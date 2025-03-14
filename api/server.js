@@ -323,7 +323,6 @@ app.post('/api/verify-token', async (req, res) => {
     res.status(500).json({ error: 'Token verification failed' });
   }
 });
-
 // API endpoint to get car reliability data
 app.post('/api/car-reliability', async (req, res) => {
   try {
@@ -372,6 +371,9 @@ app.post('/api/car-reliability', async (req, res) => {
           const subscription = subscriptionResult.rows[0];
           isPremium = subscription.plan === 'premium';
           isBasic = subscription.plan === 'basic';
+        } else {
+          // If user has no active subscription, set them as basic by default
+          isBasic = true;
         }
       } catch (err) {
         console.error('Invalid user token:', err);
@@ -456,26 +458,27 @@ app.post('/api/car-reliability', async (req, res) => {
         
         // If not premium, limit the data
         if (!isPremium) {
-          // Provide limited data for free users
+          // Provide limited data for free/basic users
           reliabilityData = {
             overallScore: reliabilityData.overallScore,
             categories: {
               engine: reliabilityData.categories.engine,
               transmission: reliabilityData.categories.transmission,
-              // Limit other categories for free users
+              // Limit other categories for non-premium users
               electricalSystem: null,
               brakes: null,
               suspension: null,
               fuelSystem: null
             },
-            // No common issues for free users
+            // No common issues for non-premium users
             commonIssues: [],
             aiAnalysis: "Upgrade to premium for full analysis",
+            // Set these flags explicitly and consistently
             isPremium: false,
             isBasic: isBasic
           };
         } else {
-          // Add premium flag for paid users
+          // Add premium and basic flags for premium users
           reliabilityData.isPremium = true;
           reliabilityData.isBasic = false;
         }
@@ -534,7 +537,6 @@ app.post('/api/car-reliability', async (req, res) => {
     });
   }
 });
-
 // Get all users - Protected admin endpoint
 app.get('/api/users', async (req, res) => {
   try {
