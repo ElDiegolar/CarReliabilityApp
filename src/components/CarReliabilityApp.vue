@@ -33,7 +33,7 @@ export default {
         const loading = ref(false);
         const reliability = ref(null);
         const searchPerformed = ref(false);
-
+        
         // Track effective premium status
         const effectivePremiumStatus = computed(() => {
             // User is premium if either:
@@ -47,9 +47,9 @@ export default {
             // User is basic if:
             // 1. isBasicUser prop is true AND isPremiumUser is false
             // 2. The reliability data indicates basic status AND not premium
-            return (props.isBasicUser && !props.isPremiumUser) ||
-                (reliability.value && reliability.value.isBasic && !reliability.value.isPremium) ||
-                false;
+            return (props.isBasicUser && !props.isPremiumUser) || 
+                   (reliability.value && reliability.value.isBasic && !reliability.value.isPremium) || 
+                   false;
         });
 
         // Check if we should show upgrade prompt - only for basic users who aren't premium
@@ -58,9 +58,9 @@ export default {
             // 1. We have reliability data
             // 2. User is not a premium user (from props or API response)
             // 3. User is a basic user (from props or API response)
-            return reliability.value &&
-                !effectivePremiumStatus.value &&
-                effectiveBasicStatus.value;
+            return reliability.value && 
+                   !effectivePremiumStatus.value && 
+                   effectiveBasicStatus.value;
         });
 
         // Generate years from current year back 30 years
@@ -420,7 +420,7 @@ export default {
                     Premium Report
                 </span>
             </div>
-
+            
             <!-- Basic Account Badge -->
             <div v-else-if="effectiveBasicStatus" class="mb-6">
                 <span class="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">
