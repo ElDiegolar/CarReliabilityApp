@@ -655,13 +655,14 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.status(500).json({ error: 'Failed to create checkout session' });
   }
 });
+
 // Stripe webhook endpoint
 app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
-
+	const endpointSecret = "whsec_YhRT6Rym35dM5p5b8iqfiph68REuYNGo";
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (err) {
     console.error(`Webhook Error: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
