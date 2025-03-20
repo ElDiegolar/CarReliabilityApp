@@ -245,7 +245,7 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Profile error:', error);
-    res.status(500).json({ error: 'Failed to fetch profile' });
+    res.status(500).json({ error: 'Failed to fetch profile', fool_error:  error});
   }
 });
 
