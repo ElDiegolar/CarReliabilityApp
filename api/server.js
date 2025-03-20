@@ -23,7 +23,14 @@ app.use(cors({
   allowedHeaders: "Content-Type, Authorization"
 }));
 
-app.use(express.json());
+// Special middleware for Stripe webhooks (raw body parsing)
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/webhook') {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 
 // Initialize database tables if they don't exist
 (async () => {
@@ -75,7 +82,7 @@ const checkSubscription = async (req, res, next) => {
     if (!subscription) {
       req.isPremium = false;
     } else {
-      req.isPremium = true;
+      req.isPremium = subscription.plan === 'premium';
       req.subscription = subscription;
     }
     
@@ -199,7 +206,7 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
     const userResult = await query(
-      'SELECT id, email, created_at FROM users WHERE id = $1', 
+      'SELECT id, email, created_at, stripe_customer_id FROM users WHERE id = $1', 
       [req.user.id]
     );
     
@@ -221,11 +228,20 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
     const isPremium = subscription && subscription.plan === 'premium';
     const isBasic = subscription && subscription.plan === 'basic';
     
+    // Get recent payments
+    const paymentsResult = await query(`
+      SELECT * FROM payments 
+      WHERE user_id = $1 
+      ORDER BY created_at DESC 
+      LIMIT 5
+    `, [user.id]);
+    
     res.status(200).json({
       user,
       isPremium,
       isBasic,
-      subscription
+      subscription,
+      payments: paymentsResult.rows
     });
   } catch (error) {
     console.error('Profile error:', error);
@@ -660,434 +676,559 @@ app.post('/api/create-checkout-session', async (req, res) => {
 
 // ----------------- STREAMLINED STRIPE WEBHOOK HANDLERS -----------------
 
-// Stripe webhook handler - simplified and more maintainable
+// Parse raw body for Stripe webhooks
 app.post("/api/webhook", express.raw({ type: "application/json" }), async (req, res) => {
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const sig = req.headers['stripe-signature'];
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || "whsec_YhRT6Rym35dM5p5b8iqfiph68REuYNGo";
+  
   let event;
-
+  
   try {
-    // Verify webhook signature
-    if (endpointSecret) {
-      const signature = req.headers["stripe-signature"];
-      event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
-    } else {
-      event = req.body;
-    }
-
-    // Process the event
-    await processStripeEvent(event);
-    
-    // Return success response
-    res.status(200).end();
+    // Verify the webhook signature
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      endpointSecret
+    );
   } catch (err) {
-    console.error(`⚠️ Webhook Error: ${err.message}`);
+    console.error(`⚠️  Webhook signature verification failed: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+  
+  // Handle the event based on its type
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await handleCheckoutSessionCompleted(event.data.object);
+        break;
+        
+      case 'customer.subscription.created':
+        await handleSubscriptionCreated(event.data.object);
+        break;
+        
+      case 'customer.subscription.updated':
+        await handleSubscriptionUpdated(event.data.object);
+        break;
+        
+      case 'customer.subscription.deleted':
+        await handleSubscriptionDeleted(event.data.object);
+        break;
+        
+      case 'invoice.payment_succeeded':
+        await handleInvoicePaymentSucceeded(event.data.object);
+        break;
+        
+      case 'invoice.payment_failed':
+        await handleInvoicePaymentFailed(event.data.object);
+        break;
+        
+      case 'customer.created':
+        await handleCustomerCreated(event.data.object);
+        break;
+        
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+    
+    // Return a 200 response to acknowledge receipt of the event
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error(`Error processing webhook event: ${err.message}`);
+    res.status(500).send(`Server Error: ${err.message}`);
   }
 });
 
-// Process Stripe events
-async function processStripeEvent(event) {
-  console.log(`Processing Stripe event: ${event.type}`);
-  
-  // Group events by category for better maintainability
-  switch (event.type) {
-    // Customer events
-    case 'customer.created':
-      await handleCustomerCreated(event.data.object);
-      break;
-      
-    // Subscription events
-    case 'customer.subscription.created':
-      await handleSubscriptionEvent(event.data.object, 'created');
-      break;
-    case 'customer.subscription.updated':
-      await handleSubscriptionEvent(event.data.object, 'updated');
-      break;
-    case 'customer.subscription.deleted':
-      await handleSubscriptionEvent(event.data.object, 'deleted');
-      break;
-    case 'customer.subscription.trial_will_end':
-      await handleSubscriptionEvent(event.data.object, 'trial_ending');
-      break;
-      
-    // Payment events
-    case 'checkout.session.completed':
-      await handleCheckoutSessionCompleted(event.data.object);
-      break;
-    case 'checkout.session.async_payment_succeeded':
-      await handleCheckoutSessionCompleted(event.data.object);
-      break;
-    case 'checkout.session.async_payment_failed':
-    case 'checkout.session.expired':
-      await handleFailedPayment(event.data.object);
-      break;
-      
-    // Invoice events
-    case 'invoice.payment_succeeded':
-      await handleInvoicePayment(event.data.object, true);
-      break;
-    case 'invoice.payment_failed':
-      await handleInvoicePayment(event.data.object, false);
-      break;
-      
-    default:
-      console.log(`Unhandled event type: ${event.type}`);
-  }
-}
-
-// Handle customer created event
-async function handleCustomerCreated(customer) {
-  try {
-    // Extract customer email and ID
-    const email = customer.email;
-    const stripeCustomerId = customer.id;
-    
-    if (!email) {
-      console.log('No email provided for customer:', stripeCustomerId);
-      return;
-    }
-    
-    console.log(`Processing customer creation: ${email} (${stripeCustomerId})`);
-    
-    // Check if user with this email already exists
-    const existingUserResult = await query(
-      'SELECT id FROM users WHERE email = $1',
-      [email]
-    );
-    
-    let userId;
-    
-    if (existingUserResult.rows.length > 0) {
-      // User exists, update with Stripe customer ID
-      userId = existingUserResult.rows[0].id;
-      await query(
-        'UPDATE users SET stripe_customer_id = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-        [stripeCustomerId, userId]
-      );
-      console.log(`Updated existing user ${userId} with Stripe customer ID: ${stripeCustomerId}`);
-    } else {
-      // Create new user with temporary password
-      const tempPassword = await bcrypt.hash(uuidv4(), 10);
-      const userResult = await query(
-        'INSERT INTO users (email, password, stripe_customer_id) VALUES ($1, $2, $3) RETURNING id',
-        [email, tempPassword, stripeCustomerId]
-      );
-      userId = userResult.rows[0].id;
-      console.log(`Created new user ${userId} for Stripe customer: ${stripeCustomerId}`);
-      
-      // Create a default basic subscription for new users
-      await query(
-        'INSERT INTO subscriptions (user_id, plan, status) VALUES ($1, $2, $3)',
-        [userId, 'basic', 'active']
-      );
-    }
-    
-    return userId;
-  } catch (error) {
-    console.error('Error handling customer creation:', error);
-    throw error;
-  }
-}
-
-// Handle subscription events (created, updated, deleted, trial_ending)
-async function handleSubscriptionEvent(subscription, eventType) {
-  try {
-    // Get the customer ID from the subscription
-    const stripeCustomerId = subscription.customer;
-    
-    if (!stripeCustomerId) {
-      console.log('No customer ID provided in subscription event');
-      return;
-    }
-    
-    console.log(`Processing subscription ${eventType} for customer: ${stripeCustomerId}`);
-    
-    // Find user by Stripe customer ID
-    const userResult = await query(
-      'SELECT id FROM users WHERE stripe_customer_id = $1',
-      [stripeCustomerId]
-    );
-    
-    if (userResult.rows.length === 0) {
-      console.log(`No user found with Stripe customer ID: ${stripeCustomerId}`);
-      return;
-    }
-    
-    const userId = userResult.rows[0].id;
-    
-    // Determine plan and status based on subscription data and event type
-    const plan = extractPlanFromSubscription(subscription);
-    let status = subscription.status;
-    
-    // Handle special cases
-    if (eventType === 'deleted') {
-      status = 'canceled';
-    } else if (eventType === 'trial_ending') {
-      // Just log the event, don't change status
-      console.log(`Trial ending soon for subscription of user ${userId}`);
-      return;
-    }
-    
-    // Check if user already has a subscription
-    const existingSubscriptionResult = await query(
-      'SELECT id FROM subscriptions WHERE user_id = $1 AND status != $2',
-      [userId, 'canceled']
-    );
-    
-    // Calculate expiration date for the subscription
-    const expiresAt = calculateExpirationDate(plan);
-    
-    if (existingSubscriptionResult.rows.length > 0) {
-      // Update existing subscription
-      const subscriptionId = existingSubscriptionResult.rows[0].id;
-      await query(`
-        UPDATE subscriptions 
-        SET plan = $1, status = $2, updated_at = CURRENT_TIMESTAMP, expires_at = $3 
-        WHERE id = $4
-      `, [plan, status, expiresAt, subscriptionId]);
-      
-      console.log(`Updated subscription ${subscriptionId} for user ${userId} to plan: ${plan}, status: ${status}`);
-    } else if (status === 'active') {
-      // Create new subscription if there isn't an active one and the new status is 'active'
-      const accessToken = uuidv4(); // Generate access token for premium subscriptions
-      
-      await query(`
-        INSERT INTO subscriptions (user_id, plan, status, access_token, expires_at) 
-        VALUES ($1, $2, $3, $4, $5)
-      `, [userId, plan, status, accessToken, expiresAt]);
-      
-      console.log(`Created new ${plan} subscription for user ${userId}`);
-    }
-    
-    // If subscription is deleted or canceled and plan was premium, create basic plan
-    if ((status === 'canceled' || eventType === 'deleted') && plan === 'premium') {
-      // Create new basic subscription
-      await query(
-        'INSERT INTO subscriptions (user_id, plan, status) VALUES ($1, $2, $3)',
-        [userId, 'basic', 'active']
-      );
-      
-      console.log(`Created new basic subscription for user ${userId} after premium cancellation`);
-    }
-  } catch (error) {
-    console.error(`Error handling subscription ${eventType}:`, error);
-    throw error;
-  }
-}
-
-// Handle successful checkout session completion
+// Handle successful checkout completion
 async function handleCheckoutSessionCompleted(session) {
   try {
-    // Extract data from the session
-    const sessionId = session.id;
-    const clientReferenceId = session.client_reference_id; // This should be the userId
-    const stripeCustomerId = session.customer;
+    console.log('Processing checkout.session.completed event');
     
-    // Extract plan from metadata
-    const plan = session.metadata && session.metadata.plan ? session.metadata.plan : 'premium';
+    // Extract necessary data from the session
+    const { client_reference_id, customer, metadata, id: sessionId } = session;
+    const userId = client_reference_id;
+    const plan = metadata?.plan || 'premium';
+    const customerId = customer;
     
-    console.log(`Processing successful checkout: ${sessionId} for plan: ${plan}`);
-    
-    let userId = clientReferenceId;
-    
-    // If we don't have a user ID from the client reference, try to find by Stripe customer ID
-    if (!userId && stripeCustomerId) {
-      const userResult = await query(
-        'SELECT id FROM users WHERE stripe_customer_id = $1',
-        [stripeCustomerId]
-      );
-      
-      if (userResult.rows.length > 0) {
-        userId = userResult.rows[0].id;
-      }
-    }
-    
-    // If we still don't have a user ID, we can't proceed
     if (!userId) {
-      console.log(`Cannot process checkout: no user ID found for session ${sessionId}`);
+      console.error('No client_reference_id (userId) found in checkout session');
       return;
     }
     
-    // Generate a unique access token
-    const accessToken = uuidv4();
-    
-    // Calculate expiration date
+    // Calculate expiration date based on the plan
     const expiresAt = calculateExpirationDate(plan);
     
-    // Check for existing subscriptions
-    const existingSubscriptionResult = await query(
-      'SELECT * FROM subscriptions WHERE user_id = $1 AND status != $2',
-      [userId, 'canceled']
+    // Check if user already has a subscription
+    const existingSubResult = await query(
+      'SELECT * FROM subscriptions WHERE user_id = $1',
+      [userId]
     );
     
-    if (existingSubscriptionResult.rows.length > 0) {
+    if (existingSubResult.rows.length > 0) {
       // Update existing subscription
-      const existingSub = existingSubscriptionResult.rows[0];
+      const existingSub = existingSubResult.rows[0];
+      
       await query(`
         UPDATE subscriptions 
-        SET plan = $1, status = $2, stripe_session_id = $3, access_token = $4, 
-            updated_at = CURRENT_TIMESTAMP, expires_at = $5
-        WHERE id = $6
-      `, [plan, 'active', sessionId, accessToken, expiresAt, existingSub.id]);
+        SET plan = $1, 
+            status = $2, 
+            stripe_session_id = $3, 
+            stripe_customer_id = $4,
+            access_token = $5,
+            expires_at = $6,
+            updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $7
+      `, [
+        plan, 
+        'active', 
+        sessionId, 
+        customerId,
+        uuidv4(), // Generate a new access token
+        expiresAt,
+        existingSub.id
+      ]);
       
-      console.log(`Updated subscription for user ${userId} to ${plan} via checkout`);
+      console.log(`Updated subscription for user ${userId} to ${plan} plan`);
     } else {
       // Create new subscription
       await query(`
         INSERT INTO subscriptions 
-        (user_id, plan, status, stripe_session_id, access_token, expires_at) 
-        VALUES ($1, $2, $3, $4, $5, $6)
-      `, [userId, plan, 'active', sessionId, accessToken, expiresAt]);
+        (user_id, plan, status, stripe_session_id, stripe_customer_id, access_token, expires_at) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `, [
+        userId,
+        plan,
+        'active',
+        sessionId,
+        customerId,
+        uuidv4(), // Generate a new access token
+        expiresAt
+      ]);
       
-      console.log(`Created new ${plan} subscription for user ${userId} via checkout`);
+      console.log(`Created new subscription for user ${userId} with ${plan} plan`);
     }
+    
+    // Update user record with Stripe customer ID if needed
+    await query(`
+      UPDATE users 
+      SET stripe_customer_id = $1, 
+          updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $2 AND (stripe_customer_id IS NULL OR stripe_customer_id != $1)
+    `, [customerId, userId]);
+    
   } catch (error) {
-    console.error('Error handling checkout completion:', error);
+    console.error('Error handling checkout.session.completed:', error);
     throw error;
   }
 }
 
-// Handle failed payment events
-async function handleFailedPayment(session) {
+// Handle subscription creation
+async function handleSubscriptionCreated(subscription) {
   try {
-    const sessionId = session.id;
-    const clientReferenceId = session.client_reference_id;
+    console.log('Processing customer.subscription.created event');
     
-    console.log(`Processing failed payment for session: ${sessionId}`);
+    const { customer: customerId, id: subscriptionId, status, items } = subscription;
     
-    // If we have a client reference ID (user ID), update their subscription status
-    if (clientReferenceId) {
-      const subscriptionResult = await query(
-        'SELECT id FROM subscriptions WHERE user_id = $1 AND stripe_session_id = $2',
-        [clientReferenceId, sessionId]
-      );
-      
-      if (subscriptionResult.rows.length > 0) {
-        const subscriptionId = subscriptionResult.rows[0].id;
-        
-        // Mark subscription as payment_failed
-        await query(
-          'UPDATE subscriptions SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-          ['payment_failed', subscriptionId]
-        );
-        
-        console.log(`Marked subscription ${subscriptionId} as payment_failed`);
-      }
-    }
-  } catch (error) {
-    console.error('Error handling failed payment:', error);
-    throw error;
-  }
-}
-
-// Handle invoice payment events
-async function handleInvoicePayment(invoice, succeeded) {
-  try {
-    const invoiceId = invoice.id;
-    const stripeCustomerId = invoice.customer;
-    const subscriptionId = invoice.subscription;
+    // Get the plan from the subscription item
+    const plan = items.data.length > 0 ? 
+      (items.data[0].price.nickname || 'premium') : 
+      'premium';
     
-    console.log(`Processing invoice ${succeeded ? 'success' : 'failure'}: ${invoiceId}`);
-    
-    if (!stripeCustomerId) {
-      console.log('No customer ID in invoice');
-      return;
-    }
+    // Calculate expiration date based on the billing cycle
+    const expiresAt = calculateExpirationFromSubscription(subscription);
     
     // Find user by Stripe customer ID
     const userResult = await query(
       'SELECT id FROM users WHERE stripe_customer_id = $1',
-      [stripeCustomerId]
+      [customerId]
     );
     
     if (userResult.rows.length === 0) {
-      console.log(`No user found with Stripe customer ID: ${stripeCustomerId}`);
+      console.error(`No user found with Stripe customer ID: ${customerId}`);
       return;
     }
     
     const userId = userResult.rows[0].id;
     
-    // Find active subscription for this user
-    const subscriptionResult = await query(
-      'SELECT id FROM subscriptions WHERE user_id = $1 AND status != $2',
-      [userId, 'canceled']
+    // Check if user already has a subscription
+    const existingSubResult = await query(
+      'SELECT * FROM subscriptions WHERE user_id = $1',
+      [userId]
     );
     
-    if (subscriptionResult.rows.length === 0) {
-      console.log(`No active subscription found for user ${userId}`);
-      return;
-    }
-    
-    const dbSubscriptionId = subscriptionResult.rows[0].id;
-    
-    if (succeeded) {
-      // If payment succeeded, ensure subscription is active
-      await query(
-        'UPDATE subscriptions SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-        ['active', dbSubscriptionId]
-      );
+    if (existingSubResult.rows.length > 0) {
+      // Update existing subscription
+      const existingSub = existingSubResult.rows[0];
       
-      console.log(`Activated subscription ${dbSubscriptionId} after successful payment`);
+      await query(`
+        UPDATE subscriptions 
+        SET plan = $1, 
+            status = $2, 
+            stripe_subscription_id = $3,
+            access_token = $4,
+            expires_at = $5,
+            updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $6
+      `, [
+        plan, 
+        mapStripeStatus(status), 
+        subscriptionId,
+        uuidv4(), // Generate a new access token
+        expiresAt,
+        existingSub.id
+      ]);
+      
+      console.log(`Updated subscription for user ${userId} with subscription ID ${subscriptionId}`);
     } else {
-      // If payment failed, mark subscription accordingly
-      await query(
-        'UPDATE subscriptions SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
-        ['payment_failed', dbSubscriptionId]
-      );
+      // Create new subscription
+      await query(`
+        INSERT INTO subscriptions 
+        (user_id, plan, status, stripe_subscription_id, stripe_customer_id, access_token, expires_at) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `, [
+        userId,
+        plan,
+        mapStripeStatus(status),
+        subscriptionId,
+        customerId,
+        uuidv4(), // Generate a new access token
+        expiresAt
+      ]);
       
-      console.log(`Marked subscription ${dbSubscriptionId} as payment_failed`);
+      console.log(`Created new subscription for user ${userId} with subscription ID ${subscriptionId}`);
     }
   } catch (error) {
-    console.error('Error handling invoice payment:', error);
+    console.error('Error handling customer.subscription.created:', error);
     throw error;
   }
 }
 
-// Helper function to extract plan from a subscription
-function extractPlanFromSubscription(subscription) {
-  // Try to extract plan from metadata
-  if (subscription.metadata && subscription.metadata.plan) {
-    return subscription.metadata.plan;
-  }
-  
-  // Try to extract from subscription items
-  if (subscription.items && subscription.items.data && subscription.items.data.length > 0) {
-    const item = subscription.items.data[0];
+// Handle subscription updates
+async function handleSubscriptionUpdated(subscription) {
+  try {
+    console.log('Processing customer.subscription.updated event');
     
-    if (item.price && item.price.metadata && item.price.metadata.plan) {
-      return item.price.metadata.plan;
+    const { 
+      customer: customerId, 
+      id: subscriptionId, 
+      status, 
+      items, 
+      cancel_at_period_end 
+    } = subscription;
+    
+    // Get the plan from the subscription item
+    const plan = items.data.length > 0 ? 
+      (items.data[0].price.nickname || 'premium') : 
+      'premium';
+    
+    // Calculate expiration date based on the current period end
+    const expiresAt = calculateExpirationFromSubscription(subscription);
+    
+    // Find the subscription in our database
+    const subscriptionResult = await query(
+      'SELECT id, user_id FROM subscriptions WHERE stripe_subscription_id = $1 OR stripe_customer_id = $2',
+      [subscriptionId, customerId]
+    );
+    
+    if (subscriptionResult.rows.length === 0) {
+      console.error(`No subscription found with Stripe subscription ID: ${subscriptionId} or customer ID: ${customerId}`);
+      return;
     }
     
-    if (item.price && item.price.nickname) {
-      // Convert nickname to lowercase for consistency
-      const nickname = item.price.nickname.toLowerCase();
-      if (nickname.includes('premium')) {
-        return 'premium';
-      } else if (nickname.includes('basic')) {
-        return 'basic';
-      }
+    const subId = subscriptionResult.rows[0].id;
+    const userId = subscriptionResult.rows[0].user_id;
+    
+    // Determine the status to set
+    let dbStatus = mapStripeStatus(status);
+    
+    // If the subscription is set to cancel at period end, but still active
+    if (cancel_at_period_end && status === 'active') {
+      dbStatus = 'canceling';
     }
+    
+    // Update the subscription
+    await query(`
+      UPDATE subscriptions 
+      SET plan = $1, 
+          status = $2, 
+          expires_at = $3,
+          updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $4
+    `, [plan, dbStatus, expiresAt, subId]);
+    
+    console.log(`Updated subscription for user ${userId} to status: ${dbStatus}`);
+  } catch (error) {
+    console.error('Error handling customer.subscription.updated:', error);
+    throw error;
   }
-  
-  // Default to 'premium' for subscription events
-  return 'premium';
 }
 
-// Helper function to calculate expiration date
+// Handle subscription deletion
+async function handleSubscriptionDeleted(subscription) {
+  try {
+    console.log('Processing customer.subscription.deleted event');
+    
+    const { 
+      customer: customerId, 
+      id: subscriptionId 
+    } = subscription;
+    
+    // Find the subscription in our database
+    const subscriptionResult = await query(
+      'SELECT id, user_id FROM subscriptions WHERE stripe_subscription_id = $1 OR stripe_customer_id = $2',
+      [subscriptionId, customerId]
+    );
+    
+    if (subscriptionResult.rows.length === 0) {
+      console.error(`No subscription found with Stripe subscription ID: ${subscriptionId} or customer ID: ${customerId}`);
+      return;
+    }
+    
+    const subId = subscriptionResult.rows[0].id;
+    const userId = subscriptionResult.rows[0].user_id;
+    
+    // Update the subscription status to canceled
+    await query(`
+      UPDATE subscriptions 
+      SET status = $1, 
+          expires_at = CURRENT_TIMESTAMP,
+          updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $2
+    `, ['canceled', subId]);
+    
+    console.log(`Canceled subscription for user ${userId}`);
+    
+    // Optionally, downgrade to a basic plan
+    await query(`
+      INSERT INTO subscriptions 
+      (user_id, plan, status) 
+      VALUES ($1, $2, $3)
+    `, [userId, 'basic', 'active']);
+    
+    console.log(`Created new basic subscription for user ${userId}`);
+  } catch (error) {
+    console.error('Error handling customer.subscription.deleted:', error);
+    throw error;
+  }
+}
+
+// Handle successful invoice payment
+async function handleInvoicePaymentSucceeded(invoice) {
+  try {
+    console.log('Processing invoice.payment_succeeded event');
+    
+    const { 
+      customer: customerId, 
+      subscription: subscriptionId,
+      paid,
+      amount_paid
+    } = invoice;
+    
+    if (!paid || amount_paid <= 0) {
+      console.log('Invoice not paid or zero amount, ignoring');
+      return;
+    }
+    
+    // Find the subscription in our database
+    const subscriptionResult = await query(
+      'SELECT id, user_id FROM subscriptions WHERE stripe_subscription_id = $1 OR stripe_customer_id = $2',
+      [subscriptionId, customerId]
+    );
+    
+    if (subscriptionResult.rows.length === 0) {
+      console.error(`No subscription found with Stripe subscription ID: ${subscriptionId} or customer ID: ${customerId}`);
+      return;
+    }
+    
+    const subId = subscriptionResult.rows[0].id;
+    const userId = subscriptionResult.rows[0].user_id;
+    
+    // Get the subscription details from Stripe to update expiration
+    const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const expiresAt = calculateExpirationFromSubscription(stripeSubscription);
+    
+    // Update the subscription status and expiration
+    await query(`
+      UPDATE subscriptions 
+      SET status = $1, 
+          expires_at = $2,
+          updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $3
+    `, ['active', expiresAt, subId]);
+    
+    console.log(`Updated subscription for user ${userId} after successful payment`);
+    
+    // Insert payment record
+    await query(`
+      INSERT INTO payments 
+      (user_id, subscription_id, amount, stripe_invoice_id) 
+      VALUES ($1, $2, $3, $4)
+    `, [userId, subId, amount_paid / 100, invoice.id]);
+    
+    console.log(`Recorded payment of ${amount_paid / 100} for user ${userId}`);
+  } catch (error) {
+    console.error('Error handling invoice.payment_succeeded:', error);
+    throw error;
+  }
+}
+
+// Handle failed invoice payment
+async function handleInvoicePaymentFailed(invoice) {
+  try {
+    console.log('Processing invoice.payment_failed event');
+    
+    const { 
+      customer: customerId, 
+      subscription: subscriptionId,
+      attempt_count
+    } = invoice;
+    
+    // Find the subscription in our database
+    const subscriptionResult = await query(
+      'SELECT id, user_id FROM subscriptions WHERE stripe_subscription_id = $1 OR stripe_customer_id = $2',
+      [subscriptionId, customerId]
+    );
+    
+    if (subscriptionResult.rows.length === 0) {
+      console.error(`No subscription found with Stripe subscription ID: ${subscriptionId} or customer ID: ${customerId}`);
+      return;
+    }
+    
+    const subId = subscriptionResult.rows[0].id;
+    const userId = subscriptionResult.rows[0].user_id;
+    
+    // Update the subscription status based on attempt count
+    // If multiple attempts have failed, mark as past_due or unpaid
+    const status = attempt_count > 3 ? 'unpaid' : 'past_due';
+    
+    await query(`
+      UPDATE subscriptions 
+      SET status = $1, 
+          updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $2
+    `, [status, subId]);
+    
+    console.log(`Updated subscription for user ${userId} to status: ${status} after failed payment`);
+  } catch (error) {
+    console.error('Error handling invoice.payment_failed:', error);
+    throw error;
+  }
+}
+
+// Handle customer creation
+async function handleCustomerCreated(customer) {
+  try {
+    console.log('Processing customer.created event');
+    
+    const { id: customerId, email } = customer;
+    
+    if (!email) {
+      console.error('No email found in customer object');
+      return;
+    }
+    
+    // Find user by email
+    const userResult = await query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    );
+    
+    if (userResult.rows.length === 0) {
+      console.log(`No user found with email: ${email}, potentially a new signup flow`);
+      return;
+    }
+    
+    const userId = userResult.rows[0].id;
+    
+    // Update user with Stripe customer ID
+    await query(`
+      UPDATE users 
+      SET stripe_customer_id = $1, 
+          updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $2
+    `, [customerId, userId]);
+    
+    console.log(`Updated user ${userId} with Stripe customer ID: ${customerId}`);
+  } catch (error) {
+    console.error('Error handling customer.created:', error);
+    throw error;
+  }
+}
+
+// Helper function to map Stripe subscription status to our database status
+function mapStripeStatus(stripeStatus) {
+  const statusMap = {
+    'active': 'active',
+    'past_due': 'past_due',
+    'unpaid': 'unpaid',
+    'canceled': 'canceled',
+    'incomplete': 'pending',
+    'incomplete_expired': 'canceled',
+    'trialing': 'active',
+    'paused': 'paused'
+  };
+  
+  return statusMap[stripeStatus] || 'unknown';
+}
+
+// Helper function to calculate expiration date from a Stripe subscription
+function calculateExpirationFromSubscription(subscription) {
+  if (!subscription) return null;
+  
+  // Use current_period_end if available
+  if (subscription.current_period_end) {
+    return new Date(subscription.current_period_end * 1000).toISOString();
+  }
+  
+  // If we have a cancel_at, use that
+  if (subscription.cancel_at) {
+    return new Date(subscription.cancel_at * 1000).toISOString();
+  }
+  
+  // Otherwise, calculate based on plan interval
+  const plan = subscription.items?.data[0]?.plan;
+  if (plan) {
+    const now = new Date();
+    
+    if (plan.interval === 'month') {
+      now.setMonth(now.getMonth() + 1);
+    } else if (plan.interval === 'year') {
+      now.setFullYear(now.getFullYear() + 1);
+    } else if (plan.interval === 'week') {
+      now.setDate(now.getDate() + 7);
+    } else if (plan.interval === 'day') {
+      now.setDate(now.getDate() + 1);
+    }
+    
+    return now.toISOString();
+  }
+  
+  // Fallback to 1 year from now
+  return calculateExpirationDate('premium');
+}
+
+// Enhanced helper function to calculate expiration date based on plan details
 function calculateExpirationDate(plan) {
   const now = new Date();
   
   if (typeof plan === 'string') {
     if (plan.includes('monthly')) {
       now.setMonth(now.getMonth() + 1);
-    } else if (plan.includes('yearly')) {
+    } else if (plan.includes('yearly') || plan.includes('annual')) {
       now.setFullYear(now.getFullYear() + 1);
-    } else if (plan === 'premium') {
-      // Default premium subscription to 1 year
+    } else if (plan.includes('weekly')) {
+      now.setDate(now.getDate() + 7);
+    } else if (plan.includes('quarterly')) {
+      now.setMonth(now.getMonth() + 3);
+    } else if (plan.includes('premium')) {
+      // Default premium to 1 year
       now.setFullYear(now.getFullYear() + 1);
-    } else if (plan === 'basic') {
-      // For basic plans, we might not set an expiration
-      return null;
+    } else if (plan.includes('basic')) {
+      // For free basic plans, we might set longer expiration or null
+      now.setFullYear(now.getFullYear() + 10); // Effectively "forever"
+      // Alternatively: return null; // No expiration
+    } else {
+      // Default to 1 year for unknown premium plans
+      now.setFullYear(now.getFullYear() + 1);
     }
   } else {
     // Default to 1 year if plan type is unclear
