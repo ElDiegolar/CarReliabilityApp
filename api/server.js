@@ -1,4 +1,12 @@
 // api/server.js - Express server with PostgreSQL integration and user management
+// Disable body parser for Stripe webhooks
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+
 const express = require('express');
 const cors = require('cors');
 const { Configuration, OpenAIApi } = require('openai');
@@ -10,12 +18,6 @@ const path = require('path');
 const { initializeDatabase, query, sql } = require('./database');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-// Disable body parser for Stripe webhooks
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 // Load environment variables
 dotenv.config();
