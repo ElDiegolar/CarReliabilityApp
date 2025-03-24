@@ -674,6 +674,78 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
+
+
+
+// Endpoint to view recent webhook logs
+app.get('/api/webhook-logs', async (req, res) => {
+  try {
+    // Check for admin authentication in production
+    if (process.env.NODE_ENV === 'production') {
+      // Implement proper auth check here
+      // This is just a simple example using a secret key
+      const authKey = req.headers['x-admin-key'];
+      if (authKey !== process.env.ADMIN_SECRET_KEY) {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+    }
+    
+    // Get limit and page from query params
+    const limit = parseInt(req.query.limit) || 20;
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * limit;
+    const eventType = req.query.type || null;
+    
+    // Build query based on filters
+    let queryText = `
+      SELECT id, event_id, event_type, processing_status, error_message, created_at, updated_at 
+      FROM webhook_logs
+    `;
+    
+    const queryParams = [];
+    let paramIndex = 1;
+    
+    // Add WHERE clause if filtering by event type
+    if (eventType) {
+      queryText += ` WHERE event_type = $${paramIndex}`;
+      queryParams.push(eventType);
+      paramIndex++;
+    }
+    
+    // Add ordering and pagination
+    queryText += ` ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    queryParams.push(limit, offset);
+    
+    // Get total count for pagination
+    let countQuery = 'SELECT COUNT(*) FROM webhook_logs';
+    if (eventType) {
+      countQuery += ' WHERE event_type = $1';
+    }
+    
+    const [logsResult, countResult] = await Promise.all([
+      query(queryText, queryParams),
+      query(countQuery, eventType ? [eventType] : [])
+    ]);
+    
+    // Return paginated results with metadata
+    res.status(200).json({
+      logs: logsResult.rows,
+      pagination: {
+        total: parseInt(countResult.rows[0].count),
+        page,
+        limit,
+        pages: Math.ceil(parseInt(countResult.rows[0].count) / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching webhook logs:', error);
+    res.status(500).json({ error: 'Failed to retrieve webhook logs' });
+  }
+});
+
+
+
+
 // ----------------- STREAMLINED STRIPE WEBHOOK HANDLERS -----------------
 
 // Parse raw body for Stripe webhooks
@@ -682,6 +754,34 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (req, 
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || "whsec_Srjm2o4VDHtt47cnbRu3TWPmOK9iSmsG";
   
   let event;
+  let logId = null;
+  const rawBody = req.body.toString('utf8');
+  
+  // Initial log entry - before signature verification
+  try {
+    logId = await query(`
+      INSERT INTO webhook_logs (
+        event_type, 
+        event_object, 
+        stripe_signature, 
+        raw_body, 
+        processing_status
+      ) VALUES ($1, $2, $3, $4, $5)
+      RETURNING id
+    `, [
+      'unknown',
+      JSON.stringify({}),
+      sig,
+      rawBody.length > 10000 ? rawBody.substring(0, 10000) + '...(truncated)' : rawBody,
+      'received'
+    ]);
+    
+    logId = logId.rows[0].id;
+    console.log(`🔍 Webhook received and logged with ID: ${logId}`);
+  } catch (logError) {
+    console.error('Error logging webhook receipt:', logError);
+    // Continue processing even if logging fails
+  }
   
   try {
     // Verify the webhook signature
@@ -690,13 +790,72 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (req, 
       sig,
       endpointSecret
     );
+    
+    // Update log after successful signature verification
+    if (logId) {
+      try {
+        await query(`
+          UPDATE webhook_logs 
+          SET event_id = $1, 
+              event_type = $2, 
+              event_object = $3, 
+              processing_status = $4,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = $5
+        `, [
+          event.id,
+          event.type,
+          JSON.stringify(event.data.object),
+          'verified',
+          logId
+        ]);
+      } catch (updateError) {
+        console.error('Error updating webhook log after verification:', updateError);
+      }
+    }
   } catch (err) {
+    // Update log with signature verification failure
+    if (logId) {
+      try {
+        await query(`
+          UPDATE webhook_logs 
+          SET processing_status = $1, 
+              error_message = $2,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = $3
+        `, [
+          'verification_failed',
+          err.message,
+          logId
+        ]);
+      } catch (updateError) {
+        console.error('Error updating webhook log with verification failure:', updateError);
+      }
+    }
+    
     console.error(`⚠️  Webhook signature verification failed: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   
   // Handle the event based on its type
   try {
+    // Update log to show we're starting processing
+    if (logId) {
+      try {
+        await query(`
+          UPDATE webhook_logs 
+          SET processing_status = $1,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = $2
+        `, [
+          'processing',
+          logId
+        ]);
+      } catch (updateError) {
+        console.error('Error updating webhook log before processing:', updateError);
+      }
+    }
+    
     switch (event.type) {
       case 'checkout.session.completed':
         await handleCheckoutSessionCompleted(event.data.object);
@@ -730,9 +889,48 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (req, 
         console.log(`Unhandled event type: ${event.type}`);
     }
     
+    // Update log after successful processing
+    if (logId) {
+      try {
+        await query(`
+          UPDATE webhook_logs 
+          SET processing_status = $1,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = $2
+        `, [
+          'completed',
+          logId
+        ]);
+      } catch (updateError) {
+        console.error('Error updating webhook log after processing:', updateError);
+      }
+    }
+    
     // Return a 200 response to acknowledge receipt of the event
-    res.status(200).json({ received: true });
+    res.status(200).json({ 
+      received: true,
+      logId: logId
+    });
   } catch (err) {
+    // Update log with processing error
+    if (logId) {
+      try {
+        await query(`
+          UPDATE webhook_logs 
+          SET processing_status = $1,
+              error_message = $2,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = $3
+        `, [
+          'failed',
+          err.message,
+          logId
+        ]);
+      } catch (updateError) {
+        console.error('Error updating webhook log with processing failure:', updateError);
+      }
+    }
+    
     console.error(`Error processing webhook event: ${err.message}`);
     res.status(500).send(`Server Error: ${err.message}`);
   }
