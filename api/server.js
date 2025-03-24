@@ -10,6 +10,13 @@ const path = require('path');
 const { initializeDatabase, query, sql } = require('./database');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+// Disable body parser for Stripe webhooks
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 // Load environment variables
 dotenv.config();
 
@@ -22,15 +29,17 @@ app.use(cors({
   methods: "GET,POST,OPTIONS,PUT,DELETE",
   allowedHeaders: "Content-Type, Authorization"
 }));
-
 // Special middleware for Stripe webhooks (raw body parsing)
 app.use((req, res, next) => {
   if (req.originalUrl === '/api/webhook') {
-    next();
+    // Use express.raw() to capture raw body for Stripe signature verification
+    express.raw({ type: 'application/json' })(req, res, next);
   } else {
+    // Use express.json() for other routes
     express.json()(req, res, next);
   }
 });
+
 
 // Initialize database tables if they don't exist
 (async () => {
@@ -756,7 +765,6 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
   const rawBody = request.body;
 
   const signature = request.headers["stripe-signature"];
-
   console.log('Webhook Headers:', JSON.stringify(request.headers));
   console.log('Signature Header:', signature);
   console.log('Body Length:', rawBody.length);
