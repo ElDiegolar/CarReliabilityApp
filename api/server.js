@@ -12,14 +12,6 @@ const path = require('path');
 const { initializeDatabase, query, sql } = require('./database');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-// Middleware to handle the raw body for the Stripe webhook
-app.use((req, res, next) => {
-  if (req.originalUrl === "/api/webhook") {
-    express.raw({ type: "application/json" })(req, res, next);
-  } else {
-    express.json()(req, res, next);
-  }
-});
 
 
 // Load environment variables
@@ -28,6 +20,14 @@ dotenv.config();
 // Create express app
 const app = express();
 
+// Middleware to handle the raw body for the Stripe webhook
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/webhook") {
+    express.raw({ type: "application/json" })(req, res, next);
+  } else {
+    express.json()(req, res, next);
+  }
+});
 // Middleware
 app.use(cors({
   origin: "*",  // Allow all domains (restrict in production)
