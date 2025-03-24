@@ -755,7 +755,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
 
   
   let logId = null;
-  const rawBody = req.body.toString('utf8');
+  const rawBody = request.body.toString('utf8');
   
   // Initial log entry - before signature verification
   try {
@@ -793,7 +793,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
   try {
     // Verify the webhook signature
     event = stripe.webhooks.constructEvent(
-      req.body,
+      request.body,
       signature,
       endpointSecret
     );
