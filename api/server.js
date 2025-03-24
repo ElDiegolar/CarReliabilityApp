@@ -762,7 +762,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
   
   const rawBody = request.body;
   let event = request.body;
-  const endpointSecret = "whsec_MzzL0MnyIwZ0iFojctz9cC8w4Vcyz7eC";
+  const endpointSecret = "whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH";
   let logId = null;
   
 
