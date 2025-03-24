@@ -760,7 +760,7 @@ app.get('/api/webhook-logs', async (req, res) => {
 // ----------------- STREAMLINED STRIPE WEBHOOK HANDLERS -----------------
 
 // Parse raw body for Stripe webhooks
-app.post("/api/webhook", express.raw({ type: "application/json" }), async (request, response) => {
+app.post("/api/webhook", express.raw({ type: "application/json" }), (request, response) => {
   
   const rawBody = request.body;
   let event = request.body;
@@ -775,7 +775,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
 
   // Initial log entry - before signature verification
   try {
-    logId = await query(`
+    logId = query(`
       INSERT INTO webhook_logs (
         event_type, 
         event_object, 
@@ -815,7 +815,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
     // Update log after successful signature verification
     if (logId) {
       try {
-        await query(`
+         query(`
           UPDATE webhook_logs 
           SET event_id = $1, 
               event_type = $2, 
@@ -838,7 +838,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
     // Update log with signature verification failure
     if (logId) {
       try {
-        await query(`
+         query(`
           UPDATE webhook_logs 
           SET processing_status = $1, 
               error_message = $2,
@@ -863,7 +863,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
     // Update log to show we're starting processing
     if (logId) {
       try {
-        await query(`
+         query(`
           UPDATE webhook_logs 
           SET processing_status = $1,
               updated_at = CURRENT_TIMESTAMP
@@ -879,31 +879,31 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
 
     switch (event.type) {
       case 'checkout.session.completed':
-        await handleCheckoutSessionCompleted(event.data.object);
+         handleCheckoutSessionCompleted(event.data.object);
         break;
         
       case 'customer.subscription.created':
-        await handleSubscriptionCreated(event.data.object);
+         handleSubscriptionCreated(event.data.object);
         break;
 
       case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(event.data.object);
+         handleSubscriptionUpdated(event.data.object);
         break;
 
       case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(event.data.object);
+         handleSubscriptionDeleted(event.data.object);
         break;
 
       case 'invoice.payment_succeeded':
-        await handleInvoicePaymentSucceeded(event.data.object);
+         handleInvoicePaymentSucceeded(event.data.object);
         break;
 
       case 'invoice.payment_failed':
-        await handleInvoicePaymentFailed(event.data.object);
+         handleInvoicePaymentFailed(event.data.object);
         break;
 
       case 'customer.created':
-        await handleCustomerCreated(event.data.object);
+         handleCustomerCreated(event.data.object);
         break;
 
       default:
@@ -913,7 +913,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
     // Update log after successful processing
     if (logId) {
       try {
-        await query(`
+         query(`
           UPDATE webhook_logs 
           SET processing_status = $1,
               updated_at = CURRENT_TIMESTAMP
