@@ -5,40 +5,29 @@ export const config = {
     },
   };
   
-  import express from 'express';
+  import { buffer } from 'micro';
   import Stripe from 'stripe';
   
-  const app = express();
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   
-  // Middleware to enforce raw body parsing for Stripe webhooks
-  app.use('/api/webhook', express.raw({ type: 'application/json' }));
-  
-  // Webhook handler
-  app.post('/api/webhook', async (req, res) => {
+  export default async function handler(req, res) {
     const signature = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
     let event;
   
     try {
-      // Directly using the raw body
-      const rawBody = req.body;
+      // Read the raw body from the incoming request
+      const rawBody = await buffer(req);
+  
+      // Log raw body characteristics
       console.log('✅ Is Buffer:', Buffer.isBuffer(rawBody));
       console.log('✅ Raw body (Buffer):', rawBody);
       console.log('✅ Raw body (String):', rawBody.toString());
       console.log('✅ Signature Header:', signature);
       console.log('✅ Endpoint Secret:', endpointSecret);
   
-      // Explicitly convert raw body to UTF-8 string and back to buffer to ensure encoding consistency
-      const rawBodyString = rawBody.toString('utf8');
-      const processedBody = Buffer.from(rawBodyString, 'utf8');
-  
-      // Log the processed buffer and its string representation
-      console.log('✅ Processed raw body (String):', rawBodyString);
-      console.log('✅ Processed raw body (Buffer):', processedBody);
-  
-      // Construct the event using the processed body and signature
-      event = stripe.webhooks.constructEvent(processedBody, signature, endpointSecret);
+      // Construct the event using the raw body and signature
+      event = stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
       console.log('✅ Webhook verified:', event.type);
     } catch (err) {
       console.error('❌ Webhook signature verification failed:', err.message);
@@ -78,7 +67,5 @@ export const config = {
       console.error(`❌ Error processing webhook event: ${err.message}`);
       res.status(500).send(`Server Error: ${err.message}`);
     }
-  });
-  
-  export default app;
+  }
   
