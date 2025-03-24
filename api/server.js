@@ -759,7 +759,7 @@ app.get('/api/webhook-logs', async (req, res) => {
 
 
 // Webhook endpoint
-app.post("/api/webhook", async (req, res) => {
+app.post('/api/webhook', express.raw({type: 'application/json'}), (req, res) => {
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const signature = req.headers["stripe-signature"];
   
