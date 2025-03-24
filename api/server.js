@@ -758,6 +758,10 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
   const rawBody = request.body.toString('utf8');
   
 		const signature = request.headers["stripe-signature"];
+
+    console.log('Webhook Headers:', JSON.stringify(request.headers));
+    console.log('Signature Header:', request.headers['stripe-signature']);
+    console.log('Body Length:', request.body.length);
   // Initial log entry - before signature verification
   try {
     logId = await query(`
