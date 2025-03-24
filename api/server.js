@@ -767,6 +767,13 @@ app.post("/api/webhook", (request, response) => {
   console.log('Signature Header:', signature);
   console.log('Body Length:', rawBody.length);
 
+  // Verify the webhook signature using the raw body (Buffer)
+    event = stripe.webhooks.constructEvent(
+      request.body,
+      request.headers["stripe-signature"],
+      endpointSecret
+    );
+
   // Initial log entry - before signature verification
   try {
     logId = query(`
@@ -799,13 +806,6 @@ app.post("/api/webhook", (request, response) => {
   }
 
   try {
-    // Verify the webhook signature using the raw body (Buffer)
-    event = stripe.webhooks.constructEvent(
-      request.body,
-      request.headers["stripe-signature"],
-      endpointSecret
-    );
-
     // Update log after successful signature verification
     if (logId) {
       try {
