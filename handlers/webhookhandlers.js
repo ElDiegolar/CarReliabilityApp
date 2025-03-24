@@ -14,7 +14,7 @@ function calculateExpirationDate(plan) {
     } else if (plan.includes('weekly')) {
       now.setDate(now.getDate() + 7);
     } else if (plan.includes('quarterly')) {
-      now.setMonth(now.getMonth() + 3);
+      now.setMonth(now.getMonth() + 3); 
     } else if (plan.includes('premium')) {
       // Default premium to 1 year
       now.setFullYear(now.getFullYear() + 1);
