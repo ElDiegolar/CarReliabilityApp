@@ -807,7 +807,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
     event = stripe.webhooks.constructEvent(
       request.body,
       request.headers["stripe-signature"],
-    'whsec_MzzL0MnyIwZ0iFojctz9cC8w4Vcyz7eC'
+      endpointSecret
     );
 
     // Update log after successful signature verification
