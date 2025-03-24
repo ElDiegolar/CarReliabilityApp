@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { buffer } from 'micro';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -15,19 +16,8 @@ export default async function handler(req, res) {
   let event;
 
   try {
-    // Use Vercel's native way to handle the raw body
-    const rawBody = await new Promise((resolve, reject) => {
-      let data = '';
-      req.on('data', (chunk) => {
-        data += chunk;
-      });
-      req.on('end', () => {
-        resolve(Buffer.from(data));
-      });
-      req.on('error', (err) => {
-        reject(err);
-      });
-    });
+    // Use micro's buffer utility to capture the raw body
+    const rawBody = await buffer(req);
 
     console.log('✅ Is Buffer:', Buffer.isBuffer(rawBody));
     console.log('✅ Raw body (Buffer):', rawBody);
