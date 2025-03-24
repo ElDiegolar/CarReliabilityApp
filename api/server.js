@@ -841,7 +841,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
     }
     
     console.error(`⚠️  Webhook signature verification failed: ${err.message}`);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    return response.status(400).send(`Webhook Error: ${err.message}`);
   }
   
   // Handle the event based on its type
