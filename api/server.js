@@ -25,20 +25,6 @@ dotenv.config();
 // Create express app
 const app = express();
 
-// Middleware to handle the raw body for the Stripe webhook
-app.use((req, res, next) => {
-  if (req.originalUrl === "/api/webhook") {
-    express.raw({ type: "application/json" })(req, res, next);
-  } else {
-    express.json()(req, res, next);
-  }
-});
-// Middleware
-app.use(cors({
-  origin: "*",  // Allow all domains (restrict in production)
-  methods: "GET,POST,OPTIONS,PUT,DELETE",
-  allowedHeaders: "Content-Type, Authorization"
-}));
 // Special middleware for Stripe webhooks (raw body parsing)
 app.use((req, res, next) => {
   if (req.originalUrl === '/api/webhook') {
@@ -49,6 +35,14 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
   }
 });
+
+// Middleware
+app.use(cors({
+  origin: "*",  // Allow all domains (restrict in production)
+  methods: "GET,POST,OPTIONS,PUT,DELETE",
+  allowedHeaders: "Content-Type, Authorization"
+}));
+
 
 
 // Initialize database tables if they don't exist
