@@ -24,12 +24,11 @@ export const config = {
       const rawBody = await buffer(req);
       
       // Only log these in development environment
-      if (process.env.NODE_ENV !== 'production') {
         console.log('✅ Is Buffer:', Buffer.isBuffer(rawBody));
         console.log('✅ Signature Header:', signature);
         console.log('✅ Endpoint Secret present:', !!endpointSecret);
-      }
-  
+    
+
       // Construct the event using the raw body and signature
       // IMPORTANT: Pass the raw buffer directly without transforming it
       event = stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
