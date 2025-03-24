@@ -10,7 +10,6 @@ export const config = {
   
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   
-  // Main webhook handler function
   export default async function handler(req, res) {
     if (req.method !== 'POST') {
       res.setHeader('Allow', 'POST');
@@ -21,11 +20,10 @@ export const config = {
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   
     let event;
-    let rawBody;
   
     try {
-      // Use the micro buffer to get the raw body
-      rawBody = await buffer(req);
+      // Get the raw body as a buffer
+      const rawBody = await buffer(req);
   
       console.log('✅ Raw body (Buffer):', rawBody);
       console.log('✅ Raw body (String):', rawBody.toString());
@@ -42,11 +40,8 @@ export const config = {
     // Handle the event based on its type
     try {
       switch (event.type) {
-        case 'payment_intent.succeeded':
+        case 'checkout.session.completed':
           console.log('💰 Payment succeeded:', event.data.object.id);
-          break;
-        case 'payment_intent.payment_failed':
-          console.log('❗ Payment failed:', event.data.object.id);
           break;
         case 'customer.subscription.created':
           console.log('✅ Subscription Created:', event.data.object.id);
