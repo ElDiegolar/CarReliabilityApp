@@ -5,42 +5,31 @@ export const config = {
     },
   };
   
+  import express from 'express';
   import Stripe from 'stripe';
-  import { buffer } from 'micro';
   
+  const app = express();
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   
-  export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-      res.setHeader('Allow', 'POST');
-      return res.status(405).send('Method Not Allowed');
-    }
+  // Middleware to enforce raw body parsing for Stripe webhooks
+  app.use('/api/webhook', express.raw({ type: 'application/json' }));
   
+  // Webhook handler
+  app.post('/api/webhook', async (req, res) => {
     const signature = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    
-    console.log('✅ endpointSecret:', endpointSecret);
-  
     let event;
-    let rawBody;
   
     try {
-      // Use micro's buffer to get the raw body
-      rawBody = await buffer(req);
-  
-      // Validate if rawBody is a Buffer
+      // Directly using the raw body
+      const rawBody = req.body;
       console.log('✅ Is Buffer:', Buffer.isBuffer(rawBody));
-  
-      // Explicitly convert raw body to buffer
-      const buf = Buffer.from(rawBody);
-  
-      console.log('✅ Raw body (Buffer):', buf);
-      console.log('✅ Raw body (String):', buf.toString());
+      console.log('✅ Raw body (Buffer):', rawBody);
+      console.log('✅ Raw body (String):', rawBody.toString());
       console.log('✅ Signature Header:', signature);
   
       // Construct the event using the raw body and signature
-      event = stripe.webhooks.constructEvent(buf, signature, endpointSecret);
+      event = stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
       console.log('✅ Webhook verified:', event.type);
     } catch (err) {
       console.error('❌ Webhook signature verification failed:', err.message);
@@ -80,5 +69,7 @@ export const config = {
       console.error(`❌ Error processing webhook event: ${err.message}`);
       res.status(500).send(`Server Error: ${err.message}`);
     }
-  }
+  });
+  
+  export default app;
   
