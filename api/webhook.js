@@ -14,8 +14,8 @@ import {
   handleInvoicePaymentSucceeded,
   handleInvoicePaymentFailed,
   handleCustomerCreated
-} from './handlers/webhookHandlers.js';
-
+} from '.webhookHandlers.js';
+ 
 export const config = {
   api: {
     // Disable body parsing - crucial for Stripe signatures to work

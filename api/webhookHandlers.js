@@ -1,6 +1,6 @@
 // handlers/webhookHandlers.js - Separate module for webhook event handlers
 const { v4: uuidv4 } = require('uuid');
-const { query } = require('../api/database'); // Adjust path to your database module
+const { query } = require('./database'); // Adjust path to your database module
 
 // Helper function to calculate expiration date based on plan details
 function calculateExpirationDate(plan) {
