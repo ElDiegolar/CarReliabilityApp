@@ -18,6 +18,9 @@ export const config = {
   
     const signature = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    
+    console.log('✅ endpointSecret:', endpointSecret);
   
     let event;
     let rawBody;
