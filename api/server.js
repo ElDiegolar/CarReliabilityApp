@@ -747,21 +747,20 @@ app.get('/api/webhook-logs', async (req, res) => {
 
 
 // ----------------- STREAMLINED STRIPE WEBHOOK HANDLERS -----------------
-
 // Parse raw body for Stripe webhooks
-app.post("/api/webhook", express.raw({ type: "application/json" }),async (request, response) => {
-	let event = request.body;
-	const endpointSecret = "whsec_jXTUOTdQkkuPy0At5kZpEzFWY2p2exL1";
+app.post("/api/webhook", express.raw({ type: "application/json" }), async (request, response) => {
+  let event = request.body;
+  const endpointSecret = "whsec_jXTUOTdQkkuPy0At5kZpEzFWY2p2exL1";
 
-  
   let logId = null;
-  const rawBody = request.body.toString('utf8');
-  
-		const signature = request.headers["stripe-signature"];
+  const rawBody = request.body;
 
-    console.log('Webhook Headers:', JSON.stringify(request.headers));
-    console.log('Signature Header:', request.headers['stripe-signature']);
-    console.log('Body Length:', request.body.length);
+  const signature = request.headers["stripe-signature"];
+
+  console.log('Webhook Headers:', JSON.stringify(request.headers));
+  console.log('Signature Header:', signature);
+  console.log('Body Length:', rawBody.length);
+
   // Initial log entry - before signature verification
   try {
     logId = await query(`
@@ -777,31 +776,30 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
       'unknown',
       JSON.stringify({}),
       signature,
-      rawBody.length > 10000 ? rawBody.substring(0, 10000) + '...(truncated)' : rawBody,
+      rawBody.length > 10000 ? rawBody.toString('utf8').substring(0, 10000) + '...(truncated)' : rawBody.toString('utf8'),
       'received'
     ]);
-    
+
     logId = logId.rows[0].id;
     console.log(`🔍 Webhook received and logged with ID: ${logId}`);
   } catch (logError) {
     console.error('Error logging webhook receipt:', logError);
     // Continue processing even if logging fails
   }
-  
-    if (!signature) {
-      console.log("⚠️  Webhook received without signature");
-      return response.sendStatus(400);
-    }
 
-  
+  if (!signature) {
+    console.log("⚠️  Webhook received without signature");
+    return response.sendStatus(400);
+  }
+
   try {
-    // Verify the webhook signature
+    // Verify the webhook signature using the raw body (Buffer)
     event = stripe.webhooks.constructEvent(
-      request.body,
+      rawBody,
       signature,
       endpointSecret
     );
-    
+
     // Update log after successful signature verification
     if (logId) {
       try {
@@ -843,11 +841,11 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
         console.error('Error updating webhook log with verification failure:', updateError);
       }
     }
-    
+
     console.error(`⚠️  Webhook signature verification failed: ${err.message}`);
     return response.status(400).send(`Webhook Error: ${err.message}`);
   }
-  
+
   // Handle the event based on its type
   try {
     // Update log to show we're starting processing
@@ -866,7 +864,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
         console.error('Error updating webhook log before processing:', updateError);
       }
     }
-    
+
     switch (event.type) {
       case 'checkout.session.completed':
         await handleCheckoutSessionCompleted(event.data.object);
@@ -875,31 +873,31 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
       case 'customer.subscription.created':
         await handleSubscriptionCreated(event.data.object);
         break;
-        
+
       case 'customer.subscription.updated':
         await handleSubscriptionUpdated(event.data.object);
         break;
-        
+
       case 'customer.subscription.deleted':
         await handleSubscriptionDeleted(event.data.object);
         break;
-        
+
       case 'invoice.payment_succeeded':
         await handleInvoicePaymentSucceeded(event.data.object);
         break;
-        
+
       case 'invoice.payment_failed':
         await handleInvoicePaymentFailed(event.data.object);
         break;
-        
+
       case 'customer.created':
         await handleCustomerCreated(event.data.object);
         break;
-        
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
-    
+
     // Update log after successful processing
     if (logId) {
       try {
@@ -916,9 +914,9 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
         console.error('Error updating webhook log after processing:', updateError);
       }
     }
-    
+
     // Return a 200 response to acknowledge receipt of the event
-    res.status(200).json({ 
+    response.status(200).json({ 
       received: true,
       logId: logId
     });
@@ -941,12 +939,11 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
         console.error('Error updating webhook log with processing failure:', updateError);
       }
     }
-    
+
     console.error(`Error processing webhook event: ${err.message}`);
-    res.status(500).send(`Server Error: ${err.message}`);
+    response.status(500).send(`Server Error: ${err.message}`);
   }
 });
-
 
 
 // Handle successful checkout completion
