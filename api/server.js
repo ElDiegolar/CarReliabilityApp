@@ -930,7 +930,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), (request, re
     // Update log with processing error
     if (logId) {
       try {
-        await query(`
+        query(`
           UPDATE webhook_logs 
           SET processing_status = $1,
               error_message = $2,
