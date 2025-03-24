@@ -19,15 +19,18 @@ export const config = {
       // Read the raw body from the incoming request using micro
       const rawBody = await buffer(req);
   
+      // Explicitly convert the raw body to a buffer
+      const buf = Buffer.from(rawBody);
+  
       // Log raw body characteristics
-      console.log('✅ Is Buffer:', Buffer.isBuffer(rawBody));
-      console.log('✅ Raw body (Buffer):', rawBody);
-      console.log('✅ Raw body (String):', rawBody.toString());
+      console.log('✅ Is Buffer:', Buffer.isBuffer(buf));
+      console.log('✅ Raw body (Buffer):', buf);
+      console.log('✅ Raw body (String):', buf.toString());
       console.log('✅ Signature Header:', signature);
       console.log('✅ Endpoint Secret:', endpointSecret);
   
       // Construct the event using the raw body and signature
-      event = stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
+      event = stripe.webhooks.constructEvent(buf, signature, endpointSecret);
       console.log('✅ Webhook verified:', event.type);
     } catch (err) {
       console.error('❌ Webhook signature verification failed:', err.message);
@@ -68,3 +71,4 @@ export const config = {
       res.status(500).send(`Server Error: ${err.message}`);
     }
   }
+  
