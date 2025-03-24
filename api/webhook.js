@@ -14,7 +14,7 @@ import {
   handleInvoicePaymentSucceeded,
   handleInvoicePaymentFailed,
   handleCustomerCreated
-} from '../webhookHandlers.js'; // Create this file with your handler functions
+} from '../handlers/webhookHandlers'; // Create this file with your handler functions
 
 export const config = {
   api: {
