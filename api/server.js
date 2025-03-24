@@ -751,7 +751,7 @@ app.get('/api/webhook-logs', async (req, res) => {
 // Parse raw body for Stripe webhooks
 app.post("/api/webhook", express.raw({ type: "application/json" }),async (request, response) => {
 	let event = request.body;
-	const endpointSecret = "whsec_YhRT6Rym35dM5p5b8iqfiph68REuYNGo";
+	const endpointSecret = "whsec_jXTUOTdQkkuPy0At5kZpEzFWY2p2exL1";
 
   
   let logId = null;
