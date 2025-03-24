@@ -12,6 +12,15 @@ const path = require('path');
 const { initializeDatabase, query, sql } = require('./database');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+// Middleware to handle the raw body for the Stripe webhook
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/webhook") {
+    express.raw({ type: "application/json" })(req, res, next);
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
 
 // Load environment variables
 dotenv.config();
@@ -749,207 +758,252 @@ app.get('/api/webhook-logs', async (req, res) => {
 });
 
 
+// Webhook endpoint
+app.post("/api/webhook", async (req, res) => {
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const signature = req.headers["stripe-signature"];
+  
+  console.log("Webhook Headers:", JSON.stringify(req.headers));
+  console.log("Signature Header:", signature);
+  console.log("Raw Body Length:", req.body.length);
+
+  let event;
+
+  try {
+    // Directly use the raw body as a buffer for signature verification
+    event = stripe.webhooks.constructEvent(
+      req.body,               // Raw buffer from request
+      signature,              // Signature from headers
+      endpointSecret          // Your Stripe webhook secret
+    );
+    console.log("✅ Webhook verified:", event.type);
+  } catch (err) {
+    console.error("❌ Webhook signature verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event based on its type
+  try {
+    switch (event.type) {
+      case "payment_intent.succeeded":
+        console.log("💰 Payment succeeded:", event.data.object.id);
+        break;
+      case "payment_intent.payment_failed":
+        console.log("❗ Payment failed:", event.data.object.id);
+        break;
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error("❌ Error processing event:", err.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+export default app;
 
 
 // ----------------- STREAMLINED STRIPE WEBHOOK HANDLERS -----------------
 
 // Parse raw body for Stripe webhooks
-app.post("/api/webhook", express.raw({ type: "application/json" }), (request, response) => {
+// app.post("/api/webhook", express.raw({ type: "application/json" }), (request, response) => {
   
-  const rawBody = request.body;
-  let event = request.body;
-  const endpointSecret = "whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH";
-  let logId = null;
+//   const rawBody = request.body;
+//   let event = request.body;
+//   const endpointSecret = "whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH";
+//   let logId = null;
   
 
-  const signature = request.headers["stripe-signature"];
-  console.log('Webhook Headers:', JSON.stringify(request.headers));
-  console.log('Signature Header:', signature);
-  console.log('Body Length:', rawBody.length);
+//   const signature = request.headers["stripe-signature"];
+//   console.log('Webhook Headers:', JSON.stringify(request.headers));
+//   console.log('Signature Header:', signature);
+//   console.log('Body Length:', rawBody.length);
 
-  // Verify the webhook signature using the raw body (Buffer)
-    event = stripe.webhooks.constructEvent(
-      request.body,
-      request.headers["stripe-signature"],
-      endpointSecret
-    );
+//   // Verify the webhook signature using the raw body (Buffer)
+//     event = stripe.webhooks.constructEvent(
+//       request.body,
+//       request.headers["stripe-signature"],
+//       endpointSecret
+//     );
 
-  // Initial log entry - before signature verification
-  try {
-    logId = query(`
-      INSERT INTO webhook_logs (
-        event_type, 
-        event_object, 
-        stripe_signature, 
-        raw_body, 
-        processing_status
-      ) VALUES ($1, $2, $3, $4, $5)
-      RETURNING id
-    `, [
-      'unknown',
-      JSON.stringify({}),
-      signature,
-      rawBody.length > 10000 ? rawBody.toString('utf8').substring(0, 10000) + '...(truncated)' : rawBody.toString('utf8'),
-      'received'
-    ]);
+//   // Initial log entry - before signature verification
+//   try {
+//     logId = query(`
+//       INSERT INTO webhook_logs (
+//         event_type, 
+//         event_object, 
+//         stripe_signature, 
+//         raw_body, 
+//         processing_status
+//       ) VALUES ($1, $2, $3, $4, $5)
+//       RETURNING id
+//     `, [
+//       'unknown',
+//       JSON.stringify({}),
+//       signature,
+//       rawBody.length > 10000 ? rawBody.toString('utf8').substring(0, 10000) + '...(truncated)' : rawBody.toString('utf8'),
+//       'received'
+//     ]);
 
-    logId = logId.rows[0].id;
-    console.log(`🔍 Webhook received and logged with ID: ${logId}`);
-  } catch (logError) {
-    console.error('Error logging webhook receipt:', logError);
-    // Continue processing even if logging fails
-  }
+//     logId = logId.rows[0].id;
+//     console.log(`🔍 Webhook received and logged with ID: ${logId}`);
+//   } catch (logError) {
+//     console.error('Error logging webhook receipt:', logError);
+//     // Continue processing even if logging fails
+//   }
 
-  if (!signature) {
-    console.log("⚠️  Webhook received without signature");
-    return response.sendStatus(400);
-  }
+//   if (!signature) {
+//     console.log("⚠️  Webhook received without signature");
+//     return response.sendStatus(400);
+//   }
 
-  try {
-    // Update log after successful signature verification
-    if (logId) {
-      try {
-         query(`
-          UPDATE webhook_logs 
-          SET event_id = $1, 
-              event_type = $2, 
-              event_object = $3, 
-              processing_status = $4,
-              updated_at = CURRENT_TIMESTAMP
-          WHERE id = $5
-        `, [
-          event.id,
-          event.type,
-          JSON.stringify(event.data.object),
-          'verified',
-          logId
-        ]);
-      } catch (updateError) {
-        console.error('Error updating webhook log after verification:', updateError);
-      }
-    }
-  } catch (err) {
-    // Update log with signature verification failure
-    if (logId) {
-      try {
-         query(`
-          UPDATE webhook_logs 
-          SET processing_status = $1, 
-              error_message = $2,
-              updated_at = CURRENT_TIMESTAMP
-          WHERE id = $3
-        `, [
-          'verification_failed',
-          err.message,
-          logId
-        ]);
-      } catch (updateError) {
-        console.error('Error updating webhook log with verification failure:', updateError);
-      }
-    }
+//   try {
+//     // Update log after successful signature verification
+//     if (logId) {
+//       try {
+//          query(`
+//           UPDATE webhook_logs 
+//           SET event_id = $1, 
+//               event_type = $2, 
+//               event_object = $3, 
+//               processing_status = $4,
+//               updated_at = CURRENT_TIMESTAMP
+//           WHERE id = $5
+//         `, [
+//           event.id,
+//           event.type,
+//           JSON.stringify(event.data.object),
+//           'verified',
+//           logId
+//         ]);
+//       } catch (updateError) {
+//         console.error('Error updating webhook log after verification:', updateError);
+//       }
+//     }
+//   } catch (err) {
+//     // Update log with signature verification failure
+//     if (logId) {
+//       try {
+//          query(`
+//           UPDATE webhook_logs 
+//           SET processing_status = $1, 
+//               error_message = $2,
+//               updated_at = CURRENT_TIMESTAMP
+//           WHERE id = $3
+//         `, [
+//           'verification_failed',
+//           err.message,
+//           logId
+//         ]);
+//       } catch (updateError) {
+//         console.error('Error updating webhook log with verification failure:', updateError);
+//       }
+//     }
 
-    console.error(`⚠️  Webhook signature verification failed: ${err.message}`);
-    return response.status(400).send(`Webhook Error: ${err.message}`);
-  }
+//     console.error(`⚠️  Webhook signature verification failed: ${err.message}`);
+//     return response.status(400).send(`Webhook Error: ${err.message}`);
+//   }
 
-  // Handle the event based on its type
-  try {
-    // Update log to show we're starting processing
-    if (logId) {
-      try {
-         query(`
-          UPDATE webhook_logs 
-          SET processing_status = $1,
-              updated_at = CURRENT_TIMESTAMP
-          WHERE id = $2
-        `, [
-          'processing',
-          logId
-        ]);
-      } catch (updateError) {
-        console.error('Error updating webhook log before processing:', updateError);
-      }
-    }
+//   // Handle the event based on its type
+//   try {
+//     // Update log to show we're starting processing
+//     if (logId) {
+//       try {
+//          query(`
+//           UPDATE webhook_logs 
+//           SET processing_status = $1,
+//               updated_at = CURRENT_TIMESTAMP
+//           WHERE id = $2
+//         `, [
+//           'processing',
+//           logId
+//         ]);
+//       } catch (updateError) {
+//         console.error('Error updating webhook log before processing:', updateError);
+//       }
+//     }
 
-    switch (event.type) {
-      case 'checkout.session.completed':
-         handleCheckoutSessionCompleted(event.data.object);
-        break;
+//     switch (event.type) {
+//       case 'checkout.session.completed':
+//          handleCheckoutSessionCompleted(event.data.object);
+//         break;
         
-      case 'customer.subscription.created':
-         handleSubscriptionCreated(event.data.object);
-        break;
+//       case 'customer.subscription.created':
+//          handleSubscriptionCreated(event.data.object);
+//         break;
 
-      case 'customer.subscription.updated':
-         handleSubscriptionUpdated(event.data.object);
-        break;
+//       case 'customer.subscription.updated':
+//          handleSubscriptionUpdated(event.data.object);
+//         break;
 
-      case 'customer.subscription.deleted':
-         handleSubscriptionDeleted(event.data.object);
-        break;
+//       case 'customer.subscription.deleted':
+//          handleSubscriptionDeleted(event.data.object);
+//         break;
 
-      case 'invoice.payment_succeeded':
-         handleInvoicePaymentSucceeded(event.data.object);
-        break;
+//       case 'invoice.payment_succeeded':
+//          handleInvoicePaymentSucceeded(event.data.object);
+//         break;
 
-      case 'invoice.payment_failed':
-         handleInvoicePaymentFailed(event.data.object);
-        break;
+//       case 'invoice.payment_failed':
+//          handleInvoicePaymentFailed(event.data.object);
+//         break;
 
-      case 'customer.created':
-         handleCustomerCreated(event.data.object);
-        break;
+//       case 'customer.created':
+//          handleCustomerCreated(event.data.object);
+//         break;
 
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
-    }
+//       default:
+//         console.log(`Unhandled event type: ${event.type}`);
+//     }
 
-    // Update log after successful processing
-    if (logId) {
-      try {
-         query(`
-          UPDATE webhook_logs 
-          SET processing_status = $1,
-              updated_at = CURRENT_TIMESTAMP
-          WHERE id = $2
-        `, [
-          'completed',
-          logId
-        ]);
-      } catch (updateError) {
-        console.error('Error updating webhook log after processing:', updateError);
-      }
-    }
+//     // Update log after successful processing
+//     if (logId) {
+//       try {
+//          query(`
+//           UPDATE webhook_logs 
+//           SET processing_status = $1,
+//               updated_at = CURRENT_TIMESTAMP
+//           WHERE id = $2
+//         `, [
+//           'completed',
+//           logId
+//         ]);
+//       } catch (updateError) {
+//         console.error('Error updating webhook log after processing:', updateError);
+//       }
+//     }
 
-    // Return a 200 response to acknowledge receipt of the event
-    response.status(200).json({ 
-      received: true,
-      logId: logId
-    });
-  } catch (err) {
-    // Update log with processing error
-    if (logId) {
-      try {
-        query(`
-          UPDATE webhook_logs 
-          SET processing_status = $1,
-              error_message = $2,
-              updated_at = CURRENT_TIMESTAMP
-          WHERE id = $3
-        `, [
-          'failed',
-          err.message,
-          logId
-        ]);
-      } catch (updateError) {
-        console.error('Error updating webhook log with processing failure:', updateError);
-      }
-    }
+//     // Return a 200 response to acknowledge receipt of the event
+//     response.status(200).json({ 
+//       received: true,
+//       logId: logId
+//     });
+//   } catch (err) {
+//     // Update log with processing error
+//     if (logId) {
+//       try {
+//         query(`
+//           UPDATE webhook_logs 
+//           SET processing_status = $1,
+//               error_message = $2,
+//               updated_at = CURRENT_TIMESTAMP
+//           WHERE id = $3
+//         `, [
+//           'failed',
+//           err.message,
+//           logId
+//         ]);
+//       } catch (updateError) {
+//         console.error('Error updating webhook log with processing failure:', updateError);
+//       }
+//     }
 
-    console.error(`Error processing webhook event: ${err.message}`);
-    response.status(500).send(`Server Error: ${err.message}`);
-  }
-});
+//     console.error(`Error processing webhook event: ${err.message}`);
+//     response.status(500).send(`Server Error: ${err.message}`);
+//   }
+// });
 
 
 // Handle successful checkout completion
