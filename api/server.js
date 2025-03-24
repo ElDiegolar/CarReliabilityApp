@@ -1,10 +1,4 @@
 // api/server.js - Express server with PostgreSQL integration and user management
-// Disable body parser for Stripe webhooks
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 
 const express = require('express');
