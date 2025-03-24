@@ -759,10 +759,12 @@ app.get('/api/webhook-logs', async (req, res) => {
 
 // Parse raw body for Stripe webhooks
 app.post("/api/webhook", express.raw({ type: "application/json" }), async (request, response) => {
+  
+  const rawBody = request.body;
   let event = request.body;
   const endpointSecret = "whsec_MzzL0MnyIwZ0iFojctz9cC8w4Vcyz7eC";
   let logId = null;
-  const rawBody = request.body;
+  
 
   const signature = request.headers["stripe-signature"];
   console.log('Webhook Headers:', JSON.stringify(request.headers));
@@ -803,9 +805,9 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), async (reque
   try {
     // Verify the webhook signature using the raw body (Buffer)
     event = stripe.webhooks.constructEvent(
-      rawBody,
-      signature,
-      endpointSecret
+      request.body,
+      request.headers["stripe-signature"],
+    'whsec_MzzL0MnyIwZ0iFojctz9cC8w4Vcyz7eC'
     );
 
     // Update log after successful signature verification
