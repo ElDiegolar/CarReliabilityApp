@@ -753,16 +753,6 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
 	let event = request.body;
 	const endpointSecret = "whsec_YhRT6Rym35dM5p5b8iqfiph68REuYNGo";
 
-	if (endpointSecret) {
-		const signature = request.headers["stripe-signature"];
-		try {
-			event = stripe.webhooks.constructEvent(request.body, signature, endpointSecret);
-		} catch (err) {
-			console.log(`⚠️  Webhook signature verification failed.`, err.message);
-			return response.sendStatus(400);
-		}
-	}
-
   
   let logId = null;
   const rawBody = req.body.toString('utf8');
@@ -793,11 +783,18 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
     // Continue processing even if logging fails
   }
   
+		const signature = request.headers["stripe-signature"];
+    if (!signature) {
+      console.log("⚠️  Webhook received without signature");
+      return response.sendStatus(400);
+    }
+
+  
   try {
     // Verify the webhook signature
     event = stripe.webhooks.constructEvent(
       req.body,
-      sig,
+      signature,
       endpointSecret
     );
     
