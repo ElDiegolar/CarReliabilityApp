@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const signature = req.headers['stripe-signature'];
-  const isDebug = process.env.NODE_ENV !== 'production'; // Enable debug logs in dev
+  const isDebug = true; // Enable debug logs in dev
 
   try {
     // Validate required inputs
