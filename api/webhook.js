@@ -20,24 +20,42 @@ export const config = {
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   
     let event;
+    let rawBody;
   
     try {
       // Get the raw body as a buffer
-      const rawBody = await buffer(req);
+      rawBody = await buffer(req);
   
+      // Detailed logging
+      console.log('🚀🚀🚀 Start Signature Verification 🚀🚀🚀');
       console.log('✅ Raw body (Buffer):', rawBody);
       console.log('✅ Raw body (String):', rawBody.toString());
-      console.log('✅ Signature:', signature);
+      console.log('✅ Signature Header:', signature);
+      console.log('✅ Endpoint Secret:', endpointSecret);
   
-      // Construct the event using the raw body and signature
+      // Check if the raw body is actually a buffer
+      console.log('✅ Is Buffer:', Buffer.isBuffer(rawBody));
+  
+      // Log the actual payload as string
+      const payloadString = rawBody.toString('utf8');
+      console.log('✅ Payload String:', payloadString);
+  
+      // Attempt signature verification
       event = stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
       console.log('✅ Webhook verified:', event.type);
     } catch (err) {
       console.error('❌ Webhook signature verification failed:', err.message);
+  
+      // Log the raw body as a hex dump to inspect its contents
+      console.error('Hex dump of raw body:', rawBody.toString('hex'));
+  
+      // Log the headers in case of discrepancies
+      console.error('Request Headers:', JSON.stringify(req.headers));
+  
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
   
-    // Handle the event based on its type
+    // Handle the event
     try {
       switch (event.type) {
         case 'checkout.session.completed':
@@ -45,21 +63,6 @@ export const config = {
           break;
         case 'customer.subscription.created':
           console.log('✅ Subscription Created:', event.data.object.id);
-          break;
-        case 'customer.subscription.updated':
-          console.log('🔄 Subscription Updated:', event.data.object.id);
-          break;
-        case 'customer.subscription.deleted':
-          console.log('❌ Subscription Deleted:', event.data.object.id);
-          break;
-        case 'invoice.payment_succeeded':
-          console.log('✅ Invoice Payment Succeeded:', event.data.object.id);
-          break;
-        case 'invoice.payment_failed':
-          console.log('❗ Invoice Payment Failed:', event.data.object.id);
-          break;
-        case 'customer.created':
-          console.log('✅ Customer Created:', event.data.object.id);
           break;
         default:
           console.log(`Unhandled event type: ${event.type}`);
