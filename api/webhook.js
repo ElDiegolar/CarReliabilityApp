@@ -1,22 +1,10 @@
 import Stripe from 'stripe';
+import crypto from 'crypto';
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-06-20',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
 
-// Disable Vercel's automatic body parsing
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const config = { api: { bodyParser: false } };
 
-/**
- * Get raw body from request as a Buffer
- * @param {import('http').IncomingMessage} req
- * @returns {Promise<Buffer>}
- */
 async function getRawBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -27,37 +15,40 @@ async function getRawBody(req) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const signature = req.headers['stripe-signature'];
-  const isDebug = true;
-
+const isDebug = true;
   try {
-    // Validate inputs
     if (!signature) throw new Error('Missing stripe-signature header');
     if (!endpointSecret) throw new Error('Webhook secret not configured');
 
-    // Get raw body as a Buffer
     const rawBody = await getRawBody(req);
     if (!rawBody || rawBody.length === 0) throw new Error('Empty request body');
 
-    // Debug logs
     if (isDebug) {
       console.log('✅ Is Buffer:', Buffer.isBuffer(rawBody));
       console.log('✅ Raw body (Buffer):', rawBody);
       console.log('✅ Raw body (String):', rawBody.toString());
       console.log('✅ Signature Header:', signature);
       console.log('✅ Endpoint Secret:', endpointSecret);
+
+      // Extract timestamp and compute signature for debugging
+      const timestampMatch = signature.match(/t=(\d+)/);
+      const timestamp = timestampMatch ? timestampMatch[1] : null;
+      if (timestamp) {
+        const computedSig = crypto
+          .createHmac('sha256', endpointSecret)
+          .update(`${timestamp}.${rawBody.toString()}`)
+          .digest('hex');
+        console.log('✅ Computed Signature:', computedSig);
+      }
     }
 
-    // Verify webhook event
     const event = stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
     if (isDebug) console.log('✅ Webhook verified:', event.type);
 
-    // Handle events
     switch (event.type) {
       case 'customer.created':
         if (isDebug) console.log('✅ Customer Created:', event.data.object.id);
