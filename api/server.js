@@ -757,6 +757,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
   let logId = null;
   const rawBody = request.body.toString('utf8');
   
+		const signature = request.headers["stripe-signature"];
   // Initial log entry - before signature verification
   try {
     logId = await query(`
@@ -771,7 +772,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
     `, [
       'unknown',
       JSON.stringify({}),
-      sig,
+      signature,
       rawBody.length > 10000 ? rawBody.substring(0, 10000) + '...(truncated)' : rawBody,
       'received'
     ]);
@@ -783,7 +784,6 @@ app.post("/api/webhook", express.raw({ type: "application/json" }),async (reques
     // Continue processing even if logging fails
   }
   
-		const signature = request.headers["stripe-signature"];
     if (!signature) {
       console.log("⚠️  Webhook received without signature");
       return response.sendStatus(400);
