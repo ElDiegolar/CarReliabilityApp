@@ -754,7 +754,7 @@ app.get('/api/webhook-logs', async (req, res) => {
 // ----------------- STREAMLINED STRIPE WEBHOOK HANDLERS -----------------
 
 // Parse raw body for Stripe webhooks
-app.post("/api/webhook", express.raw({ type: "application/json" }), (request, response) => {
+app.post("/api/webhook", (request, response) => {
   
   const rawBody = request.body;
   let event = request.body;
