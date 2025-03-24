@@ -1,3 +1,8 @@
+export const config = {
+  api: {
+    bodyParser: false
+  }
+};
 // api/database.js - PostgreSQL integration with Vercel Postgres
 const { createPool  } = require('@vercel/postgres');
 const dotenv = require('dotenv');
