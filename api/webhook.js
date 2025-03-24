@@ -27,9 +27,18 @@ export const config = {
       console.log('✅ Raw body (Buffer):', rawBody);
       console.log('✅ Raw body (String):', rawBody.toString());
       console.log('✅ Signature Header:', signature);
+      console.log('✅ Endpoint Secret:', endpointSecret);
   
-      // Construct the event using the raw body and signature
-      event = stripe.webhooks.constructEvent(rawBody, signature, endpointSecret);
+      // Explicitly convert raw body to UTF-8 string and back to buffer to ensure encoding consistency
+      const rawBodyString = rawBody.toString('utf8');
+      const processedBody = Buffer.from(rawBodyString, 'utf8');
+  
+      // Log the processed buffer and its string representation
+      console.log('✅ Processed raw body (String):', rawBodyString);
+      console.log('✅ Processed raw body (Buffer):', processedBody);
+  
+      // Construct the event using the processed body and signature
+      event = stripe.webhooks.constructEvent(processedBody, signature, endpointSecret);
       console.log('✅ Webhook verified:', event.type);
     } catch (err) {
       console.error('❌ Webhook signature verification failed:', err.message);
