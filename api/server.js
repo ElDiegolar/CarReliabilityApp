@@ -749,7 +749,7 @@ app.get('/api/webhook-logs', async (req, res) => {
 
 // Middleware for Stripe Webhook (raw body parsing)
 app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const endpointSecret = 'whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH';
   const signature = req.headers['stripe-signature'];
 
   console.log("Webhook Headers:", JSON.stringify(req.headers));

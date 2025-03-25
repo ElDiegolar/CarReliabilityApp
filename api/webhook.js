@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import crypto from 'crypto';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
+const stripe = new Stripe('sk_test_mW5kSbWQ5RUKweAmuVKnDaJx', { apiVersion: '2024-06-20' });
 
 export const config = { api: { bodyParser: false } };
 
@@ -17,7 +17,7 @@ async function getRawBody(req) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const endpointSecret = 'whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH';
   const signature = req.headers['stripe-signature'];
 const isDebug = true;
   try {
