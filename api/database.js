@@ -4,15 +4,14 @@ export const config = {
   }
 };
 // api/database.js - PostgreSQL integration with Vercel Postgres
-const { createPool  } = require('@vercel/postgres');
+const { createPool } = require('@vercel/postgres');
 const dotenv = require('dotenv');
 
-// Load environment variables
+// Load environment variables (only needed locally; Vercel injects them in production)
 dotenv.config();
 
 // Create a new PostgreSQL connection pool
-// Note: We're using the Pool class directly, not as a constructor
-const pool = new createPool ({
+const pool = createPool({
   connectionString: process.env.POSTGRES_URL,
   ssl: {
     rejectUnauthorized: false
