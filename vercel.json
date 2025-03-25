@@ -5,7 +5,18 @@
             "src": "api/server.js",
             "use": "@vercel/node",
             "config": {
-                "maxDuration": 30
+                "maxDuration": 55
+            }
+        },
+        {
+            "src": "api/webhook.js",
+            "use": "@vercel/node",
+            "config": {
+                "maxDuration": 30,
+                "includeFiles": [
+                    "handlers/webhookHandlers.js",
+                    "api/database.js"
+                ]
             }
         },
         {
@@ -23,7 +34,7 @@
                 "POST",
                 "OPTIONS"
             ],
-            "dest": "/api/server.js",
+            "dest": "/api/webhook.js",
             "headers": {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Headers": "Content-Type, Authorization, Stripe-Signature"
