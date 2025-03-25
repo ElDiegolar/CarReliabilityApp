@@ -7,7 +7,7 @@
         "build": "vue-cli-service build",
         "server": "node api/server.js",
         "dev": "concurrently \"npm run serve\" \"npm run server\"",
-        "vercel-build": "npm install && vue-cli-service build" // Added for Vercel
+        "vercel-build": "npm install && vue-cli-service build"
     },
     "dependencies": {
         "@stripe/stripe-js": "^1.52.1",
