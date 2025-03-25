@@ -1,5 +1,4 @@
 // api/server.js - Express server with PostgreSQL integration and user management
-//test
 
 const express = require('express');
 const cors = require('cors');
