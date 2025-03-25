@@ -1,0 +1,64 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "api/server.js",
+            "use": "@vercel/node",
+            "config": {
+                "maxDuration": 30
+            }
+        },
+        {
+            "src": "package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/webhook",
+            "methods": [
+                "POST",
+                "OPTIONS"
+            ],
+            "dest": "/api/server.js",
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization, Stripe-Signature"
+            }
+        },
+        {
+            "src": "/api/(.*)",
+            "dest": "/api/server.js"
+        },
+        {
+            "src": "/js/(.*)",
+            "dest": "/dist/js/$1"
+        },
+        {
+            "src": "/css/(.*)",
+            "dest": "/dist/css/$1"
+        },
+        {
+            "src": "/img/(.*)",
+            "dest": "/dist/img/$1"
+        },
+        {
+            "src": "/fonts/(.*)",
+            "dest": "/dist/fonts/$1"
+        },
+        {
+            "src": "/(.*\\.[a-z0-9]+)$",
+            "dest": "/dist/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/dist/index.html"
+        }
+    ],
+    "env": {
+        "NODE_ENV": "production"
+    }
+}
