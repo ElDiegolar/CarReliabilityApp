@@ -25,16 +25,6 @@ dotenv.config();
 // Create express app
 const app = express();
 
-// Special middleware for Stripe webhooks (raw body parsing)
-app.use((req, res, next) => {
-  if (req.originalUrl === '/api/webhook') {
-    // Use express.raw() to capture raw body for Stripe signature verification
-    express.raw({ type: 'application/json' })(req, res, next);
-  } else {
-    // Use express.json() for other routes
-    express.json()(req, res, next);
-  }
-});
 
 // Middleware
 app.use(cors({
@@ -757,11 +747,11 @@ app.get('/api/webhook-logs', async (req, res) => {
 });
 
 
-// Webhook endpoint
-app.post('/api/webhook', express.raw({type: 'application/json'}), (req, res) => {
+// Middleware for Stripe Webhook (raw body parsing)
+app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  const signature = req.headers["stripe-signature"];
-  
+  const signature = req.headers['stripe-signature'];
+
   console.log("Webhook Headers:", JSON.stringify(req.headers));
   console.log("Signature Header:", signature);
   console.log("Raw Body Length:", req.body.length);
@@ -769,11 +759,11 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), (req, res) => 
   let event;
 
   try {
-    // Directly use the raw body as a buffer for signature verification
+    // Use the raw body for signature verification
     event = stripe.webhooks.constructEvent(
-      req.body,               // Raw buffer from request
-      signature,              // Signature from headers
-      endpointSecret          // Your Stripe webhook secret
+      req.body,  // Raw buffer from request
+      signature,  // Signature from headers
+      endpointSecret  // Your Stripe webhook secret
     );
     console.log("✅ Webhook verified:", event.type);
   } catch (err) {
@@ -781,7 +771,7 @@ app.post('/api/webhook', express.raw({type: 'application/json'}), (req, res) => 
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event based on its type
+  // Handle the event
   try {
     switch (event.type) {
       case "payment_intent.succeeded":
