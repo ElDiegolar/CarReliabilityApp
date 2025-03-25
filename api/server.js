@@ -157,15 +157,15 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
   }
 });
 
-// CORS middleware
-app.use(cors({
-  origin: "*", // Allow all domains (restrict in production)
-  methods: "GET,POST,OPTIONS,PUT,DELETE",
-  allowedHeaders: "Content-Type, Authorization"
-}));
+// // CORS middleware
+// app.use(cors({
+//   origin: "*", // Allow all domains (restrict in production)
+//   methods: "GET,POST,OPTIONS,PUT,DELETE",
+//   allowedHeaders: "Content-Type, Authorization"
+// }));
 
 // JSON body parsing for all other routes
-app.use(express.json());
+// app.use(express.json());
 
 // Initialize database tables if they don't exist
 (async () => {
