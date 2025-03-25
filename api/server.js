@@ -29,6 +29,11 @@ app.use(cors({
 
 
 
+
+// Add JSON body parsing for all routes except /api/webhook
+app.use(express.json()); // Parses JSON bodies
+
+
 // Initialize database tables if they don't exist
 (async () => {
   try {
