@@ -746,8 +746,7 @@ app.get('/api/webhook-logs', async (req, res) => {
   }
 });
 
-
-// Middleware for Stripe Webhook (raw body parsing)
+// Webhook endpoint within server.js
 app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
   const endpointSecret = 'whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH';
   const signature = req.headers['stripe-signature'];
@@ -759,11 +758,10 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
   let event;
 
   try {
-    // Use the raw body for signature verification
     event = stripe.webhooks.constructEvent(
-      req.body,  // Raw buffer from request
-      signature,  // Signature from headers
-      endpointSecret  // Your Stripe webhook secret
+      req.body,
+      signature,
+      endpointSecret
     );
     console.log("✅ Webhook verified:", event.type);
   } catch (err) {
@@ -774,10 +772,10 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
   // Handle the event
   try {
     switch (event.type) {
-      case "payment_intent.succeeded":
+      case 'payment_intent.succeeded':
         console.log("💰 Payment succeeded:", event.data.object.id);
         break;
-      case "payment_intent.payment_failed":
+      case 'payment_intent.payment_failed':
         console.log("❗ Payment failed:", event.data.object.id);
         break;
       default:
@@ -786,8 +784,8 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
 
     res.status(200).json({ received: true });
   } catch (err) {
-    console.error("❌ Error processing event:", err.message);
-    res.status(500).send("Internal Server Error");
+    console.error("❌ Webhook signature verification failed:", err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
   }
 });
 
