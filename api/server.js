@@ -1,5 +1,3 @@
-// api/server.js - Express server with PostgreSQL integration and user management
-
 const express = require('express');
 const cors = require('cors');
 const { Configuration, OpenAIApi } = require('openai');
@@ -7,34 +5,71 @@ const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
 const { initializeDatabase, query, sql } = require('./database');
 const stripe = require('stripe')('sk_test_mW5kSbWQ5RUKweAmuVKnDaJx');
 
-
-
-// Load environment variables
 dotenv.config();
 
-// Create express app
 const app = express();
 
-
-// Middleware
+// CORS middleware
 app.use(cors({
-  origin: "*",  // Allow all domains (restrict in production)
+  origin: "*",
   methods: "GET,POST,OPTIONS,PUT,DELETE",
   allowedHeaders: "Content-Type, Authorization"
 }));
 
+// Webhook endpoint with raw body parsing (must come before express.json)
+app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const endpointSecret = 'whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH';
+  const signature = req.headers['stripe-signature'];
 
+  console.log("✅ Is Buffer:", Buffer.isBuffer(req.body));
+  console.log("✅ Raw body (Buffer):", req.body);
+  console.log("✅ Raw body (String):", req.body.toString());
+  console.log("✅ Signature Header:", signature);
+  console.log("✅ Endpoint Secret:", endpointSecret);
 
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
+    console.log("✅ Webhook verified:", event.type);
+  } catch (err) {
+    console.log("✅ Computed Signature:", stripe.webhooks.generateTestHeaderString({
+      payload: req.body,
+      secret: endpointSecret,
+      timestamp: parseInt(signature.split('t=')[1].split(',')[0])
+    }).split('v1=')[1]);
+    console.error("❌ Webhook signature verification failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
-// Add JSON body parsing for all routes except /api/webhook
-app.use(express.json()); // Parses JSON bodies
+  try {
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        console.log("💰 Payment succeeded:", event.data.object.id);
+        break;
+      case 'payment_intent.payment_failed':
+        console.log("❗ Payment failed:", event.data.object.id);
+        break;
+      case 'customer.subscription.created':
+        console.log("📝 Subscription created:", event.data.object.id);
+        // Add your subscription handling logic here if needed
+        break;
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error("❌ Webhook processing failed:", err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+});
 
+// JSON body parsing for all other routes
+app.use(express.json());
 
-// Initialize database tables if they don't exist
+// Initialize database
 (async () => {
   try {
     await initializeDatabase();
@@ -64,6 +99,50 @@ const authenticateToken = (req, res, next) => {
     return res.status(403).json({ error: 'Invalid or expired token' });
   }
 };
+
+// Register a new user
+app.post('/api/register', async (req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+  
+  try {
+    const existingUserResult = await query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existingUserResult.rows.length > 0) {
+      return res.status(409).json({ error: 'User already exists' });
+    }
+    
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userResult = await query(
+      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
+      [email, hashedPassword]
+    );
+    
+    const userId = userResult.rows[0].id;
+    await query(
+      'INSERT INTO subscriptions (user_id, plan, status) VALUES ($1, $2, $3)',
+      [userId, 'basic', 'active']
+    );
+    
+    const token = jwt.sign(
+      { id: userId, email },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+    
+    res.status(201).json({
+      message: 'User registered successfully with basic subscription',
+      user: { id: userId, email },
+      subscription: { plan: 'basic', status: 'active' },
+      token
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Registration failed', message: error.message });
+  }
+});
 
 // Check subscription status middleware
 const checkSubscription = async (req, res, next) => {
@@ -96,56 +175,56 @@ const checkSubscription = async (req, res, next) => {
 };
 
 // Register a new user
-app.post('/api/register', async (req, res) => {
-  const { email, password } = req.body;
+// app.post('/api/register', async (req, res) => {
+//   const { email, password } = req.body;
   
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password required' });
-  }
+//   if (!email || !password) {
+//     return res.status(400).json({ error: 'Email and password required' });
+//   }
   
-  try {
-    // Check if user already exists
-    const existingUserResult = await query('SELECT id FROM users WHERE email = $1', [email]);
+//   try {
+//     // Check if user already exists
+//     const existingUserResult = await query('SELECT id FROM users WHERE email = $1', [email]);
     
-    if (existingUserResult.rows.length > 0) {
-      return res.status(409).json({ error: 'User already exists' });
-    }
+//     if (existingUserResult.rows.length > 0) {
+//       return res.status(409).json({ error: 'User already exists' });
+//     }
     
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+//     // Hash password
+//     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create user and get the ID
-    const userResult = await query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
-      [email, hashedPassword]
-    );
+//     // Create user and get the ID
+//     const userResult = await query(
+//       'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
+//       [email, hashedPassword]
+//     );
     
-    const userId = userResult.rows[0].id;
+//     const userId = userResult.rows[0].id;
     
-    // Create basic subscription for the user
-    await query(
-      'INSERT INTO subscriptions (user_id, plan, status) VALUES ($1, $2, $3)',
-      [userId, 'basic', 'active']
-    );
+//     // Create basic subscription for the user
+//     await query(
+//       'INSERT INTO subscriptions (user_id, plan, status) VALUES ($1, $2, $3)',
+//       [userId, 'basic', 'active']
+//     );
     
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: userId, email },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    );
+//     // Generate JWT token
+//     const token = jwt.sign(
+//       { id: userId, email },
+//       process.env.JWT_SECRET || 'your-secret-key',
+//       { expiresIn: '24h' }
+//     );
     
-    res.status(201).json({
-      message: 'User registered successfully with basic subscription',
-      user: { id: userId, email },
-      subscription: { plan: 'basic', status: 'active' },
-      token
-    });
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Registration failed', message: error.message });
-  }
-});
+//     res.status(201).json({
+//       message: 'User registered successfully with basic subscription',
+//       user: { id: userId, email },
+//       subscription: { plan: 'basic', status: 'active' },
+//       token
+//     });
+//   } catch (error) {
+//     console.error('Registration error:', error);
+//     res.status(500).json({ error: 'Registration failed', message: error.message });
+//   }
+// });
 
 // Login
 app.post('/api/login', async (req, res) => {
@@ -745,48 +824,48 @@ app.get('/api/webhook-logs', async (req, res) => {
   }
 });
 
-// Webhook endpoint within server.js
-app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
-  const endpointSecret = 'whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH';
-  const signature = req.headers['stripe-signature'];
+// // Webhook endpoint within server.js
+// app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+//   const endpointSecret = 'whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH';
+//   const signature = req.headers['stripe-signature'];
 
-  console.log("Webhook Headers:", JSON.stringify(req.headers));
-  console.log("Signature Header:", signature);
-  console.log("Raw Body Length:", req.body.length);
+//   console.log("Webhook Headers:", JSON.stringify(req.headers));
+//   console.log("Signature Header:", signature);
+//   console.log("Raw Body Length:", req.body.length);
 
-  let event;
+//   let event;
 
-  try {
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      signature,
-      endpointSecret
-    );
-    console.log("✅ Webhook verified:", event.type);
-  } catch (err) {
-    console.error("❌ Webhook signature verification failed:", err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+//   try {
+//     event = stripe.webhooks.constructEvent(
+//       req.body,
+//       signature,
+//       endpointSecret
+//     );
+//     console.log("✅ Webhook verified:", event.type);
+//   } catch (err) {
+//     console.error("❌ Webhook signature verification failed:", err.message);
+//     return res.status(400).send(`Webhook Error: ${err.message}`);
+//   }
 
-  // Handle the event
-  try {
-    switch (event.type) {
-      case 'payment_intent.succeeded':
-        console.log("💰 Payment succeeded:", event.data.object.id);
-        break;
-      case 'payment_intent.payment_failed':
-        console.log("❗ Payment failed:", event.data.object.id);
-        break;
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
-    }
+//   // Handle the event
+//   try {
+//     switch (event.type) {
+//       case 'payment_intent.succeeded':
+//         console.log("💰 Payment succeeded:", event.data.object.id);
+//         break;
+//       case 'payment_intent.payment_failed':
+//         console.log("❗ Payment failed:", event.data.object.id);
+//         break;
+//       default:
+//         console.log(`Unhandled event type: ${event.type}`);
+//     }
 
-    res.status(200).json({ received: true });
-  } catch (err) {
-    console.error("❌ Webhook signature verification failed:", err.message);
-    res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-});
+//     res.status(200).json({ received: true });
+//   } catch (err) {
+//     console.error("❌ Webhook signature verification failed:", err.message);
+//     res.status(400).send(`Webhook Error: ${err.message}`);
+//   }
+// });
 
 export default app;
 
