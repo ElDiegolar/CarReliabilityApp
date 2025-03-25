@@ -1,9 +1,12 @@
 import Stripe from 'stripe';
 import crypto from 'crypto';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
-
-export const config = { api: { bodyParser: false } };
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+export const config = {
+  api: {
+    bodyParser: false, // Disable Vercel's default body parser
+  },
+};
 
 async function getRawBody(req) {
   return new Promise((resolve, reject) => {
