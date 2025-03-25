@@ -12,12 +12,6 @@ dotenv.config();
 
 const app = express();
 
-// CORS middleware
-app.use(cors({
-  origin: "*", // Allow all domains (restrict in production)
-  methods: "GET,POST,OPTIONS,PUT,DELETE",
-  allowedHeaders: "Content-Type, Authorization"
-}));
 app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
   const endpointSecret = 'whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH';
   const signature = req.headers['stripe-signature'];
@@ -74,6 +68,14 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
     res.status(400).send(`Webhook Error: ${err.message}`);
   }
 });
+
+// CORS middleware
+app.use(cors({
+  origin: "*", // Allow all domains (restrict in production)
+  methods: "GET,POST,OPTIONS,PUT,DELETE",
+  allowedHeaders: "Content-Type, Authorization"
+}));
+
 // JSON body parsing for all other routes
 app.use(express.json());
 
