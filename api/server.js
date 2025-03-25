@@ -15,7 +15,7 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const { initializeDatabase, query, sql } = require('./database');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')('sk_test_mW5kSbWQ5RUKweAmuVKnDaJx');
 
 
 
