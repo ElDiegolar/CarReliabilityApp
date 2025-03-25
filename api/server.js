@@ -45,7 +45,7 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
   
   if (!signature) {
     return res.status(400).send('Stripe signature is missing');
-  }
+  }s
 
   // Use the rawBody if available, otherwise fall back to req.body
   const payload = req.rawBody || req.body;
