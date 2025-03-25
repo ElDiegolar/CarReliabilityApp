@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "@stripe/stripe-js": "^1.52.1",
-        "@vercel/postgres": "^0.10.0",
+        "@vercel/postgres": "0.10.0",
         "axios": "^1.3.4",
         "bcryptjs": "^2.4.3",
         "core-js": "^3.8.3",
