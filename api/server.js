@@ -18,8 +18,6 @@ app.use(cors({
   methods: "GET,POST,OPTIONS,PUT,DELETE",
   allowedHeaders: "Content-Type, Authorization"
 }));
-
-// Webhook endpoint with raw body parsing (must come before express.json)
 app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
   const endpointSecret = 'whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH';
   const signature = req.headers['stripe-signature'];
@@ -32,14 +30,26 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
 
   let event;
   try {
+    // Manual signature computation for debugging
+    const timestamp = signature.match(/t=(\d+)/)?.[1];
+    const v1Signatures = signature.match(/v1=([a-f0-9]{64})/g)?.map(s => s.split('=')[1]) || [];
+    const payload = req.body.toString('utf8');
+    const signedPayload = `${timestamp}.${payload}`;
+    const crypto = require('crypto');
+    const expectedSignature = crypto
+      .createHmac('sha256', endpointSecret)
+      .update(signedPayload)
+      .digest('hex');
+
+    console.log("✅ Timestamp:", timestamp);
+    console.log("✅ Signed Payload (first 100 chars):", signedPayload.substring(0, 100));
+    console.log("✅ Expected Signature (manual):", expectedSignature);
+    console.log("✅ Provided v1 Signatures:", v1Signatures);
+
+    // Verify with Stripe's method
     event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
     console.log("✅ Webhook verified:", event.type);
   } catch (err) {
-    console.log("✅ Computed Signature:", stripe.webhooks.generateTestHeaderString({
-      payload: req.body,
-      secret: endpointSecret,
-      timestamp: parseInt(signature.split('t=')[1].split(',')[0])
-    }).split('v1=')[1]);
     console.error("❌ Webhook signature verification failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
@@ -54,7 +64,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
         break;
       case 'customer.subscription.created':
         console.log("📝 Subscription created:", event.data.object.id);
-        // Add subscription handling logic here if needed
         break;
       default:
         console.log(`Unhandled event type: ${event.type}`);
@@ -65,7 +74,6 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
     res.status(400).send(`Webhook Error: ${err.message}`);
   }
 });
-
 // JSON body parsing for all other routes
 app.use(express.json());
 
