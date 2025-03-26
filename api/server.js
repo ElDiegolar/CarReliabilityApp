@@ -12,160 +12,15 @@ dotenv.config();
 
 const app = express();
 
-// STEP 1: Debug middleware to log the raw request before any processing
-app.use((req, res, next) => {
-  // Only for the webhook path
-  if (req.path === '/api/webhook') {
-    // Create a buffer array to collect chunks
-    const chunks = [];
-    
-    // Save the original listeners
-    const originalWrite = res.write;
-    const originalEnd = res.end;
-    
-    // Override data listener
-    req.on('data', chunk => {
-      chunks.push(chunk);
-    });
-    
-    // Override end listener
-    req.on('end', () => {
-      // Store the raw body for later use
-      req.rawBody = Buffer.concat(chunks);
-      console.log('💾 Raw body captured:', req.rawBody.length, 'bytes');
-    });
-  }
-  next();
-});
+// CORS middleware
+app.use(cors({
+  origin: "*", // Allow all domains (restrict in production)
+  methods: "GET,POST,OPTIONS,PUT,DELETE",
+  allowedHeaders: "Content-Type, Authorization"
+}));
 
-// STEP 2: Custom Stripe webhook handling route
-app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
-  const endpointSecret = 'whsec_g9iplz4O3eLpzGqDrc4rnS7QWwZMpwaH';
-  const signature = req.headers['stripe-signature'];
-  
-  if (!signature) {
-    return res.status(400).send('Stripe signature is missing');
-  }s
-
-  // Use the rawBody if available, otherwise fall back to req.body
-  const payload = req.rawBody || req.body;
-  
-  console.log('⚙️ Processing webhook with payload type:', typeof payload);
-  console.log('⚙️ Is Buffer:', Buffer.isBuffer(payload));
-  console.log('⚙️ Payload length:', payload.length, 'bytes');
-  
-  // Manual signature verification
-  try {
-    const signatureParts = signature.split(',');
-    const timestampPart = signatureParts.find(part => part.startsWith('t='));
-    const timestamp = timestampPart ? timestampPart.substring(2) : '';
-    
-    console.log('⏱️ Timestamp from signature:', timestamp);
-    
-    // Calculate the signature manually
-    const signedPayload = `${timestamp}.${payload.toString('utf8')}`;
-    
-    const computedSignature = crypto
-      .createHmac('sha256', endpointSecret)
-      .update(signedPayload)
-      .digest('hex');
-    
-    console.log('🔒 Computed signature:', computedSignature);
-    
-    // Check v1 signatures
-    const v1Parts = signatureParts.filter(part => part.startsWith('v1='));
-    
-    if (v1Parts.length === 0) {
-      throw new Error('No v1 signature found in Stripe signature header');
-    }
-    
-    const v1Signatures = v1Parts.map(part => part.substring(3));
-    console.log('🔑 v1 Signatures from Stripe:', v1Signatures);
-    
-    const signatureMatched = v1Signatures.some(sig => sig === computedSignature);
-    
-    if (!signatureMatched) {
-      // One last attempt with using different encodings
-      console.log('🔄 Trying alternative signature calculation methods...');
-      
-      // Method 1: Use the raw buffer directly
-      const altSignature1 = crypto
-        .createHmac('sha256', endpointSecret)
-        .update(`${timestamp}.`)
-        .update(payload)
-        .digest('hex');
-      
-      console.log('🔀 Alt signature 1:', altSignature1);
-      
-      // Method 2: Try using a different encoding
-      const altSignature2 = crypto
-        .createHmac('sha256', endpointSecret)
-        .update(`${timestamp}.${payload.toString('ascii')}`)
-        .digest('hex');
-      
-      console.log('🔀 Alt signature 2:', altSignature2);
-      
-      // Check if any alternative methods worked
-      if (v1Signatures.includes(altSignature1)) {
-        console.log('✅ Matched with alternative method 1!');
-      } else if (v1Signatures.includes(altSignature2)) {
-        console.log('✅ Matched with alternative method 2!');
-      } else {
-        // If all verification methods fail, try to bypass for testing
-        console.log('⚠️ All verification methods failed. Proceeding with caution...');
-      }
-    }
-    
-    // Try using Stripe's built-in verification as a fallback
-    let event;
-    try {
-      event = stripe.webhooks.constructEvent(payload, signature, endpointSecret);
-      console.log('✨ Stripe SDK verification succeeded!');
-    } catch (stripeVerificationError) {
-      console.error('❌ Stripe SDK verification failed:', stripeVerificationError.message);
-      
-      // For testing purposes, parse the payload manually
-      // WARNING: In production, you should reject unverified webhooks
-      console.log('🔧 Attempting to parse payload manually for testing...');
-      event = JSON.parse(payload.toString('utf8'));
-    }
-    
-    // Process the event
-    console.log('📩 Processing event type:', event.type);
-    
-    // Handle different event types
-    switch (event.type) {
-      case 'payment_intent.succeeded':
-        console.log('💰 Payment succeeded:', event.data.object.id);
-        break;
-      case 'customer.subscription.created':
-        console.log('📝 Subscription created:', event.data.object.id);
-        // Update your database with subscription details
-        break;
-      case 'customer.created':
-        console.log('👤 Customer created:', event.data.object.id);
-        break;
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
-    }
-    
-    // Send a 200 response to acknowledge receipt of the event
-    res.json({ received: true, eventType: event.type });
-  } catch (err) {
-    console.error('❌ Error processing webhook:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-});
-
-// // CORS middleware
-// app.use(cors({
-//   origin: "*", // Allow all domains (restrict in production)
-//   methods: "GET,POST,OPTIONS,PUT,DELETE",
-//   allowedHeaders: "Content-Type, Authorization"
-// }));
-
-// JSON body parsing for all other routes
-// app.use(express.json());
+// JSON body parsing for all routes
+app.use(express.json());
 
 // Initialize database tables if they don't exist
 (async () => {
@@ -358,20 +213,129 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Profile error:', error);
-    res.status(500).json({ error: 'Failed to fetch profile', fool_error: error });
+    res.status(500).json({ error: 'Failed to fetch profile', full_error: error });
   }
 });
 
-// Verify payment and set up subscription
-app.post('/api/payment/verify', authenticateToken, async (req, res) => {
-  const { sessionId, plan } = req.body;
-  
-  if (!sessionId || !plan) {
-    return res.status(400).json({ error: 'Session ID and plan are required' });
-  }
-  
+// Create a payment intent directly
+app.post('/api/create-payment-intent', authenticateToken, async (req, res) => {
   try {
+    const { plan } = req.body;
+    
+    // Define plan prices
+    const planPrices = {
+      'premium': 149.99,
+      'basic': 49.99
+    };
+    
+    // Default to premium if plan not specified
+    const selectedPlan = plan || 'premium';
+    const amount = planPrices[selectedPlan] || planPrices['premium'];
+    
+    // Create or retrieve Stripe customer
+    let stripeCustomerId = null;
+    const userResult = await query('SELECT stripe_customer_id FROM users WHERE id = $1', [req.user.id]);
+    
+    if (userResult.rows[0]?.stripe_customer_id) {
+      stripeCustomerId = userResult.rows[0].stripe_customer_id;
+    } else {
+      // Get user email
+      const userEmailResult = await query('SELECT email FROM users WHERE id = $1', [req.user.id]);
+      const email = userEmailResult.rows[0]?.email;
+      
+      if (!email) {
+        return res.status(404).json({ error: 'User email not found' });
+      }
+      
+      // Create Stripe customer
+      const customer = await stripe.customers.create({
+        email: email,
+        metadata: {
+          userId: req.user.id
+        }
+      });
+      
+      stripeCustomerId = customer.id;
+      
+      // Save Stripe customer ID to user record
+      await query('UPDATE users SET stripe_customer_id = $1 WHERE id = $2', 
+        [stripeCustomerId, req.user.id]);
+    }
+    
+    // Calculate amount in cents
+    const amountInCents = Math.round(amount * 100);
+    
+    // Create a PaymentIntent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountInCents,
+      currency: 'usd',
+      customer: stripeCustomerId,
+      metadata: {
+        userId: req.user.id,
+        plan: selectedPlan
+      },
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+    
+    // Save payment intent to database
+    await query(`
+      INSERT INTO payments (user_id, stripe_payment_id, amount, status, payment_method)
+      VALUES ($1, $2, $3, $4, $5)
+    `, [req.user.id, paymentIntent.id, amount, 'pending', 'card']);
+    
+    // Return the client secret to the client
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+      amount: amount
+    });
+  } catch (error) {
+    console.error('Payment intent creation error:', error);
+    res.status(500).json({ error: 'Failed to create payment intent', message: error.message });
+  }
+});
+
+// Check payment status and activate subscription
+app.post('/api/check-payment-status', authenticateToken, async (req, res) => {
+  try {
+    const { paymentIntentId } = req.body;
+    
+    if (!paymentIntentId) {
+      return res.status(400).json({ error: 'Payment intent ID is required' });
+    }
+    
+    // Retrieve payment intent from Stripe
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    
+    // If payment is not successful, return current status
+    if (paymentIntent.status !== 'succeeded') {
+      return res.status(200).json({
+        status: paymentIntent.status,
+        success: false,
+        message: `Payment status is ${paymentIntent.status}`
+      });
+    }
+    
+    // Get plan from payment intent metadata
+    const plan = paymentIntent.metadata.plan || 'premium';
+    
+    // Update payment record in database
+    await query(`
+      UPDATE payments 
+      SET status = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE stripe_payment_id = $2
+    `, ['completed', paymentIntentId]);
+    
+    // Generate access token for subscription
     const accessToken = uuidv4();
+    
+    // Set subscription expiration date (e.g., 1 year from now)
+    const expiryDate = new Date();
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    
+    // Check existing subscription
     const existingSubscriptionResult = await query(
       'SELECT * FROM subscriptions WHERE user_id = $1',
       [req.user.id]
@@ -381,21 +345,418 @@ app.post('/api/payment/verify', authenticateToken, async (req, res) => {
       const existingSub = existingSubscriptionResult.rows[0];
       await query(`
         UPDATE subscriptions 
-        SET plan = $1, status = $2, stripe_session_id = $3, access_token = $4, updated_at = CURRENT_TIMESTAMP 
+        SET plan = $1, status = $2, access_token = $3, updated_at = CURRENT_TIMESTAMP, expires_at = $4
         WHERE id = $5
-      `, [plan, 'active', sessionId, accessToken, existingSub.id]);
+      `, [plan, 'active', accessToken, expiryDate.toISOString(), existingSub.id]);
     } else {
       await query(`
         INSERT INTO subscriptions 
-        (user_id, plan, status, stripe_session_id, access_token) 
+        (user_id, plan, status, access_token, expires_at) 
         VALUES ($1, $2, $3, $4, $5)
-      `, [req.user.id, plan, 'active', sessionId, accessToken]);
+      `, [req.user.id, plan, 'active', accessToken, expiryDate.toISOString()]);
+    }
+    
+    res.status(200).json({
+      success: true,
+      status: 'completed',
+      message: 'Payment verified and subscription activated',
+      subscription: {
+        plan: plan,
+        status: 'active',
+        accessToken: accessToken,
+        expiresAt: expiryDate.toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Payment verification error:', error);
+    res.status(500).json({ error: 'Payment verification failed', message: error.message });
+  }
+});
+
+// Handle direct card payment
+app.post('/api/process-card-payment', authenticateToken, async (req, res) => {
+  try {
+    const { 
+      cardNumber, 
+      expMonth, 
+      expYear, 
+      cvc, 
+      plan 
+    } = req.body;
+    
+    if (!cardNumber || !expMonth || !expYear || !cvc) {
+      return res.status(400).json({ error: 'Card details are required' });
+    }
+    
+    // Define plan prices
+    const planPrices = {
+      'premium': 149.99,
+      'basic': 49.99
+    };
+    
+    // Default to premium if plan not specified
+    const selectedPlan = plan || 'premium';
+    const amount = planPrices[selectedPlan] || planPrices['premium'];
+    
+    try {
+      // Create payment method
+      const paymentMethod = await stripe.paymentMethods.create({
+        type: 'card',
+        card: {
+          number: cardNumber,
+          exp_month: expMonth,
+          exp_year: expYear,
+          cvc: cvc
+        }
+      });
+      
+      // Create or retrieve Stripe customer
+      let stripeCustomerId = null;
+      const userResult = await query('SELECT stripe_customer_id FROM users WHERE id = $1', [req.user.id]);
+      
+      if (userResult.rows[0]?.stripe_customer_id) {
+        stripeCustomerId = userResult.rows[0].stripe_customer_id;
+      } else {
+        // Get user email
+        const userEmailResult = await query('SELECT email FROM users WHERE id = $1', [req.user.id]);
+        const email = userEmailResult.rows[0]?.email;
+        
+        if (!email) {
+          return res.status(404).json({ error: 'User email not found' });
+        }
+        
+        // Create Stripe customer
+        const customer = await stripe.customers.create({
+          email: email,
+          payment_method: paymentMethod.id,
+          metadata: {
+            userId: req.user.id
+          }
+        });
+        
+        stripeCustomerId = customer.id;
+        
+        // Save Stripe customer ID to user record
+        await query('UPDATE users SET stripe_customer_id = $1 WHERE id = $2', 
+          [stripeCustomerId, req.user.id]);
+      }
+      
+      // Attach payment method to customer if not already attached
+      await stripe.paymentMethods.attach(paymentMethod.id, {
+        customer: stripeCustomerId
+      });
+      
+      // Calculate amount in cents
+      const amountInCents = Math.round(amount * 100);
+      
+      // Create and confirm payment intent in one step
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amountInCents,
+        currency: 'usd',
+        customer: stripeCustomerId,
+        payment_method: paymentMethod.id,
+        confirm: true, // Confirm the payment immediately
+        metadata: {
+          userId: req.user.id,
+          plan: selectedPlan
+        }
+      });
+      
+      // Handle payment intent status
+      if (paymentIntent.status === 'succeeded') {
+        // Save payment record to database
+        await query(`
+          INSERT INTO payments (user_id, stripe_payment_id, amount, status, payment_method)
+          VALUES ($1, $2, $3, $4, $5)
+        `, [req.user.id, paymentIntent.id, amount, 'completed', 'card']);
+        
+        // Generate access token for subscription
+        const accessToken = uuidv4();
+        
+        // Set subscription expiration date (1 year from now)
+        const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        
+        // Check existing subscription
+        const existingSubscriptionResult = await query(
+          'SELECT * FROM subscriptions WHERE user_id = $1',
+          [req.user.id]
+        );
+        
+        if (existingSubscriptionResult.rows.length > 0) {
+          const existingSub = existingSubscriptionResult.rows[0];
+          await query(`
+            UPDATE subscriptions 
+            SET plan = $1, status = $2, access_token = $3, updated_at = CURRENT_TIMESTAMP, expires_at = $4
+            WHERE id = $5
+          `, [selectedPlan, 'active', accessToken, expiryDate.toISOString(), existingSub.id]);
+        } else {
+          await query(`
+            INSERT INTO subscriptions 
+            (user_id, plan, status, access_token, expires_at) 
+            VALUES ($1, $2, $3, $4, $5)
+          `, [req.user.id, selectedPlan, 'active', accessToken, expiryDate.toISOString()]);
+        }
+        
+        res.status(200).json({
+          success: true,
+          status: 'completed',
+          message: 'Payment processed and subscription activated',
+          subscription: {
+            plan: selectedPlan,
+            status: 'active',
+            accessToken,
+            expiresAt: expiryDate.toISOString()
+          }
+        });
+      } else if (paymentIntent.status === 'requires_action') {
+        // Requires additional action like 3D Secure
+        res.status(200).json({
+          success: false,
+          status: paymentIntent.status,
+          requires_action: true,
+          payment_intent_client_secret: paymentIntent.client_secret,
+          message: 'Additional authentication required'
+        });
+      } else {
+        // Payment failed or is in another state
+        res.status(200).json({
+          success: false,
+          status: paymentIntent.status,
+          message: `Payment status: ${paymentIntent.status}`
+        });
+      }
+    } catch (stripeError) {
+      console.error('Stripe payment processing error:', stripeError);
+      res.status(400).json({ 
+        error: 'Payment processing failed', 
+        message: stripeError.message,
+        code: stripeError.code
+      });
+    }
+  } catch (error) {
+    console.error('Card payment error:', error);
+    res.status(500).json({ error: 'Failed to process card payment', message: error.message });
+  }
+});
+
+// Create client-side payment method
+app.post('/api/create-payment-method', authenticateToken, async (req, res) => {
+  try {
+    const { 
+      paymentMethodId,
+      plan
+    } = req.body;
+    
+    if (!paymentMethodId) {
+      return res.status(400).json({ error: 'Payment method ID is required' });
+    }
+    
+    // Define plan prices
+    const planPrices = {
+      'premium': 149.99,
+      'basic': 49.99
+    };
+    
+    // Default to premium if plan not specified
+    const selectedPlan = plan || 'premium';
+    const amount = planPrices[selectedPlan] || planPrices['premium'];
+    
+    // Create or retrieve Stripe customer
+    let stripeCustomerId = null;
+    const userResult = await query('SELECT stripe_customer_id FROM users WHERE id = $1', [req.user.id]);
+    
+    if (userResult.rows[0]?.stripe_customer_id) {
+      stripeCustomerId = userResult.rows[0].stripe_customer_id;
+    } else {
+      // Get user email
+      const userEmailResult = await query('SELECT email FROM users WHERE id = $1', [req.user.id]);
+      const email = userEmailResult.rows[0]?.email;
+      
+      if (!email) {
+        return res.status(404).json({ error: 'User email not found' });
+      }
+      
+      // Create Stripe customer
+      const customer = await stripe.customers.create({
+        email: email,
+        metadata: {
+          userId: req.user.id
+        }
+      });
+      
+      stripeCustomerId = customer.id;
+      
+      // Save Stripe customer ID to user record
+      await query('UPDATE users SET stripe_customer_id = $1 WHERE id = $2', 
+        [stripeCustomerId, req.user.id]);
+    }
+    
+    // Attach payment method to customer if it's not already
+    try {
+      await stripe.paymentMethods.attach(paymentMethodId, {
+        customer: stripeCustomerId
+      });
+    } catch (attachError) {
+      // If error is because it's already attached, that's fine
+      if (attachError.code !== 'payment_method_already_attached') {
+        throw attachError;
+      }
+    }
+    
+    // Set as default payment method
+    await stripe.customers.update(stripeCustomerId, {
+      invoice_settings: {
+        default_payment_method: paymentMethodId
+      }
+    });
+    
+    // Calculate amount in cents
+    const amountInCents = Math.round(amount * 100);
+    
+    // Create payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountInCents,
+      currency: 'usd',
+      customer: stripeCustomerId,
+      payment_method: paymentMethodId,
+      confirm: true,
+      metadata: {
+        userId: req.user.id,
+        plan: selectedPlan
+      }
+    });
+    
+    // Handle payment intent status
+    if (paymentIntent.status === 'succeeded') {
+      // Save payment record to database
+      await query(`
+        INSERT INTO payments (user_id, stripe_payment_id, amount, status, payment_method)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [req.user.id, paymentIntent.id, amount, 'completed', 'card']);
+      
+      // Generate access token for subscription
+      const accessToken = uuidv4();
+      
+      // Set subscription expiration date (1 year from now)
+      const expiryDate = new Date();
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+      
+      // Check existing subscription
+      const existingSubscriptionResult = await query(
+        'SELECT * FROM subscriptions WHERE user_id = $1',
+        [req.user.id]
+      );
+      
+      if (existingSubscriptionResult.rows.length > 0) {
+        const existingSub = existingSubscriptionResult.rows[0];
+        await query(`
+          UPDATE subscriptions 
+          SET plan = $1, status = $2, access_token = $3, updated_at = CURRENT_TIMESTAMP, expires_at = $4
+          WHERE id = $5
+        `, [selectedPlan, 'active', accessToken, expiryDate.toISOString(), existingSub.id]);
+      } else {
+        await query(`
+          INSERT INTO subscriptions 
+          (user_id, plan, status, access_token, expires_at) 
+          VALUES ($1, $2, $3, $4, $5)
+        `, [req.user.id, selectedPlan, 'active', accessToken, expiryDate.toISOString()]);
+      }
+      
+      res.status(200).json({
+        success: true,
+        status: 'completed',
+        message: 'Payment processed and subscription activated',
+        subscription: {
+          plan: selectedPlan,
+          status: 'active',
+          accessToken,
+          expiresAt: expiryDate.toISOString()
+        }
+      });
+    } else if (paymentIntent.status === 'requires_action') {
+      // Requires additional action like 3D Secure
+      res.status(200).json({
+        success: false,
+        status: paymentIntent.status,
+        requires_action: true,
+        payment_intent_client_secret: paymentIntent.client_secret,
+        message: 'Additional authentication required'
+      });
+    } else {
+      // Payment failed or is in another state
+      res.status(200).json({
+        success: false,
+        status: paymentIntent.status,
+        message: `Payment status: ${paymentIntent.status}`
+      });
+    }
+  } catch (error) {
+    console.error('Payment method error:', error);
+    res.status(500).json({ error: 'Failed to process payment method', message: error.message });
+  }
+});
+
+// Legacy route for compatibility with existing code
+app.post('/api/payment/verify', authenticateToken, async (req, res) => {
+  const { sessionId, plan } = req.body;
+  
+  if (!sessionId) {
+    return res.status(400).json({ error: 'Session ID is required' });
+  }
+  
+  try {
+    // Retrieve session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    
+    if (session.payment_status !== 'paid') {
+      return res.status(400).json({ 
+        error: 'Payment not completed',
+        status: session.payment_status
+      });
+    }
+    
+    // Generate access token for subscription
+    const accessToken = uuidv4();
+    
+    // Set subscription expiration date (e.g., 1 year from now)
+    const expiryDate = new Date();
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    
+    // Add payment record
+    const paymentAmount = session.amount_total / 100; // Convert from cents
+    await query(`
+      INSERT INTO payments (user_id, stripe_payment_id, amount, status, payment_method)
+      VALUES ($1, $2, $3, $4, $5)
+    `, [req.user.id, session.payment_intent, paymentAmount, 'completed', 'card']);
+    
+    // Check existing subscription
+    const existingSubscriptionResult = await query(
+      'SELECT * FROM subscriptions WHERE user_id = $1',
+      [req.user.id]
+    );
+    
+    if (existingSubscriptionResult.rows.length > 0) {
+      const existingSub = existingSubscriptionResult.rows[0];
+      await query(`
+        UPDATE subscriptions 
+        SET plan = $1, status = $2, stripe_session_id = $3, access_token = $4, 
+        updated_at = CURRENT_TIMESTAMP, expires_at = $5
+        WHERE id = $6
+      `, [plan || 'premium', 'active', sessionId, accessToken, expiryDate.toISOString(), existingSub.id]);
+    } else {
+      await query(`
+        INSERT INTO subscriptions 
+        (user_id, plan, status, stripe_session_id, access_token, expires_at) 
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `, [req.user.id, plan || 'premium', 'active', sessionId, accessToken, expiryDate.toISOString()]);
     }
     
     res.status(200).json({
       message: 'Payment verified successfully',
       accessToken,
-      plan
+      plan: plan || 'premium',
+      expiresAt: expiryDate.toISOString()
     });
   } catch (error) {
     console.error('Payment verification error:', error);
@@ -706,7 +1067,10 @@ app.get('/api', (req, res) => {
       "/api/register", 
       "/api/login", 
       "/api/profile", 
-      "/api/payment/verify", 
+      "/api/create-payment-intent",
+      "/api/check-payment-status",
+      "/api/process-card-payment",
+      "/api/create-payment-method",
       "/api/verify-token", 
       "/api/car-reliability",
       "/api/users",
@@ -716,88 +1080,178 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Update your Stripe checkout session creation
-app.post('/api/create-checkout-session', async (req, res) => {
+// Create Checkout Session - For compatibility with existing integrations
+app.post('/api/create-checkout-session', authenticateToken, async (req, res) => {
   try {
-    const { priceId, plan, userId } = req.body;
+    const { plan } = req.body;
     
+    // Define plan details
+    const planDetails = {
+      'premium': {
+        name: 'Premium Plan',
+        amount: 149.99
+      },
+      'basic': {
+        name: 'Basic Plan',
+        amount: 49.99
+      }
+    };
+    
+    // Default to premium if plan not specified
+    const selectedPlan = planDetails[plan] || planDetails['premium'];
+    
+    // Create or retrieve Stripe customer
+    let stripeCustomerId = null;
+    const userResult = await query('SELECT stripe_customer_id FROM users WHERE id = $1', [req.user.id]);
+    
+    if (userResult.rows[0]?.stripe_customer_id) {
+      stripeCustomerId = userResult.rows[0].stripe_customer_id;
+    } else {
+      // Get user email
+      const userEmailResult = await query('SELECT email FROM users WHERE id = $1', [req.user.id]);
+      const email = userEmailResult.rows[0]?.email;
+      
+      if (!email) {
+        return res.status(404).json({ error: 'User email not found' });
+      }
+      
+      // Create Stripe customer
+      const customer = await stripe.customers.create({
+        email: email,
+        metadata: {
+          userId: req.user.id
+        }
+      });
+      
+      stripeCustomerId = customer.id;
+      
+      // Save Stripe customer ID to user record
+      await query('UPDATE users SET stripe_customer_id = $1 WHERE id = $2', 
+        [stripeCustomerId, req.user.id]);
+    }
+    
+    // Calculate amount in cents
+    const amountInCents = Math.round(selectedPlan.amount * 100);
+    
+    // Create checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: priceId || process.env.STRIPE_PRICE_ID,
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: selectedPlan.name,
+            },
+            unit_amount: amountInCents,
+          },
           quantity: 1,
         },
       ],
       mode: 'payment',
-      success_url: `https://car-reliability-app.vercel.app/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://car-reliability-app.vercel.app/payment-cancel`,
+      success_url: `${process.env.FRONTEND_URL || 'https://car-reliability-app.vercel.app'}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'https://car-reliability-app.vercel.app'}/payment-cancel`,
+      customer: stripeCustomerId,
       metadata: {
+        userId: req.user.id,
         plan: plan || 'premium'
-      },
-      client_reference_id: userId
+      }
     });
     
-    res.json({ url: session.url });
+    res.json({ url: session.url, sessionId: session.id });
   } catch (error) {
     console.error('Stripe session error:', error);
     res.status(500).json({ error: 'Failed to create checkout session' });
   }
 });
 
-// Endpoint to view recent webhook logs
-app.get('/api/webhook-logs', async (req, res) => {
+// Get payment methods for a user
+app.get('/api/payment-methods', authenticateToken, async (req, res) => {
   try {
-    if (process.env.NODE_ENV === 'production') {
-      const authKey = req.headers['x-admin-key'];
-      if (authKey !== process.env.ADMIN_SECRET_KEY) {
-        return res.status(403).json({ error: 'Unauthorized' });
-      }
+    const userResult = await query('SELECT stripe_customer_id FROM users WHERE id = $1', [req.user.id]);
+    const stripeCustomerId = userResult.rows[0]?.stripe_customer_id;
+    
+    if (!stripeCustomerId) {
+      return res.status(200).json({ paymentMethods: [] });
     }
     
-    const limit = parseInt(req.query.limit) || 20;
-    const page = parseInt(req.query.page) || 1;
-    const offset = (page - 1) * limit;
-    const eventType = req.query.type || null;
-    
-    let queryText = `
-      SELECT id, event_id, event_type, processing_status, error_message, created_at, updated_at 
-      FROM webhook_logs
-    `;
-    const queryParams = [];
-    let paramIndex = 1;
-    
-    if (eventType) {
-      queryText += ` WHERE event_type = $${paramIndex}`;
-      queryParams.push(eventType);
-      paramIndex++;
-    }
-    
-    queryText += ` ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
-    queryParams.push(limit, offset);
-    
-    let countQuery = 'SELECT COUNT(*) FROM webhook_logs';
-    if (eventType) {
-      countQuery += ' WHERE event_type = $1';
-    }
-    
-    const [logsResult, countResult] = await Promise.all([
-      query(queryText, queryParams),
-      query(countQuery, eventType ? [eventType] : [])
-    ]);
-    
-    res.status(200).json({
-      logs: logsResult.rows,
-      pagination: {
-        total: parseInt(countResult.rows[0].count),
-        page,
-        limit,
-        pages: Math.ceil(parseInt(countResult.rows[0].count) / limit)
-      }
+    const paymentMethods = await stripe.paymentMethods.list({
+      customer: stripeCustomerId,
+      type: 'card',
     });
+    
+    // Format payment methods to only include necessary info
+    const formattedPaymentMethods = paymentMethods.data.map(pm => ({
+      id: pm.id,
+      brand: pm.card.brand,
+      last4: pm.card.last4,
+      expMonth: pm.card.exp_month,
+      expYear: pm.card.exp_year,
+      isDefault: false // Will be set below if applicable
+    }));
+    
+    // Get default payment method
+    const customer = await stripe.customers.retrieve(stripeCustomerId);
+    const defaultPaymentMethodId = customer.invoice_settings?.default_payment_method;
+    
+    if (defaultPaymentMethodId) {
+      const defaultMethod = formattedPaymentMethods.find(pm => pm.id === defaultPaymentMethodId);
+      if (defaultMethod) {
+        defaultMethod.isDefault = true;
+      }
+    }
+    
+    res.status(200).json({ paymentMethods: formattedPaymentMethods });
   } catch (error) {
-    console.error('Error fetching webhook logs:', error);
-    res.status(500).json({ error: 'Failed to retrieve webhook logs' });
+    console.error('Error fetching payment methods:', error);
+    res.status(500).json({ error: 'Failed to fetch payment methods' });
+  }
+});
+
+// Delete payment method
+app.delete('/api/payment-methods/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if user owns this payment method
+    const userResult = await query('SELECT stripe_customer_id FROM users WHERE id = $1', [req.user.id]);
+    const stripeCustomerId = userResult.rows[0]?.stripe_customer_id;
+    
+    if (!stripeCustomerId) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+    
+    const paymentMethod = await stripe.paymentMethods.retrieve(id);
+    
+    if (paymentMethod.customer !== stripeCustomerId) {
+      return res.status(403).json({ error: 'Payment method does not belong to this customer' });
+    }
+    
+    // Detach payment method
+    await stripe.paymentMethods.detach(id);
+    
+    res.status(200).json({ message: 'Payment method deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting payment method:', error);
+    res.status(500).json({ error: 'Failed to delete payment method' });
+  }
+});
+
+// Add endpoint to view payment history
+app.get('/api/payment-history', authenticateToken, async (req, res) => {
+  try {
+    const paymentsResult = await query(`
+      SELECT p.*, s.plan 
+      FROM payments p
+      LEFT JOIN subscriptions s ON p.user_id = s.user_id
+      WHERE p.user_id = $1 
+      ORDER BY p.created_at DESC
+    `, [req.user.id]);
+    
+    res.status(200).json(paymentsResult.rows);
+  } catch (error) {
+    console.error('Payment history error:', error);
+    res.status(500).json({ error: 'Failed to fetch payment history' });
   }
 });
 
