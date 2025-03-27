@@ -27,7 +27,6 @@ app.use(express.json());
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
-
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -43,6 +42,100 @@ const authenticateToken = (req, res, next) => {
     return res.status(403).json({ error: 'Invalid or expired token' });
   }
 };
+
+// Login
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+
+  try {
+    const userResult = await query('SELECT * FROM users WHERE email = $1', [email]);
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const user = userResult.rows[0];
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    res.status(200).json({ 
+      message: 'Login successful',
+      user: { id: user.id, email: user.email },
+      token
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Register
+app.post('/api/register', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+
+  try {
+    const existingUserResult = await query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existingUserResult.rows.length > 0) {
+      return res.status(409).json({ error: 'User already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userResult = await query(
+      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
+      [email, hashedPassword]
+    );
+
+    const userId = userResult.rows[0].id;
+    const token = jwt.sign(
+      { id: userId, email },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    res.status(201).json({ 
+      message: 'User registered successfully',
+      user: { id: userId, email },
+      token
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+// Example protected route using authenticateToken
+app.get('/api/profile', authenticateToken, async (req, res) => {
+  try {
+    const userResult = await query(
+      'SELECT id, email, created_at FROM users WHERE id = $1', 
+      [req.user.id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(userResult.rows[0]);
+  } catch (error) {
+    console.error('Profile retrieval error:', error);
+    res.status(500).json({ error: 'Failed to retrieve profile' });
+  }
+});
 
 app.get('/api/users/:id', async (req, res) => {
   const { id } = req.params;
