@@ -273,14 +273,14 @@ app.post('/api/create-payment-intent', authenticateToken, async (req, res) => {
 app.post('/api/check-payment-status', authenticateToken, async (req, res) => {
   try {
     const { paymentIntentId } = req.body;
-    
+
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'Payment intent ID is required' });
     }
-    
+
     // Retrieve payment intent from Stripe
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    
+
     // If payment is not successful, return current status
     if (paymentIntent.status !== 'succeeded') {
       return res.status(200).json({
@@ -289,45 +289,28 @@ app.post('/api/check-payment-status', authenticateToken, async (req, res) => {
         message: `Payment status is ${paymentIntent.status}`
       });
     }
-    
-    // Get plan from payment intent metadata
+
+    // Get plan and Stripe customer ID from payment intent metadata
     const plan = paymentIntent.metadata.plan || 'premium';
-    
-    // Update payment record in database
-    await query(`
-      UPDATE payments 
-      SET status = $1, updated_at = CURRENT_TIMESTAMP 
-      WHERE stripe_payment_id = $2
-    `, ['completed', paymentIntentId]);
-    
+    const stripeCustomerId = paymentIntent.customer || null;
+    const stripeSessionId = paymentIntent.id || null;
+
     // Generate access token for subscription
     const accessToken = uuidv4();
-    
+
     // Set subscription expiration date (e.g., 1 year from now)
     const expiryDate = new Date();
     expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-    
-    // Check existing subscription
-    const existingSubscriptionResult = await query(
-      'SELECT * FROM subscriptions WHERE user_id = $1',
-      [req.user.id]
-    );
-    
-    if (existingSubscriptionResult.rows.length > 0) {
-      const existingSub = existingSubscriptionResult.rows[0];
-      await query(`
-        UPDATE subscriptions 
-        SET plan = $1, status = $2, access_token = $3, updated_at = CURRENT_TIMESTAMP, expires_at = $4
-        WHERE id = $5
-      `, [plan, 'active', accessToken, expiryDate.toISOString(), existingSub.id]);
-    } else {
-      await query(`
-        INSERT INTO subscriptions 
-        (user_id, plan, status, access_token, expires_at) 
-        VALUES ($1, $2, $3, $4, $5)
-      `, [req.user.id, plan, 'active', accessToken, expiryDate.toISOString()]);
-    }
-    
+
+    // Update the subscription using user_id
+    await query(`
+      UPDATE subscriptions 
+      SET plan = $1, status = $2, stripe_customer_id = $3, stripe_session_id = $4, access_token = $5, updated_at = CURRENT_TIMESTAMP, expires_at = $6
+      WHERE user_id = $7
+    `, [plan, 'active', stripeCustomerId, stripeSessionId, accessToken, expiryDate.toISOString(), req.user.id]);
+
+    console.log("✅ Subscription updated for user:", req.user.id);
+
     res.status(200).json({
       success: true,
       status: 'completed',
@@ -335,12 +318,14 @@ app.post('/api/check-payment-status', authenticateToken, async (req, res) => {
       subscription: {
         plan: plan,
         status: 'active',
+        stripeCustomerId: stripeCustomerId,
+        stripeSessionId: stripeSessionId,
         accessToken: accessToken,
         expiresAt: expiryDate.toISOString()
       }
     });
   } catch (error) {
-    console.error('Payment verification error:', error);
+    console.error('❌ Payment verification error:', error);
     res.status(500).json({ error: 'Payment verification failed', message: error.message });
   }
 });
