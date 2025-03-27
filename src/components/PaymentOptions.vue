@@ -182,7 +182,7 @@ export default {
           : 'price_basic_id';
         
         // Create checkout session
-        const response = await axios.post('/api/create-checkout-session', {
+        const response = await axios.post('/api/subscriptions/checkout', {
           priceId,
           plan
         });

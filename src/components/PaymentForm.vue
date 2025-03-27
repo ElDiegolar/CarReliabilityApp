@@ -240,7 +240,7 @@
         try {
           paymentProcessing.value = true;
           
-          const response = await fetch('/api/create-checkout-session', {
+          const response = await fetch('/api/subscriptions/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ priceId: process.env.VUE_APP_STRIPE_PRICE_ID })
