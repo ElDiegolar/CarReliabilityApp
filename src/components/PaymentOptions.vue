@@ -91,10 +91,22 @@
                         </li>
                     </ul>
                 </div>
-                <a :href="basicPaymentLink" target="_blank"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 text-center">
-                    Get Basic Report
-                </a>
+                <button @click="handlePayment('basic')" :disabled="loading"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 text-center"
+                    :class="{ 'opacity-70 cursor-not-allowed': loading }">
+                    <span v-if="loading && selectedPlan === 'basic'" class="flex items-center justify-center">
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        Processing...
+                    </span>
+                    <span v-else>Get Basic Report</span>
+                </button>
             </div>
 
             <div class="border border-blue-200 rounded-lg p-4 bg-blue-50 flex flex-col">
@@ -144,11 +156,28 @@
                         </li>
                     </ul>
                 </div>
-                <a :href="premiumPaymentLink" target="_blank"
-                    class="bg-blue-800 hover:bg-blue-900 text-white font-medium py-2 px-4 rounded-md transition duration-300 text-center">
-                    Get Premium Report
-                </a>
+                <button @click="handlePayment('premium')" :disabled="loading"
+                    class="bg-blue-800 hover:bg-blue-900 text-white font-medium py-2 px-4 rounded-md transition duration-300 text-center"
+                    :class="{ 'opacity-70 cursor-not-allowed': loading }">
+                    <span v-if="loading && selectedPlan === 'premium'" class="flex items-center justify-center">
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        Processing...
+                    </span>
+                    <span v-else>Get Premium Report</span>
+                </button>
             </div>
+        </div>
+
+        <!-- Display any error messages -->
+        <div v-if="error" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+            <p class="text-red-600">{{ error }}</p>
         </div>
 
         <div class="text-center text-gray-500 text-sm">
@@ -156,52 +185,76 @@
         </div>
     </div>
 </template>
+
 <script>
 import { ref } from 'vue';
 import axios from 'axios';
 
 export default {
-  name: 'PaymentOptions',
-  emits: ['payment-complete'],
-  
-  setup() {
-    const loading = ref(false);
-    const error = ref('');
-    
-    const handlePayment = async (plan) => {
-      loading.value = true;
-      error.value = '';
-      
-      try {
-        // Store selected plan for later verification
-        localStorage.setItem('selectedPlan', plan);
-        
-        // Determine price ID based on plan
-        const priceId = plan === 'premium' 
-          ? 'price_premium_id' 
-          : 'price_basic_id';
-        
-        // Create checkout session
-        const response = await axios.post('/api/subscriptions/checkout', {
-          priceId,
-          plan
-        });
-        
-        // Redirect to Stripe checkout
-        window.location.href = response.data.url;
-      } catch (err) {
-        console.error('Payment error:', err);
-        error.value = 'Failed to initialize payment. Please try again.';
-        loading.value = false;
-      }
-    };
-    
-    return {
-      loading,
-      error,
-      handlePayment
-    };
-  }
-};
+    name: 'PaymentOptions',
+    emits: ['payment-complete', 'payment-redirect'],
 
+    setup(props, { emit }) {
+        const loading = ref(false);
+        const error = ref('');
+        const selectedPlan = ref('');
+        const apiBaseUrl = process.env.VUE_APP_API_BASE_URL || 'https://car-reliability-app.vercel.app';
+
+        const handlePayment = async (plan) => {
+            selectedPlan.value = plan;
+            loading.value = true;
+            error.value = '';
+
+            try {
+                // Store selected plan for later verification
+                localStorage.setItem('selectedPlan', plan);
+
+                // Get authentication token if logged in
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+                // Try direct payment intent creation first
+                const response = await axios.post(`${apiBaseUrl}/api/create-payment-intent`, {
+                    plan
+                }, { headers });
+
+                if (response.data && response.data.clientSecret) {
+                    // Store payment intent ID for verification
+                    localStorage.setItem('lastPaymentIntentId', response.data.paymentIntentId);
+
+                    // Emit event to show payment form
+                    emit('payment-redirect', {
+                        clientSecret: response.data.clientSecret,
+                        paymentIntentId: response.data.paymentIntentId,
+                        plan
+                    });
+                } else {
+                    // Fallback to traditional checkout
+                    const checkoutResponse = await axios.post(`${apiBaseUrl}/api/create-checkout-session`, {
+                        plan
+                    }, { headers });
+
+                    if (checkoutResponse.data && checkoutResponse.data.url) {
+                        // Redirect to Stripe checkout
+                        window.location.href = checkoutResponse.data.url;
+                    } else {
+                        throw new Error('Invalid checkout response');
+                    }
+                }
+            } catch (err) {
+                console.error('Payment initialization error:', err);
+                error.value = err.response?.data?.error || 'Failed to initialize payment. Please try again.';
+            } finally {
+                loading.value = false;
+            }
+        };
+
+        return {
+            loading,
+            error,
+            selectedPlan,
+            handlePayment
+        };
+    }
+};
 </script>
