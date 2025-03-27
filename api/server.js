@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const { v4: uuidv4 } = require('uuid');
 const { initializeDatabase, query } = require('./database');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 dotenv.config();
 
 const app = express();
