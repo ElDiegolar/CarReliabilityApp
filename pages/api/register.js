@@ -1,53 +1,57 @@
-// pages/api/register.js - User registration API route
-import bcrypt from 'bcryptjs';
+// pages/api/register.js
+import bcrypt from 'bcryptjs'; // Use Edge-compatible bcrypt implementation or service
 import jwt from 'jsonwebtoken';
-import { query } from '../../lib/database';
+import { queryEdge } from '../../lib/database';
 
-export default async function handler(req, res) {
-  // Only accept POST requests
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-  
-  const { email, password } = req.body;
-  
+
+  const { email, password } = await req.json();
+
   if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password required' });
+    return new Response(JSON.stringify({ error: 'Email and password required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-  
+
   try {
-    // Check if user already exists
-    const existingUserResult = await query('SELECT id FROM users WHERE email = $1', [email]);
-    
+    const existingUserResult = await queryEdge('SELECT id FROM users WHERE email = $1', [email]);
+
     if (existingUserResult.rows.length > 0) {
-      return res.status(409).json({ error: 'User already exists' });
+      return new Response(JSON.stringify({ error: 'User already exists' }), {
+        status: 409,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
-    
-    // Hash password
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create user
-    const result = await query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', 
-      [email, hashedPassword]
-    );
-    
+    const result = await queryEdge('INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', [email, hashedPassword]);
     const userId = result.rows[0].id;
-    
-    // Generate JWT token
+
     const token = jwt.sign(
       { id: userId, email },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
-    
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: { id: userId, email },
-      token
-    });
+
+    return new Response(
+      JSON.stringify({ message: 'User registered successfully', user: { id: userId, email }, token }),
+      { status: 201, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Registration failed', message: error.message });
+    return new Response(JSON.stringify({ error: 'Registration failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }

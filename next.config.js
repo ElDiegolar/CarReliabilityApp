@@ -4,11 +4,7 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Enable Edge runtime for middleware and API routes
-  experimental: {
-    runtime: 'edge', // Use Edge runtime for middleware and API routes
-  },
-
+  // Webpack configuration for client-side fallback
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Don't resolve 'fs', 'net', etc. on the client to prevent errors
@@ -27,15 +23,15 @@ const nextConfig = {
   },
 
   env: {
-    // You can add public environment variables here if needed
+    // Add public environment variables if needed
   },
 
   serverRuntimeConfig: {
-    // Will only be available on the server side
+    // Only available on the server side
   },
 
   publicRuntimeConfig: {
-    // Will be available on both server and client
+    // Available on both client and server
     apiUrl: process.env.NODE_ENV === 'development'
       ? 'http://localhost:3000/api' // Development API URL
       : 'https://https://car-reliability-app.vercel.app/api', // Production API URL
