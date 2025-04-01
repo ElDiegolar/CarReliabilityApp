@@ -1,0 +1,202 @@
+// pages/index.js - Home page component
+import Link from 'next/link';
+import Layout from '../components/Layout';
+
+export default function Home() {
+  return (
+    <Layout>
+      <div className="hero">
+        <h1>Get Reliable Information About Your Vehicle</h1>
+        <p className="description">
+          Detailed vehicle reliability data, common issues, and expert analysis.
+        </p>
+        <div className="action-buttons">
+          <Link href="/search" className="button primary">
+            Search a Vehicle
+          </Link>
+          <Link href="/login" className="button secondary">
+            Sign Up for Premium
+          </Link>
+        </div>
+      </div>
+
+      <div className="features">
+        <h2>Our Features</h2>
+        <div className="feature-grid">
+          <div className="feature-card">
+            <h3>Reliability Scores</h3>
+            <p>Get comprehensive reliability scores for engines, transmissions, electrical systems, and more.</p>
+          </div>
+          <div className="feature-card">
+            <h3>Common Issues</h3>
+            <p>Learn about common problems, estimated repair costs, and when they typically occur.</p>
+          </div>
+          <div className="feature-card">
+            <h3>Expert Analysis</h3>
+            <p>Access detailed AI-powered analysis of each vehicle's reliability compared to similar models.</p>
+          </div>
+          <div className="feature-card">
+            <h3>Premium Data</h3>
+            <p>Subscribe for in-depth reports, recall information, and detailed reliability insights.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="how-it-works">
+        <h2>How It Works</h2>
+        <div className="steps">
+          <div className="step">
+            <div className="step-number">1</div>
+            <h3>Enter Vehicle Details</h3>
+            <p>Provide the year, make, model, and mileage of the vehicle you want to research.</p>
+          </div>
+          <div className="step">
+            <div className="step-number">2</div>
+            <h3>Get Instant Results</h3>
+            <p>Our AI analyzes data from multiple sources to provide accurate reliability information.</p>
+          </div>
+          <div className="step">
+            <div className="step-number">3</div>
+            <h3>Make Informed Decisions</h3>
+            <p>Use the reliability data to make better decisions about buying, selling, or maintaining vehicles.</p>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .hero {
+          text-align: center;
+          padding: 3rem 1rem;
+          background-color: #f5f9ff;
+          border-radius: 8px;
+          margin-bottom: 3rem;
+        }
+        
+        h1 {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+        }
+        
+        .description {
+          font-size: 1.25rem;
+          color: #666;
+          margin-bottom: 2rem;
+        }
+        
+        .action-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+        }
+        
+        .button {
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          border-radius: 4px;
+          font-weight: 500;
+          transition: all 0.2s;
+        }
+        
+        .button.primary {
+          background-color: #0070f3;
+          color: white;
+        }
+        
+        .button.primary:hover {
+          background-color: #0060df;
+        }
+        
+        .button.secondary {
+          background-color: white;
+          color: #0070f3;
+          border: 1px solid #0070f3;
+        }
+        
+        .button.secondary:hover {
+          background-color: #f5f9ff;
+        }
+        
+        .features, .how-it-works {
+          margin-bottom: 3rem;
+        }
+        
+        h2 {
+          text-align: center;
+          margin-bottom: 2rem;
+          font-size: 2rem;
+        }
+        
+        .feature-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1.5rem;
+        }
+        
+        .feature-card {
+          background-color: #fff;
+          border-radius: 8px;
+          padding: 1.5rem;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .feature-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card h3 {
+          margin-top: 0;
+          margin-bottom: 0.75rem;
+          color: #0070f3;
+        }
+        
+        .steps {
+          display: flex;
+          justify-content: space-between;
+          gap: 1.5rem;
+          flex-wrap: wrap;
+        }
+        
+        .step {
+          flex: 1;
+          min-width: 250px;
+          text-align: center;
+          padding: 1.5rem;
+          position: relative;
+        }
+        
+        .step-number {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 2.5rem;
+          height: 2.5rem;
+          background-color: #0070f3;
+          color: white;
+          border-radius: 50%;
+          font-size: 1.25rem;
+          font-weight: bold;
+          margin: 0 auto 1rem;
+        }
+        
+        .step h3 {
+          margin-top: 0;
+          margin-bottom: 0.75rem;
+        }
+        
+        @media (max-width: 768px) {
+          .steps {
+            flex-direction: column;
+          }
+          
+          .step {
+            min-width: auto;
+            width: 100%;
+          }
+        }
+      `}</style>
+    </Layout>
+  );
+}
