@@ -4,22 +4,40 @@
         <nav class="bg-blue-800 text-white shadow-md">
             <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" viewBox="0 0 20 20"
-                        fill="currentColor">
-                        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                        <path
-                            d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1a1 1 0 00-1-1H3V4zM13 15h2.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1v-1a1 1 0 00-1-1h-6v3z" />
-                        <path d="M15 4a1 1 0 00-1 1v3a1 1 0 001 1h5a1 1 0 001-1V5a1 1 0 00-1-1h-5z" />
-                    </svg>
-                    <span class="font-bold text-xl">CarReliability.AI</span>
+                    <router-link to="/" class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path
+                                d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                            <path
+                                d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1a1 1 0 00-1-1H3V4zM13 15h2.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1v-1a1 1 0 00-1-1h-6v3z" />
+                            <path d="M15 4a1 1 0 00-1 1v3a1 1 0 001 1h5a1 1 0 001-1V5a1 1 0 00-1-1h-5z" />
+                        </svg>
+                        <span class="font-bold text-xl">CarReliability.AI</span>
+                    </router-link>
                 </div>
                 <div class="hidden md:flex space-x-6">
-                    <a href="#" class="hover:text-blue-200 transition duration-300">Home</a>
-                    <a href="#" class="hover:text-blue-200 transition duration-300">About</a>
-                    <a href="#" class="hover:text-blue-200 transition duration-300">Blog</a>
-                    <a href="#" class="hover:text-blue-200 transition duration-300">Contact</a>
+                    <router-link to="/" class="hover:text-blue-200 transition duration-300">Home</router-link>
+                    <router-link to="/search" class="hover:text-blue-200 transition duration-300">Search</router-link>
+
+                    <!-- Show these links only when user is not authenticated -->
+                    <template v-if="!isAuthenticated">
+                        <router-link to="/login" class="hover:text-blue-200 transition duration-300">Sign
+                            In</router-link>
+                        <router-link to="/register"
+                            class="hover:text-blue-200 transition duration-300">Register</router-link>
+                    </template>
+
+                    <!-- Show these links only when user is authenticated -->
+                    <template v-else>
+                        <router-link to="/profile" class="hover:text-blue-200 transition duration-300">My
+                            Profile</router-link>
+                        <button @click="logout" class="hover:text-blue-200 transition duration-300">Sign Out</button>
+                    </template>
                 </div>
-                <button class="md:hidden focus:outline-none">
+
+                <!-- Mobile menu button -->
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -27,10 +45,50 @@
                     </svg>
                 </button>
             </div>
+
+            <!-- Mobile menu -->
+            <div v-if="mobileMenuOpen" class="md:hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-blue-700">
+                    <router-link to="/" @click="mobileMenuOpen = false"
+                        class="block px-3 py-2 rounded-md hover:bg-blue-700 transition duration-150">
+                        Home
+                    </router-link>
+                    <router-link to="/search" @click="mobileMenuOpen = false"
+                        class="block px-3 py-2 rounded-md hover:bg-blue-700 transition duration-150">
+                        Search
+                    </router-link>
+
+                    <!-- Show these links only when user is not authenticated -->
+                    <template v-if="!isAuthenticated">
+                        <router-link to="/login" @click="mobileMenuOpen = false"
+                            class="block px-3 py-2 rounded-md hover:bg-blue-700 transition duration-150">
+                            Sign In
+                        </router-link>
+                        <router-link to="/register" @click="mobileMenuOpen = false"
+                            class="block px-3 py-2 rounded-md hover:bg-blue-700 transition duration-150">
+                            Register
+                        </router-link>
+                    </template>
+
+                    <!-- Show these links only when user is authenticated -->
+                    <template v-else>
+                        <router-link to="/profile" @click="mobileMenuOpen = false"
+                            class="block px-3 py-2 rounded-md hover:bg-blue-700 transition duration-150">
+                            My Profile
+                        </router-link>
+                        <button @click="handleMobileLogout"
+                            class="w-full text-left block px-3 py-2 rounded-md hover:bg-blue-700 transition duration-150">
+                            Sign Out
+                        </button>
+                    </template>
+                </div>
+            </div>
         </nav>
 
-        <CarReliabilityApp />
+        <!-- Main content area -->
+        <router-view />
 
+        <!-- Footer -->
         <footer class="bg-gray-800 text-white py-8 mt-12">
             <div class="max-w-6xl mx-auto px-4">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -42,10 +100,13 @@
                     <div>
                         <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
                         <ul class="space-y-2">
-                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">About Us</a>
+                            <li><router-link to="/"
+                                    class="text-gray-400 hover:text-white transition duration-300">Home</router-link>
                             </li>
-                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">Services</a>
+                            <li><router-link to="/search"
+                                    class="text-gray-400 hover:text-white transition duration-300">Search</router-link>
+                            </li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">About Us</a>
                             </li>
                             <li><a href="#" class="text-gray-400 hover:text-white transition duration-300">Contact</a>
                             </li>
@@ -119,12 +180,37 @@
 </template>
 
 <script>
-import CarReliabilityApp from './components/CarReliabilityApp.vue';
+import { ref, computed, onMounted } from 'vue';
+import authService from './services/authService';
 
 export default {
     name: 'App',
-    components: {
-        CarReliabilityApp
+    setup() {
+        // Mobile menu state
+        const mobileMenuOpen = ref(false);
+
+        // Computed property to check authentication status
+        const isAuthenticated = computed(() => {
+            return authService.isAuthenticated();
+        });
+
+        // Logout function
+        const logout = () => {
+            authService.logout();
+        };
+
+        // Handle mobile logout (close menu before logout)
+        const handleMobileLogout = () => {
+            mobileMenuOpen.value = false;
+            logout();
+        };
+
+        return {
+            mobileMenuOpen,
+            isAuthenticated,
+            logout,
+            handleMobileLogout
+        };
     }
 }
 </script>
