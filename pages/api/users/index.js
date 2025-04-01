@@ -1,37 +1,53 @@
-// pages/api/users/index.js - Admin users API route
-import { withAuth } from '../../../lib/auth';
-import { query } from '../../../lib/database';
+// pages/api/users/index.js - Admin users API route for Edge Functions
+import { withAuthEdge } from '../../../lib/auth'; // Adjusted to Edge-compatible auth handler
+import { queryEdge } from '../../../lib/database'; // Adjusted for Edge-compatible database access
 
-async function handler(req, res) {
+export const config = {
+  runtime: 'edge', // Ensure this API route runs on Edge
+};
+
+async function handler(req) {
   // Only accept GET requests
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+    });
   }
-  
+
   try {
     // In a real implementation, check if user has admin privileges
     const isAdmin = true; // Replace with actual admin check in production
     
     if (!isAdmin) {
-      return res.status(403).json({ error: 'Insufficient permissions to access user data' });
+      return new Response(JSON.stringify({ error: 'Insufficient permissions' }), {
+        status: 403,
+      });
     }
-    
+
     // Retrieve all users with limited fields for security
-    const usersResult = await query(
+    const usersResult = await queryEdge(
       'SELECT id, email, created_at, updated_at FROM users ORDER BY id'
     );
-    
+
     const userCount = usersResult.rows.length;
-    
-    res.status(200).json({
-      count: userCount,
-      users: usersResult.rows
-    });
+
+    return new Response(
+      JSON.stringify({
+        count: userCount,
+        users: usersResult.rows,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Error fetching users:', error);
-    res.status(500).json({ error: 'Failed to retrieve users' });
+    return new Response(JSON.stringify({ error: 'Failed to retrieve users' }), {
+      status: 500,
+    });
   }
 }
 
-// Wrap handler with authentication middleware
-export default withAuth(handler);
+// Wrap handler with Edge-compatible authentication middleware
+export default withAuthEdge(handler);

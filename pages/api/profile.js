@@ -1,46 +1,51 @@
-// pages/api/profile.js - User profile API route
-import { withAuth } from '../../lib/auth';
-import { query } from '../../lib/database';
+// pages/api/profile.js
+import { withAuthEdge } from '../../lib/auth'; // Adjusted for Edge-compatible auth handler
+import { queryEdge } from '../../lib/database';
 
-async function handler(req, res) {
-  // Only accept GET requests
+export const config = {
+  runtime: 'edge',
+};
+
+async function handler(req) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-  
+
   try {
-    const userResult = await query(
-      'SELECT id, email, created_at FROM users WHERE id = $1', 
-      [req.user.id]
-    );
-    
+    const userResult = await queryEdge('SELECT id, email, created_at FROM users WHERE id = $1', [req.user.id]);
+
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+      return new Response(JSON.stringify({ error: 'User not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
-    
+
     const user = userResult.rows[0];
-    
-    // Get subscription status
     const now = new Date().toISOString();
-    const subscriptionResult = await query(`
+    const subscriptionResult = await queryEdge(`
       SELECT * FROM subscriptions 
       WHERE user_id = $1 AND status = $2 
       AND (expires_at IS NULL OR expires_at > $3)
     `, [user.id, 'active', now]);
-    
+
     const subscription = subscriptionResult.rows[0];
     const isPremium = !!subscription;
-    
-    res.status(200).json({
-      user,
-      isPremium,
-      subscription
-    });
+
+    return new Response(
+      JSON.stringify({ user, isPremium, subscription }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    console.error('Profile error:', error);
-    res.status(500).json({ error: 'Failed to fetch profile' });
+    return new Response(
+      JSON.stringify({ error: 'Failed to fetch profile' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }
 
-// Wrap handler with authentication middleware
-export default withAuth(handler);
+// Wrap handler with Edge-compatible authentication middleware
+export default withAuthEdge(handler);

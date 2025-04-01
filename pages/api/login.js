@@ -1,63 +1,75 @@
-// pages/api/login.js - User login API route
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { query } from '../../lib/database';
+// pages/api/login.js
+import { queryEdge } from '../../lib/database';
+import jwt from 'jsonwebtoken'; // Edge-compatible JWT library or custom implementation
 
-export default async function handler(req, res) {
-  // Only accept POST requests
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-  
-  const { email, password } = req.body;
-  
+
+  const { email, password } = await req.json();
+
   if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password required' });
+    return new Response(JSON.stringify({ error: 'Email and password required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-  
+
   try {
-    // Get user
-    const userResult = await query('SELECT * FROM users WHERE email = $1', [email]);
-    
+    const userResult = await queryEdge('SELECT * FROM users WHERE email = $1', [email]);
+
     if (userResult.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
-    
+
     const user = userResult.rows[0];
-    
-    // Verify password
     const passwordMatch = await bcrypt.compare(password, user.password);
-    
+
     if (!passwordMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
-    
-    // Generate JWT token
+
     const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
-    
-    // Get subscription status
+
     const now = new Date().toISOString();
-    const subscriptionResult = await query(`
+    const subscriptionResult = await queryEdge(`
       SELECT * FROM subscriptions 
       WHERE user_id = $1 AND status = $2 
       AND (expires_at IS NULL OR expires_at > $3)
     `, [user.id, 'active', now]);
-    
+
     const subscription = subscriptionResult.rows[0];
     const isPremium = !!subscription;
-    
-    res.status(200).json({
-      user: { id: user.id, email: user.email },
-      token,
-      isPremium,
-      subscription
-    });
+
+    return new Response(
+      JSON.stringify({ user: { id: user.id, email: user.email }, token, isPremium, subscription }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed' });
+    return new Response(
+      JSON.stringify({ error: 'Login failed' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }

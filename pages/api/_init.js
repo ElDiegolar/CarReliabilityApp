@@ -1,7 +1,10 @@
 // pages/api/_init.js
 import { initializeDatabase } from '../../lib/database';
 
-// Initialize database on server startup
+export const config = {
+  runtime: 'edge',
+};
+
 (async () => {
   try {
     await initializeDatabase();
@@ -9,8 +12,11 @@ import { initializeDatabase } from '../../lib/database';
   } catch (error) {
     console.error('Failed to initialize database from API route:', error);
   }
-})();
+});
 
-export default function handler(req, res) {
-  res.status(200).json({ initialized: true });
+export default function handler(req) {
+  return new Response(JSON.stringify({ initialized: true }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
