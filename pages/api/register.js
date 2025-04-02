@@ -1,41 +1,35 @@
 // pages/api/register.js
-import bcrypt from 'bcryptjs'; // Use Edge-compatible bcrypt implementation or service
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { queryEdge } from '../../lib/database';
 
 export const config = {
-  runtime: 'nodejs',
+  runtime: 'nodejs', // still fine since you're using pg
 };
 
-export default async function handler(req) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, password } = await req.json();
+  const { email, password } = req.body; // ✅ correct for Node.js API route
 
   if (!email || !password) {
-    return new Response(JSON.stringify({ error: 'Email and password required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(400).json({ error: 'Email and password required' });
   }
 
   try {
     const existingUserResult = await queryEdge('SELECT id FROM users WHERE email = $1', [email]);
 
     if (existingUserResult.rows.length > 0) {
-      return new Response(JSON.stringify({ error: 'User already exists' }), {
-        status: 409,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(409).json({ error: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await queryEdge('INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id', [email, hashedPassword]);
+    const result = await queryEdge(
+      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id',
+      [email, hashedPassword]
+    );
     const userId = result.rows[0].id;
 
     const token = jwt.sign(
@@ -44,14 +38,13 @@ export default async function handler(req) {
       { expiresIn: '24h' }
     );
 
-    return new Response(
-      JSON.stringify({ message: 'User registered successfully', user: { id: userId, email }, token }),
-      { status: 201, headers: { 'Content-Type': 'application/json' } }
-    );
-  } catch (error) {
-    return new Response(JSON.stringify({ error: 'Registration failed' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
+    return res.status(201).json({
+      message: 'User registered successfully',
+      user: { id: userId, email },
+      token,
     });
+  } catch (error) {
+    console.error('Registration error:', error);
+    return res.status(500).json({ error: 'Registration failed' });
   }
 }
