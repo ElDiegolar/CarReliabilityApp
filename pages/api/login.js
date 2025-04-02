@@ -3,7 +3,7 @@ import { queryEdge } from '../../lib/database';
 import jwt from 'jsonwebtoken'; // Edge-compatible JWT library or custom implementation
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'nodejs',
 };
 
 export default async function handler(req) {

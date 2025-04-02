@@ -2,8 +2,9 @@
 import { withAuthEdge } from '../../lib/auth'; // Adjusted for Edge-compatible auth handler
 import { queryEdge } from '../../lib/database';
 
+
 export const config = {
-  runtime: 'edge',
+  runtime: 'nodejs',
 };
 
 async function handler(req) {
