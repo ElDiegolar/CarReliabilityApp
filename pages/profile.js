@@ -1,10 +1,12 @@
-// pages/profile.js - User profile page
+// pages/profile.js - User profile page with upgrade functionality
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router'; // Import router
 import Layout from '../components/Layout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Profile() {
+  const router = useRouter(); // Initialize router
   const { user, getToken } = useAuth();
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,6 +43,11 @@ export default function Profile() {
     
     fetchProfile();
   }, [user, getToken]);
+
+  // Handler for upgrading to premium
+  const handleUpgrade = () => {
+    router.push('/pricing');
+  };
 
   return (
     <ProtectedRoute>
@@ -104,7 +111,12 @@ export default function Profile() {
                   <div className="subscription-prompt">
                     <p>You don't have an active subscription.</p>
                     <p>Upgrade to premium for full access to all reliability data and features.</p>
-                    <button className="button primary">Upgrade to Premium</button>
+                    <button 
+                      className="button primary"
+                      onClick={handleUpgrade}
+                    >
+                      Upgrade to Premium
+                    </button>
                   </div>
                 )}
               </div>
