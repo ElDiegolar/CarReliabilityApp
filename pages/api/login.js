@@ -1,5 +1,5 @@
 // pages/api/login.js
-import { queryEdge } from '../../lib/database';
+import { query } from '../../lib/database';
 import jwt from 'jsonwebtoken'; // Edge-compatible JWT library or custom implementation
 
 export const config = {
@@ -24,7 +24,7 @@ export default async function handler(req) {
   }
 
   try {
-    const userResult = await queryEdge('SELECT * FROM users WHERE email = $1', [email]);
+    const userResult = await query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (userResult.rows.length === 0) {
       return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
@@ -50,7 +50,7 @@ export default async function handler(req) {
     );
 
     const now = new Date().toISOString();
-    const subscriptionResult = await queryEdge(`
+    const subscriptionResult = await query(`
       SELECT * FROM subscriptions 
       WHERE user_id = $1 AND status = $2 
       AND (expires_at IS NULL OR expires_at > $3)
