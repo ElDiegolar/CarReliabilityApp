@@ -1,7 +1,7 @@
 // pages/api/payment/verify.js
 import Stripe from 'stripe';
-import { withAuth } from '../../lib/auth';
-import { query } from '../../lib/database';
+import { withAuth } from '../../../lib/auth';
+import { query } from '../../../lib/database';
 
 export const config = {
   runtime: 'nodejs',
