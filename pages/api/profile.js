@@ -1,6 +1,6 @@
 // pages/api/profile.js
-import { withAuthEdge } from '../../lib/auth'; // Assume this attaches user to req
-import { query } from '../../lib/database'; // ✅ use the correct Node-compatible query
+import { withAuth } from '../../lib/auth';
+import { query } from '../../lib/database';
 
 export const config = {
   runtime: 'nodejs',
@@ -46,4 +46,4 @@ async function handler(req, res) {
   }
 }
 
-export default withAuthEdge(handler);
+export default withAuth(handler); // ✅ Correct middleware
