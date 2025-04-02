@@ -1,46 +1,34 @@
-// pages/api/login.js
 import { query } from '../../lib/database';
-import jwt from 'jsonwebtoken'; // Edge-compatible JWT library or custom implementation
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs'; // Make sure this is imported
 
 export const config = {
-  runtime: 'nodejs',
+  runtime: 'nodejs', // Makes sure you're using Node runtime on Vercel
 };
 
-export default async function handler(req) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, password } = await req.json();
+  const { email, password } = req.body; // ✅ use req.body, not await req.json()
 
   if (!email || !password) {
-    return new Response(JSON.stringify({ error: 'Email and password required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(400).json({ error: 'Email and password required' });
   }
 
   try {
     const userResult = await query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (userResult.rows.length === 0) {
-      return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const user = userResult.rows[0];
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const token = jwt.sign(
@@ -59,17 +47,14 @@ export default async function handler(req) {
     const subscription = subscriptionResult.rows[0];
     const isPremium = !!subscription;
 
-    return new Response(
-      JSON.stringify({ user: { id: user.id, email: user.email }, token, isPremium, subscription }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return res.status(200).json({
+      user: { id: user.id, email: user.email },
+      token,
+      isPremium,
+      subscription,
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: 'Login failed' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('Login error:', error);
+    return res.status(500).json({ error: 'Login failed' });
   }
 }
