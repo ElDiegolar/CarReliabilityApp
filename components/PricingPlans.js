@@ -1,36 +1,19 @@
-// components/PricingPlans.js
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function PricingPlans() {
-  const [isAnnual, setIsAnnual] = useState(false);
   const [loading, setLoading] = useState(false);
   const { isAuthenticated, getToken } = useAuth();
   const router = useRouter();
 
   const plans = [
     {
-      name: 'Basic',
-      price: isAnnual ? 0 : 0,
-      priceId: 'free',
-      period: 'forever',
-      isFree: true,
-      features: [
-        'Basic reliability scores',
-        'Engine & transmission data',
-        'Limited search history',
-        'Standard support'
-      ]
-    },
-    {
       name: 'Premium',
-      price: isAnnual ? 99.99 : 9.99,
-      priceId: isAnnual ? 'price_premium_annual' : 'price_premium_monthly',
-      paymentUrl: isAnnual
-        ? 'https://buy.stripe.com/test_7sI6qEg7N6601b2289'
-        : 'https://buy.stripe.com/test_7sI6qEg7N6601b2289', // Replace if you have a separate monthly link
-      period: isAnnual ? 'year' : 'month',
+      price: 9.99,
+      priceId: 'price_premium_monthly',
+      paymentUrl: 'https://buy.stripe.com/test_7sI6qEg7N6601b2289',
+      period: 'month',
       isPopular: true,
       features: [
         'Comprehensive reliability scores',
@@ -42,12 +25,10 @@ export default function PricingPlans() {
     },
     {
       name: 'Professional',
-      price: isAnnual ? 99.99 : 19.99,
-      priceId: isAnnual ? 'price_professional_annual' : 'price_professional_monthly',
-      paymentUrl: isAnnual
-        ? 'https://buy.stripe.com/test_fZe2ao3l12TO4nebIL'
-        : 'https://buy.stripe.com/test_fZe2ao3l12TO4nebIL',
-      period: isAnnual ? 'year' : 'month',
+      price: 19.99,
+      priceId: 'price_professional_monthly',
+      paymentUrl: 'https://buy.stripe.com/test_fZe2ao3l12TO4nebIL',
+      period: 'month',
       features: [
         'Everything in Premium',
         'Batch vehicle analysis',
@@ -62,11 +43,6 @@ export default function PricingPlans() {
   ];
 
   const handleSelectPlan = async (plan) => {
-    if (plan.isFree) {
-      router.push('/search');
-      return;
-    }
-
     if (!isAuthenticated) {
       router.push({
         pathname: '/login',
@@ -92,21 +68,6 @@ export default function PricingPlans() {
 
   return (
     <div className="pricing-container">
-      <div className="billing-toggle">
-        <span className={!isAnnual ? 'active' : ''}>Monthly</span>
-        <label className="switch">
-          <input
-            type="checkbox"
-            checked={isAnnual}
-            onChange={() => setIsAnnual(!isAnnual)}
-          />
-          <span className="slider"></span>
-        </label>
-        <span className={isAnnual ? 'active' : ''}>
-          Annual <span className="discount">Save 15%</span>
-        </span>
-      </div>
-
       <div className="plans-grid">
         {plans.map((plan) => (
           <div
@@ -118,18 +79,12 @@ export default function PricingPlans() {
             <h3 className="plan-name">{plan.name}</h3>
 
             <div className="plan-price">
-              {plan.isFree ? (
-                <span className="free">Free</span>
-              ) : (
-                <>
-                  <span className="currency">$</span>
-                  <span className="amount">{plan.price}</span>
-                </>
-              )}
+              <span className="currency">$</span>
+              <span className="amount">{plan.price}</span>
             </div>
 
             <div className="plan-period">
-              {!plan.isFree && `per ${plan.period}`}
+              per {plan.period}
             </div>
 
             <ul className="plan-features">
@@ -154,11 +109,11 @@ export default function PricingPlans() {
             </ul>
 
             <button
-              className={`plan-button ${plan.isPopular ? 'popular' : ''} ${plan.isFree ? 'free' : ''}`}
+              className={`plan-button ${plan.isPopular ? 'popular' : ''}`}
               onClick={() => handleSelectPlan(plan)}
               disabled={loading}
-            > 
-              {loading ? 'Processing...' : plan.isFree ? 'Get Started' : 'Subscribe Now'}
+            >
+              {loading ? 'Processing...' : 'Subscribe Now'}
             </button>
           </div>
         ))}
