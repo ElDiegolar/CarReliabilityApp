@@ -1,9 +1,9 @@
 import { query } from '../../lib/database';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs'; // Make sure this is imported
+import bcrypt from 'bcryptjs';
 
 export const config = {
-  runtime: 'nodejs', // Makes sure you're using Node runtime on Vercel
+  runtime: 'nodejs',
 };
 
 export default async function handler(req, res) {
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, password } = req.body; // ✅ use req.body, not await req.json()
+  const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password required' });
@@ -39,9 +39,11 @@ export default async function handler(req, res) {
 
     const now = new Date().toISOString();
     const subscriptionResult = await query(`
-      SELECT * FROM subscriptions 
-      WHERE user_id = $1 AND status = $2 
-      AND (expires_at IS NULL OR expires_at > $3)
+      SELECT us.*, sp.name AS plan_name
+      FROM user_subscriptions us
+      JOIN subscription_plans sp ON sp.id = us.plan_id
+      WHERE us.user_id = $1 AND us.status = $2
+        AND (us.current_period_end IS NULL OR us.current_period_end > $3)
     `, [user.id, 'active', now]);
 
     const subscription = subscriptionResult.rows[0];
