@@ -1,7 +1,6 @@
-// components/PricingPlans.js - Pricing plans component
-import React, { useState, useEffect } from 'react';
+// components/PricingPlans.js
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function PricingPlans() {
@@ -26,23 +25,28 @@ export default function PricingPlans() {
     },
     {
       name: 'Premium',
-      price: isAnnual ? 49.99 : 4.99,
+      price: isAnnual ? 99.99 : 9.99,
       priceId: isAnnual ? 'price_premium_annual' : 'price_premium_monthly',
+      paymentUrl: isAnnual
+        ? 'https://buy.stripe.com/test_7sI6qEg7N6601b2289'
+        : 'https://buy.stripe.com/test_7sI6qEg7N6601b2289', // Replace if you have a separate monthly link
       period: isAnnual ? 'year' : 'month',
       isPopular: true,
       features: [
         'Comprehensive reliability scores',
         'All vehicle systems data',
         'Common issues with repair costs',
-        'Unlimited search history',
         'Priority support',
-        'Export reports as PDF'
+        'Limited search history',
       ]
     },
     {
       name: 'Professional',
-      price: isAnnual ? 99.99 : 9.99,
+      price: isAnnual ? 99.99 : 19.99,
       priceId: isAnnual ? 'price_professional_annual' : 'price_professional_monthly',
+      paymentUrl: isAnnual
+        ? 'https://buy.stripe.com/test_fZe2ao3l12TO4nebIL'
+        : 'https://buy.stripe.com/test_fZe2ao3l12TO4nebIL',
       period: isAnnual ? 'year' : 'month',
       features: [
         'Everything in Premium',
@@ -50,6 +54,7 @@ export default function PricingPlans() {
         'Comparison tools',
         'Market value analysis',
         'Dealership integration',
+        'Unlimited search history',
         'API access',
         '24/7 priority support'
       ]
@@ -58,61 +63,28 @@ export default function PricingPlans() {
 
   const handleSelectPlan = async (plan) => {
     if (plan.isFree) {
-      // Redirect to search page for free plan
       router.push('/search');
       return;
     }
-    
-    // Check if user is authenticated
+
     if (!isAuthenticated) {
-      // Redirect to login with returnUrl
       router.push({
         pathname: '/login',
         query: { returnUrl: '/pricing', plan: plan.priceId }
       });
       return;
     }
-    
+
     setLoading(true);
-    
     try {
-      const token = getToken();
-      // Create checkout session with auth token
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          priceId: plan.priceId
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session');
-      }
-      
-      const data = await response.json();
-      
-      if (data.url) {
-        // Redirect to Stripe checkout
-        window.location.href = data.url;
+      if (plan.paymentUrl) {
+        window.location.href = plan.paymentUrl;
       } else {
-        throw new Error('Failed to create checkout session');
+        alert('No payment link found for this plan.');
       }
     } catch (err) {
-      console.error('Error creating checkout:', err);
+      console.error('Redirect error:', err);
       alert('Something went wrong. Please try again.');
-      
-      // If authentication error, redirect to login
-      if (err.message?.includes('authentication') || err.message?.includes('token')) {
-        router.push({
-          pathname: '/login',
-          query: { returnUrl: '/pricing', plan: plan.priceId }
-        });
-      }
     } finally {
       setLoading(false);
     }
@@ -134,19 +106,17 @@ export default function PricingPlans() {
           Annual <span className="discount">Save 15%</span>
         </span>
       </div>
-      
+
       <div className="plans-grid">
         {plans.map((plan) => (
           <div
             key={plan.name}
             className={`plan-card ${plan.isPopular ? 'popular' : ''}`}
           >
-            {plan.isPopular && (
-              <div className="popular-badge">Most Popular</div>
-            )}
-            
+            {plan.isPopular && <div className="popular-badge">Most Popular</div>}
+
             <h3 className="plan-name">{plan.name}</h3>
-            
+
             <div className="plan-price">
               {plan.isFree ? (
                 <span className="free">Free</span>
@@ -157,11 +127,11 @@ export default function PricingPlans() {
                 </>
               )}
             </div>
-            
+
             <div className="plan-period">
               {!plan.isFree && `per ${plan.period}`}
             </div>
-            
+
             <ul className="plan-features">
               {plan.features.map((feature, index) => (
                 <li key={index}>
@@ -182,7 +152,7 @@ export default function PricingPlans() {
                 </li>
               ))}
             </ul>
-            
+
             <button
               className={`plan-button ${plan.isPopular ? 'popular' : ''} ${plan.isFree ? 'free' : ''}`}
               onClick={() => handleSelectPlan(plan)}
@@ -193,240 +163,13 @@ export default function PricingPlans() {
           </div>
         ))}
       </div>
-      
-      {/* Auth status debug section (remove in production) */}
+
       {process.env.NODE_ENV === 'development' && (
         <div className="debug-info">
           <p>Auth Status: {isAuthenticated ? 'Authenticated' : 'Not Authenticated'}</p>
           <p>Token Exists: {getToken() ? 'Yes' : 'No'}</p>
         </div>
       )}
-      
-      <style jsx>{`
-        .pricing-container {
-          margin: 3rem 0;
-        }
-        
-        .billing-toggle {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 2rem;
-        }
-        
-        .billing-toggle span {
-          margin: 0 0.5rem;
-          color: #666;
-        }
-        
-        .billing-toggle span.active {
-          color: #333;
-          font-weight: bold;
-        }
-        
-        .discount {
-          display: inline-block;
-          background-color: #e5f6ff;
-          color: #0070f3;
-          padding: 0.2rem 0.5rem;
-          border-radius: 4px;
-          font-size: 0.75rem;
-          margin-left: 0.5rem;
-        }
-        
-        .switch {
-          position: relative;
-          display: inline-block;
-          width: 50px;
-          height: 24px;
-        }
-        
-        .switch input {
-          opacity: 0;
-          width: 0;
-          height: 0;
-        }
-        
-        .slider {
-          position: absolute;
-          cursor: pointer;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: #ccc;
-          transition: .4s;
-          border-radius: 34px;
-        }
-        
-        .slider:before {
-          position: absolute;
-          content: "";
-          height: 16px;
-          width: 16px;
-          left: 4px;
-          bottom: 4px;
-          background-color: white;
-          transition: .4s;
-          border-radius: 50%;
-        }
-        
-        input:checked + .slider {
-          background-color: #0070f3;
-        }
-        
-        input:checked + .slider:before {
-          transform: translateX(26px);
-        }
-        
-        .plans-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 2rem;
-          margin-top: 2rem;
-        }
-        
-        .plan-card {
-          background-color: #fff;
-          border-radius: 8px;
-          padding: 2rem;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-          position: relative;
-          transition: transform 0.2s, box-shadow 0.2s;
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .plan-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .plan-card.popular {
-          border: 2px solid #0070f3;
-          padding-top: 3rem;
-        }
-        
-        .popular-badge {
-          position: absolute;
-          top: 0;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background-color: #0070f3;
-          color: white;
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-size: 0.875rem;
-          font-weight: bold;
-        }
-        
-        .plan-name {
-          text-align: center;
-          margin-top: 0;
-          margin-bottom: 1.5rem;
-          font-size: 1.5rem;
-        }
-        
-        .plan-price {
-          text-align: center;
-          font-size: 2.5rem;
-          font-weight: bold;
-          color: #333;
-        }
-        
-        .currency {
-          font-size: 1.5rem;
-          vertical-align: top;
-          margin-right: 0.25rem;
-        }
-        
-        .free {
-          color: #0070f3;
-        }
-        
-        .plan-period {
-          text-align: center;
-          color: #666;
-          margin-bottom: 2rem;
-        }
-        
-        .plan-features {
-          list-style: none;
-          padding: 0;
-          margin: 0 0 2rem;
-          flex-grow: 1;
-        }
-        
-        .plan-features li {
-          display: flex;
-          align-items: center;
-          margin-bottom: 0.75rem;
-        }
-        
-        .plan-features svg {
-          color: #0070f3;
-          margin-right: 0.75rem;
-          flex-shrink: 0;
-        }
-        
-        .plan-button {
-          width: 100%;
-          padding: 0.75rem;
-          border: none;
-          border-radius: 4px;
-          font-size: 1rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: background-color 0.2s;
-          background-color: #f5f5f5;
-          color: #333;
-        }
-        
-        .plan-button:hover {
-          background-color: #eaeaea;
-        }
-        
-        .plan-button.popular {
-          background-color: #0070f3;
-          color: white;
-        }
-        
-        .plan-button.popular:hover {
-          background-color: #0060df;
-        }
-        
-        .plan-button.free {
-          background-color: #e5f6ff;
-          color: #0070f3;
-        }
-        
-        .plan-button.free:hover {
-          background-color: #d1e9ff;
-        }
-        
-        .plan-button:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-        
-        .debug-info {
-          margin-top: 2rem;
-          padding: 1rem;
-          background-color: #fff;
-          border-radius: 4px;
-          font-family: monospace;
-          border: 1px dashed #ccc;
-        }
-        
-        @media (max-width: 768px) {
-          .plans-grid {
-            grid-template-columns: 1fr;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-          }
-        }
-      `}</style>
     </div>
   );
 }
