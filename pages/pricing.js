@@ -5,14 +5,14 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function PricingPlans() {
   const [loading, setLoading] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const { isAuthenticated, user } = useAuth();
   const router = useRouter();
 
   const plans = [
     {
       name: 'Premium',
       price: 9.99,
-      paymentUrl: 'https://buy.stripe.com/test_7sI6qEg7N6601b2289',
       period: 'month',
       isPopular: true,
       features: [
@@ -22,11 +22,11 @@ export default function PricingPlans() {
         'Priority support',
         'Limited search history',
       ],
+      priceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID,
     },
     {
       name: 'Professional',
       price: 19.99,
-      paymentUrl: 'https://buy.stripe.com/test_fZe2ao3l12TO4nebIL',
       period: 'month',
       features: [
         'Everything in Premium',
@@ -38,10 +38,11 @@ export default function PricingPlans() {
         'API access',
         '24/7 priority support',
       ],
+      priceId: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PRICE_ID,
     },
   ];
 
-  const handleSelectPlan = (plan) => {
+  const handleSelectPlan = async (plan) => {
     if (!isAuthenticated) {
       router.push({
         pathname: '/login',
@@ -51,13 +52,36 @@ export default function PricingPlans() {
     }
 
     setLoading(true);
+    setSelectedPlan(plan.name);
+    
     try {
-      window.location.href = plan.paymentUrl;
+      // Create a checkout session on the server
+      const response = await fetch('/api/payment/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          priceId: plan.priceId,
+          userId: user.id,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+      
+      const { sessionId, url } = await response.json();
+      
+      // Redirect to Stripe checkout
+      window.location.href = url;
     } catch (err) {
-      console.error('Redirect error:', err);
+      console.error('Checkout error:', err);
       alert('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
+      setSelectedPlan(null);
     }
   };
 
@@ -98,11 +122,137 @@ export default function PricingPlans() {
               onClick={() => handleSelectPlan(plan)}
               disabled={loading}
             >
-              {loading ? 'Processing...' : 'Subscribe Now'}
+              {loading && selectedPlan === plan.name ? 'Processing...' : 'Subscribe Now'}
             </button>
           </div>
         ))}
       </div>
+
+      <style jsx>{`
+        .pricing-container {
+          width: 100%;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 2rem 1rem;
+        }
+        
+        .plans-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 2rem;
+        }
+        
+        .plan-card {
+          background-color: #fff;
+          border-radius: 8px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          padding: 2rem;
+          position: relative;
+          transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .plan-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .plan-card.popular {
+          border: 2px solid #0070f3;
+          box-shadow: 0 5px 15px rgba(0, 112, 243, 0.1);
+        }
+        
+        .popular-badge {
+          position: absolute;
+          top: -12px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: #0070f3;
+          color: white;
+          padding: 0.25rem 1rem;
+          border-radius: 20px;
+          font-size: 0.875rem;
+          font-weight: 500;
+        }
+        
+        .plan-name {
+          text-align: center;
+          font-size: 1.5rem;
+          margin: 0.5rem 0 1.5rem;
+        }
+        
+        .plan-price {
+          text-align: center;
+          margin-bottom: 0.25rem;
+        }
+        
+        .currency {
+          font-size: 1.25rem;
+          vertical-align: top;
+          position: relative;
+          top: 0.5rem;
+        }
+        
+        .amount {
+          font-size: 3rem;
+          font-weight: 700;
+        }
+        
+        .plan-period {
+          text-align: center;
+          color: #666;
+          margin-bottom: 1.5rem;
+        }
+        
+        .plan-features {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 2rem;
+        }
+        
+        .plan-features li {
+          display: flex;
+          align-items: center;
+          margin-bottom: 0.75rem;
+          line-height: 1.4;
+        }
+        
+        .plan-features svg {
+          flex-shrink: 0;
+          color: #0070f3;
+          margin-right: 0.75rem;
+        }
+        
+        .plan-button {
+          width: 100%;
+          padding: 0.75rem;
+          border: none;
+          border-radius: 4px;
+          background-color: #f5f5f5;
+          color: #333;
+          font-size: 1rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        
+        .plan-button:hover {
+          background-color: #e5e5e5;
+        }
+        
+        .plan-button.popular {
+          background-color: #0070f3;
+          color: white;
+        }
+        
+        .plan-button.popular:hover {
+          background-color: #0060df;
+        }
+        
+        .plan-button:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+      `}</style>
     </div>
   );
 }
