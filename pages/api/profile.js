@@ -1,52 +1,49 @@
 // pages/api/profile.js
-import { withAuthEdge } from '../../lib/auth'; // Adjusted for Edge-compatible auth handler
-import { queryEdge } from '../../lib/database';
-
+import { withAuthEdge } from '../../lib/auth'; // Assume this attaches user to req
+import { query } from '../../lib/database'; // ✅ use the correct Node-compatible query
 
 export const config = {
   runtime: 'nodejs',
 };
 
-async function handler(req) {
+async function handler(req, res) {
   if (req.method !== 'GET') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const userResult = await queryEdge('SELECT id, email, created_at FROM users WHERE id = $1', [req.user.id]);
+    const userResult = await query(
+      'SELECT id, email, name, created_at FROM users WHERE id = $1',
+      [req.user.id]
+    );
 
     if (userResult.rows.length === 0) {
-      return new Response(JSON.stringify({ error: 'User not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const user = userResult.rows[0];
     const now = new Date().toISOString();
-    const subscriptionResult = await queryEdge(`
-      SELECT * FROM subscriptions 
-      WHERE user_id = $1 AND status = $2 
-      AND (expires_at IS NULL OR expires_at > $3)
+
+    const subscriptionResult = await query(`
+      SELECT us.*, sp.name AS plan_name
+      FROM user_subscriptions us
+      JOIN subscription_plans sp ON sp.id = us.plan_id
+      WHERE us.user_id = $1 AND us.status = $2
+        AND (us.current_period_end IS NULL OR us.current_period_end > $3)
     `, [user.id, 'active', now]);
 
     const subscription = subscriptionResult.rows[0];
     const isPremium = !!subscription;
 
-    return new Response(
-      JSON.stringify({ user, isPremium, subscription }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(200).json({
+      user,
+      isPremium,
+      subscription,
+    });
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: 'Failed to fetch profile' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    console.error('Profile error:', error);
+    return res.status(500).json({ error: 'Failed to fetch profile' });
   }
 }
 
-// Wrap handler with Edge-compatible authentication middleware
 export default withAuthEdge(handler);
