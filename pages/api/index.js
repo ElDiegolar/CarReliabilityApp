@@ -3,6 +3,7 @@
 export const config = {
   runtime: 'nodejs',
 };
+
 export default function handler(req) {
   if (req.method !== 'GET') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
