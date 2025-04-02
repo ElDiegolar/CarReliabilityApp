@@ -157,7 +157,7 @@ export default function PricingPlans() {
               className={`plan-button ${plan.isPopular ? 'popular' : ''} ${plan.isFree ? 'free' : ''}`}
               onClick={() => handleSelectPlan(plan)}
               disabled={loading}
-            >
+            > 
               {loading ? 'Processing...' : plan.isFree ? 'Get Started' : 'Subscribe Now'}
             </button>
           </div>
