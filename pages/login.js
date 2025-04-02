@@ -1,11 +1,13 @@
 // pages/login.js - User login page
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const router = useRouter();
+  const { returnUrl, plan } = router.query;
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -14,6 +16,14 @@ export default function Login() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { login, register, isAuthenticated } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push(returnUrl || '/');
+    }
+  }, [isAuthenticated, router, returnUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,31 +46,18 @@ export default function Login() {
     }
     
     try {
-      const endpoint = isLogin ? '/api/login' : '/api/register';
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Authentication failed');
+      if (isLogin) {
+        // Use the login function from context
+        await login(formData.email, formData.password);
+      } else {
+        // Use the register function from context
+        await register(formData.email, formData.password);
       }
       
-      // Store the token in localStorage
-      localStorage.setItem('authToken', data.token);
-      
-      // Redirect to home page
-      router.push('/');
+      // Redirect after successful login/register
+      router.push(returnUrl || '/');
     } catch (err) {
-      setError(err.message || 'Something went wrong');
+      setError(err.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -144,15 +141,21 @@ export default function Login() {
           {isLogin ? (
             <p>
               Don't have an account?{' '}
-              <a href="#" onClick={() => setIsLogin(false)}>Register</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(false); }}>Register</a>
             </p>
           ) : (
             <p>
               Already have an account?{' '}
-              <a href="#" onClick={() => setIsLogin(true)}>Login</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(true); }}>Login</a>
             </p>
           )}
         </div>
+
+        {returnUrl && (
+          <div className="returnUrl-info">
+            <p>You'll be redirected back after {isLogin ? 'logging in' : 'registration'}</p>
+          </div>
+        )}
       </div>
       
       <style jsx>{`
@@ -263,6 +266,16 @@ export default function Login() {
         
         .auth-footer a:hover {
           text-decoration: underline;
+        }
+
+        .returnUrl-info {
+          margin-top: 1rem;
+          padding: 0.75rem;
+          background-color: #f5f9ff;
+          border-radius: 4px;
+          font-size: 0.875rem;
+          text-align: center;
+          color: #0070f3;
         }
       `}</style>
     </Layout>

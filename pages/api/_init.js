@@ -2,21 +2,16 @@
 import { initializeDatabase } from '../../lib/database';
 
 export const config = {
-  runtime: 'edge',
+  runtime: 'nodejs', // ✅ changed from 'edge'
 };
 
-(async () => {
+export default async function handler(req, res) {
   try {
     await initializeDatabase();
     console.log('Database initialized from API route');
+    return res.status(200).json({ initialized: true });
   } catch (error) {
     console.error('Failed to initialize database from API route:', error);
+    return res.status(500).json({ error: 'Initialization failed' });
   }
-});
-
-export default function handler(req) {
-  return new Response(JSON.stringify({ initialized: true }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
 }

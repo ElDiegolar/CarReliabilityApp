@@ -1,28 +1,75 @@
 // components/ProtectedRoute.js - Route protection component
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, getToken } = useAuth();
+  const [verified, setVerified] = useState(false);
+  const [verifying, setVerifying] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // If not loading and not authenticated, redirect to login
-    if (!loading && !isAuthenticated) {
+    const verifyToken = async () => {
+      try {
+        const token = getToken();
+        
+        if (!token) {
+          setVerified(false);
+          redirectToLogin();
+          return;
+        }
+        
+        // Verify token validity with backend
+        const response = await fetch('/api/verify-token', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.valid) {
+          setVerified(true);
+        } else {
+          // Token is invalid
+          setVerified(false);
+          redirectToLogin();
+        }
+      } catch (err) {
+        console.error('Error verifying token:', err);
+        setVerified(false);
+        redirectToLogin();
+      } finally {
+        setVerifying(false);
+      }
+    };
+    
+    const redirectToLogin = () => {
       router.push({
         pathname: '/login',
         query: { returnUrl: router.asPath }
       });
+    };
+
+    // If auth context is still loading, wait for it
+    if (!loading) {
+      if (!isAuthenticated) {
+        // If auth context says not authenticated, redirect immediately
+        redirectToLogin();
+      } else {
+        // Otherwise verify the token with the backend
+        verifyToken();
+      }
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, router, getToken]);
 
   // Show loading state
-  if (loading) {
+  if (loading || verifying) {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-        <p>Loading...</p>
+        <p>Verifying your authentication...</p>
         
         <style jsx>{`
           .loading-container {
@@ -52,6 +99,6 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  // If authenticated, render children
-  return isAuthenticated ? children : null;
+  // If authenticated and verified, render children
+  return isAuthenticated && verified ? children : null;
 }

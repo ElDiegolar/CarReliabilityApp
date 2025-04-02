@@ -1,5 +1,5 @@
 // components/PricingPlans.js - Pricing plans component
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 export default function PricingPlans() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, getToken } = useAuth();
   const router = useRouter();
 
   const plans = [
@@ -76,16 +76,23 @@ export default function PricingPlans() {
     setLoading(true);
     
     try {
-      // Create checkout session
+      const token = getToken();
+      // Create checkout session with auth token
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           priceId: plan.priceId
         })
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
       
       const data = await response.json();
       
@@ -98,6 +105,14 @@ export default function PricingPlans() {
     } catch (err) {
       console.error('Error creating checkout:', err);
       alert('Something went wrong. Please try again.');
+      
+      // If authentication error, redirect to login
+      if (err.message?.includes('authentication') || err.message?.includes('token')) {
+        router.push({
+          pathname: '/login',
+          query: { returnUrl: '/pricing', plan: plan.priceId }
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -178,6 +193,14 @@ export default function PricingPlans() {
           </div>
         ))}
       </div>
+      
+      {/* Auth status debug section (remove in production) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="debug-info">
+          <p>Auth Status: {isAuthenticated ? 'Authenticated' : 'Not Authenticated'}</p>
+          <p>Token Exists: {getToken() ? 'Yes' : 'No'}</p>
+        </div>
+      )}
       
       <style jsx>{`
         .pricing-container {
@@ -384,6 +407,15 @@ export default function PricingPlans() {
         .plan-button:disabled {
           opacity: 0.7;
           cursor: not-allowed;
+        }
+        
+        .debug-info {
+          margin-top: 2rem;
+          padding: 1rem;
+          background-color: #fff;
+          border-radius: 4px;
+          font-family: monospace;
+          border: 1px dashed #ccc;
         }
         
         @media (max-width: 768px) {

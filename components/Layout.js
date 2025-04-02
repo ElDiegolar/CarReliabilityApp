@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import AuthDebugger from './AuthDebugger'; // Import the debugger
 
 export default function Layout({ children, title = 'Car Reliability App' }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -123,6 +124,9 @@ export default function Layout({ children, title = 'Car Reliability App' }) {
           <p>&copy; {new Date().getFullYear()} Car Reliability. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Add the auth debugger in development mode */}
+      {process.env.NODE_ENV === 'development' && <AuthDebugger />}
 
       <style jsx>{`
         .container {

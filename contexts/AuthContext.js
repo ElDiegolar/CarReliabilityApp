@@ -19,6 +19,12 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkLoggedIn = async () => {
       try {
+        // Check if we're in the browser environment
+        if (typeof window === 'undefined') {
+          setLoading(false);
+          return;
+        }
+
         const token = localStorage.getItem('authToken');
         
         if (!token) {
@@ -39,10 +45,16 @@ export function AuthProvider({ children }) {
         } else {
           // If token is invalid, clear it
           localStorage.removeItem('authToken');
+          setUser(null);
         }
       } catch (err) {
         setError(err.message);
         console.error('Auth error:', err);
+        // Clear invalid token on error
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('authToken');
+        }
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -123,7 +135,9 @@ export function AuthProvider({ children }) {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('authToken');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('authToken');
+    }
     setUser(null);
     router.push('/');
   };
