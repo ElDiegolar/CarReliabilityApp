@@ -22,7 +22,7 @@ export default function PricingPlans() {
         'Priority support',
         'Limited search history',
       ],
-      priceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID,
+      priceId: 'prod_RtmssVQmwKGCeU',
     },
     {
       name: 'Professional',
@@ -38,7 +38,7 @@ export default function PricingPlans() {
         'API access',
         '24/7 priority support',
       ],
-      priceId: process.env.NEXT_PUBLIC_STRIPE_PROFESSIONAL_PRICE_ID,
+      priceId: 'prod_S3XnCxfdEoOuhL' ,
     },
   ];
 
