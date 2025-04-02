@@ -1,7 +1,7 @@
 // pages/api/register.js
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { queryEdge } from '../../lib/database';
+import { query } from '../../lib/database';
 
 export const config = {
   runtime: 'nodejs', // still fine since you're using pg
@@ -19,14 +19,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const existingUserResult = await queryEdge('SELECT id FROM users WHERE email = $1', [email]);
+    const existingUserResult = await query('SELECT id FROM users WHERE email = $1', [email]);
 
     if (existingUserResult.rows.length > 0) {
       return res.status(409).json({ error: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const result = await queryEdge(
+    const result = await query(
       'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id',
       [email, hashedPassword]
     );
