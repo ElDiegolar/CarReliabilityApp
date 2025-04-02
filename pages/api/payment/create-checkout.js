@@ -1,7 +1,6 @@
 // pages/api/payment/create-checkout.js
 import Stripe from 'stripe';
-import { withAuth } from '../../lib/auth';
-
+import { withAuth } from '../../../lib/auth';
 export const config = {
   runtime: 'nodejs',
 };
