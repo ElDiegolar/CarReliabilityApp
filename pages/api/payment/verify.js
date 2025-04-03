@@ -12,7 +12,7 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { sessionId } = req.body;
+  const { sessionId, plan = 'premium' } = req.body;
   
   if (!sessionId) {
     return res.status(400).json({ error: 'Session ID is required' });
@@ -27,7 +27,7 @@ async function handler(req, res) {
     });
     
     // Verify the session belongs to the current user
-    if (session.client_reference_id !== req.user.id.toString()) {
+    if (session.client_reference_id && session.client_reference_id !== req.user.id.toString()) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
     
@@ -36,108 +36,119 @@ async function handler(req, res) {
       return res.status(400).json({ error: 'Payment not completed' });
     }
     
-    // Get subscription data from database (should be created by webhook)
-    const subscriptionResult = await query(
-      'SELECT * FROM subscriptions WHERE user_id = $1 AND stripe_subscription_id = $2',
-      [req.user.id, session.subscription.id]
+    // Get plan_id from subscription_plans table
+    const planResult = await query(
+      'SELECT id FROM subscription_plans WHERE name = $1',
+      [plan]
     );
     
-    // If for some reason the webhook hasn't processed yet, wait briefly and check again
-    if (subscriptionResult.rows.length === 0) {
-      // Wait 2 seconds for webhook to process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Check again
-      const retryResult = await query(
-        'SELECT * FROM subscriptions WHERE user_id = $1 AND stripe_subscription_id = $2',
-        [req.user.id, session.subscription.id]
-      );
-      
-      if (retryResult.rows.length === 0) {
-        // If still no subscription, this is unusual but we can create it now
-        console.log('Subscription not found after checkout - creating manually');
-        
-        // Get subscription details
-        const subscription = session.subscription;
-        
-        // Generate access token
-        const accessToken = Array(32)
-          .fill(0)
-          .map(() => Math.random().toString(36).charAt(2))
-          .join('');
-        
-        // Determine plan type based on price
-        const planId = subscription.items.data[0].price.id;
-        let plan = 'premium'; // Default
-        
-        // Map price IDs to plan names
-        if (planId === process.env.STRIPE_PROFESSIONAL_PRICE_ID) {
-          plan = 'professional';
-        }
-        
-        // Insert subscription
-        await query(`
-          INSERT INTO subscriptions 
-            (user_id, stripe_customer_id, stripe_subscription_id, plan, status, 
-             current_period_start, current_period_end, access_token)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        `, [
-          req.user.id,
-          session.customer,
-          subscription.id,
-          plan,
-          subscription.status,
-          new Date(subscription.current_period_start * 1000).toISOString(),
-          new Date(subscription.current_period_end * 1000).toISOString(),
-          accessToken
-        ]);
-        
-        // Get the newly created subscription
-        const newSubResult = await query(
-          'SELECT * FROM subscriptions WHERE user_id = $1 AND stripe_subscription_id = $2',
-          [req.user.id, subscription.id]
-        );
-        
-        if (newSubResult.rows.length === 0) {
-          throw new Error('Failed to create subscription');
-        }
-        
-        return res.status(200).json({
-          success: true,
-          accessToken: newSubResult.rows[0].access_token,
-          subscription: {
-            plan: newSubResult.rows[0].plan,
-            status: newSubResult.rows[0].status,
-            current_period_end: newSubResult.rows[0].current_period_end,
-          }
-        });
-      }
-      
-      // Return the subscription from the retry
-      return res.status(200).json({
-        success: true,
-        accessToken: retryResult.rows[0].access_token,
-        subscription: {
-          plan: retryResult.rows[0].plan,
-          status: retryResult.rows[0].status,
-          current_period_end: retryResult.rows[0].current_period_end,
-        }
-      });
+    if (planResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Subscription plan not found' });
     }
     
-    // Return the subscription
+    const planId = planResult.rows[0].id;
+    
+    // Get subscription data from database
+    const subscriptionResult = await query(
+      'SELECT * FROM user_subscriptions WHERE user_id = $1',
+      [req.user.id]
+    );
+    
+    // Generate access token
+    const accessToken = Array(32)
+      .fill(0)
+      .map(() => Math.random().toString(36).charAt(2))
+      .join('');
+    
+    const now = new Date();
+    let currentPeriodEnd;
+    
+    if (session.subscription) {
+      // If Stripe subscription is available, use its period end
+      currentPeriodEnd = new Date(session.subscription.current_period_end * 1000);
+    } else {
+      // Otherwise, set a default period end (1 year from now)
+      currentPeriodEnd = new Date();
+      currentPeriodEnd.setFullYear(now.getFullYear() + 1);
+    }
+    
+    let stripeCustomerId = session.customer;
+    let stripeSubscriptionId = session.subscription ? session.subscription.id : null;
+    
+    if (subscriptionResult.rows.length === 0) {
+      // Create new subscription
+      await query(`
+        INSERT INTO user_subscriptions 
+          (user_id, plan_id, status, payment_session_id, 
+           current_period_start, current_period_end, access_token,
+           stripe_customer_id, stripe_subscription_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `, [
+        req.user.id,
+        planId,
+        'active',
+        sessionId,
+        now.toISOString(),
+        currentPeriodEnd.toISOString(),
+        accessToken,
+        stripeCustomerId,
+        stripeSubscriptionId
+      ]);
+    } else {
+      // Update existing subscription
+      await query(`
+        UPDATE user_subscriptions
+        SET plan_id = $1,
+            status = $2,
+            payment_session_id = $3,
+            current_period_start = $4,
+            current_period_end = $5,
+            access_token = $6,
+            stripe_customer_id = $7,
+            stripe_subscription_id = $8,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = $9
+      `, [
+        planId,
+        'active',
+        sessionId,
+        now.toISOString(),
+        currentPeriodEnd.toISOString(),
+        accessToken,
+        stripeCustomerId,
+        stripeSubscriptionId,
+        req.user.id
+      ]);
+    }
+    
+    // Get the updated subscription
+    const updatedSubResult = await query(
+      'SELECT us.*, sp.name as plan_name FROM user_subscriptions us ' +
+      'JOIN subscription_plans sp ON us.plan_id = sp.id ' +
+      'WHERE us.user_id = $1',
+      [req.user.id]
+    );
+    
+    if (updatedSubResult.rows.length === 0) {
+      throw new Error('Failed to create or update subscription');
+    }
+    
+    const subscriptionData = updatedSubResult.rows[0];
+    
+    // Return success response
     return res.status(200).json({
       success: true,
-      accessToken: subscriptionResult.rows[0].access_token,
+      accessToken: subscriptionData.access_token,
       subscription: {
-        plan: subscriptionResult.rows[0].plan,
-        status: subscriptionResult.rows[0].status,
-        current_period_end: subscriptionResult.rows[0].current_period_end,
+        plan: subscriptionData.plan_name,
+        status: subscriptionData.status,
+        current_period_end: subscriptionData.current_period_end,
+        expiresAt: subscriptionData.current_period_end
       }
     });
   } catch (error) {
     console.error('Payment verification error:', error);
-    return res.status(500).json({ error: 'Failed to verify payment' });
+    return res.status(500).json({ error: 'Failed to verify payment', message: error.message });
   }
 }
 
