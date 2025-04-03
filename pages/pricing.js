@@ -22,7 +22,7 @@ export default function PricingPlans() {
         'Priority support',
         'Limited search history',
       ],
-      priceId: 'price_1QzzIuCroJxwl2Z2EYWwHrhF',
+      priceId: 'price_1R9oOTCroJxwl2Z2BZAL2z8B',
     },
     {
       name: 'Professional',
@@ -38,7 +38,7 @@ export default function PricingPlans() {
         'API access',
         '24/7 priority support',
       ],
-      priceId: 'price_1R9QhSCroJxwl2Z2jsKOUcRn' ,
+      priceId: 'price_1R9QhSCroJxwprice_1R9oNVCroJxwl2Z2DvMMLELNl2Z2jsKOUcRn' ,
     },
   ];
 
