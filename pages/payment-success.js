@@ -39,9 +39,21 @@ export default function PaymentSuccess() {
           });
           
           if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Payment verification failed:', errorData);
-            throw new Error(errorData.error || 'Payment verification failed');
+            const errorText = await response.text();
+            let errorMessage = 'Payment verification failed';
+            let errorData = {};
+            
+            try {
+              // Try to parse as JSON
+              errorData = JSON.parse(errorText);
+              console.error('Payment verification failed:', errorData);
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              // If not JSON, just log the text
+              console.error('Payment verification failed with non-JSON response:', errorText);
+            }
+            
+            throw new Error(errorMessage);
           }
           
           const data = await response.json();
@@ -97,7 +109,7 @@ export default function PaymentSuccess() {
             <h1>Payment Successful!</h1>
             <p>Thank you for your subscription. You now have premium access to all features.</p>
             
-            {subscription && (
+            {subscription && subscription.accessToken && (
               <div className="subscription-details">
                 <p className="subscription-info">
                   Your premium access token: <span className="access-token">{subscription.accessToken}</span>
