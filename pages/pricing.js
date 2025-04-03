@@ -38,7 +38,7 @@ export default function PricingPlans() {
         'API access',
         '24/7 priority support',
       ],
-      priceId: 'price_1R9QhSCroJxwprice_1R9oNVCroJxwl2Z2DvMMLELNl2Z2jsKOUcRn' ,
+      priceId: 'price_1R9oNVCroJxwl2Z2DvMMLELN' ,
     },
   ];
 
