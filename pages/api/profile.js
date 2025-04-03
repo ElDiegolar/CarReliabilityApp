@@ -5,15 +5,15 @@ import { query } from '../../lib/database';
 export const config = {
   runtime: 'nodejs',
 };
-
 async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
+    // Get basic user information
     const userResult = await query(
-      'SELECT id, email, name, created_at FROM users WHERE id = $1',
+      'SELECT id, email, name, created_at, stripe_customer_id FROM users WHERE id = $1',
       [req.user.id]
     );
 
@@ -24,15 +24,14 @@ async function handler(req, res) {
     const user = userResult.rows[0];
     const now = new Date().toISOString();
 
+    // Get subscription information directly from the subscriptions table
     const subscriptionResult = await query(`
-      SELECT us.*, sp.name AS plan_name
-      FROM user_subscriptions us
-      JOIN subscription_plans sp ON sp.id = us.plan_id
-      WHERE us.user_id = $1 AND us.status = $2
-        AND (us.current_period_end IS NULL OR us.current_period_end > $3)
+      SELECT * FROM subscriptions 
+      WHERE user_id = $1 AND status = $2
+        AND (current_period_end IS NULL OR current_period_end > $3)
     `, [user.id, 'active', now]);
 
-    const subscription = subscriptionResult.rows[0];
+    const subscription = subscriptionResult.rows[0] || null;
     const isPremium = !!subscription;
 
     return res.status(200).json({
