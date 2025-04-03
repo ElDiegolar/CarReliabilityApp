@@ -24,6 +24,8 @@ export default function PaymentSuccess() {
             throw new Error('Authentication required');
           }
           
+          console.log('Verifying payment with session ID:', session_id);
+          
           const response = await fetch('/api/payment/verify', {
             method: 'POST',
             headers: {
@@ -37,13 +39,17 @@ export default function PaymentSuccess() {
           });
           
           if (!response.ok) {
-            throw new Error('Payment verification failed');
+            const errorData = await response.json();
+            console.error('Payment verification failed:', errorData);
+            throw new Error(errorData.error || 'Payment verification failed');
           }
           
           const data = await response.json();
+          console.log('Payment verification response:', data);
           setSubscription(data);
         } catch (err) {
-          setError(err.message);
+          console.error('Error in payment verification:', err);
+          setError(err.message || 'An unknown error occurred');
         } finally {
           setLoading(false);
         }
