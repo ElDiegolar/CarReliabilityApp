@@ -31,7 +31,7 @@ export default async function handler(req, res) {
       const subscriptionResult = await query(`
         SELECT user_id FROM subscriptions 
         WHERE access_token = $1 AND status = $2 
-        AND (expires_at IS NULL OR expires_at > $3)
+        AND (current_period_end IS NULL OR current_period_end > $3)
       `, [premiumToken, 'active', now]);
       
       if (subscriptionResult.rows.length > 0) {
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       const subscriptionResult = await query(`
         SELECT id FROM subscriptions 
         WHERE user_id = $1 AND status = $2 
-        AND (expires_at IS NULL OR expires_at > $3)
+        AND (current_period_end IS NULL OR current_period_end > $3)
       `, [userId, 'active', now]);
       
       if (subscriptionResult.rows.length > 0) {
@@ -57,10 +57,15 @@ export default async function handler(req, res) {
     
     // Log the search
     if (user_id) {
-      await query(`
-        INSERT INTO searches (user_id, year, make, model, mileage) 
-        VALUES ($1, $2, $3, $4, $5)
-      `, [user_id, year, make, model, mileage]);
+      try {
+        await query(`
+          INSERT INTO searches (user_id, year, make, model, mileage) 
+          VALUES ($1, $2, $3, $4, $5)
+        `, [user_id, year, make, model, mileage]);
+      } catch (searchError) {
+        console.error('Error logging search:', searchError);
+        // Continue even if search logging fails
+      }
     }
 
     // Construct prompt for ChatGPT
