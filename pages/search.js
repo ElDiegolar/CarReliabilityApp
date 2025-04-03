@@ -1,9 +1,11 @@
 // pages/search.js - Car search page
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Search() {
+  const { user, getToken } = useAuth();
   const [formData, setFormData] = useState({
     year: '',
     make: '',
@@ -13,6 +15,34 @@ export default function Search() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [subscription, setSubscription] = useState(null);
+  const [isPremium, setIsPremium] = useState(false);
+
+  // Check for user subscription on component mount
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (user) {
+        try {
+          const token = getToken();
+          const response = await fetch('/api/profile', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setSubscription(data.subscription);
+            setIsPremium(!!data.subscription);
+          }
+        } catch (err) {
+          console.error('Error fetching subscription:', err);
+        }
+      }
+    };
+    
+    checkSubscription();
+  }, [user, getToken]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,12 +58,28 @@ export default function Search() {
     setError('');
     
     try {
+      // Prepare request body
+      const requestBody = {
+        ...formData
+      };
+      
+      // Add user ID if authenticated
+      if (user) {
+        requestBody.userId = user.id;
+      }
+      
+      // Add premium token if available
+      if (subscription && subscription.access_token) {
+        requestBody.premiumToken = subscription.access_token;
+      }
+      
       const response = await fetch('/api/car-reliability', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(requestBody),
       });
       
       if (!response.ok) {
@@ -52,6 +98,12 @@ export default function Search() {
   return (
     <Layout title="Search Vehicle Reliability">
       <h1>Search Vehicle Reliability</h1>
+      
+      {isPremium && (
+        <div className="premium-badge">
+          <span>Premium User</span>
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="search-form">
         <div className="form-group">
@@ -203,6 +255,16 @@ export default function Search() {
       <style jsx>{`
         h1 {
           margin-bottom: 2rem;
+        }
+        
+        .premium-badge {
+          display: inline-block;
+          background-color: #0070f3;
+          color: white;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          margin-bottom: 1.5rem;
+          font-weight: bold;
         }
         
         .search-form {
