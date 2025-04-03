@@ -101,7 +101,17 @@ async function handleCheckoutSessionCompleted(session) {
         planName = 'professional';
         break;
       default:
-        console.log(`Unknown plan ID: ${planId}`);
+        console.log(`Unknown plan ID: ${planId}, using metadata or inferring from price`);
+        // Try to get plan from session metadata
+        if (session.metadata && session.metadata.plan) {
+          planName = session.metadata.plan;
+        } else {
+          // Try to infer from price amount
+          const priceAmount = subscriptionDetails.items.data[0].price.unit_amount;
+          if (priceAmount === 1999) {
+            planName = 'professional';
+          }
+        }
     }
     
     // Generate a unique access token for API access
@@ -110,33 +120,56 @@ async function handleCheckoutSessionCompleted(session) {
     // Calculate expiration date
     const currentPeriodEnd = new Date(subscriptionDetails.current_period_end * 1000);
     
-    // Update or create subscription in your database
-    await query(`
-      INSERT INTO subscriptions 
-        (user_id, stripe_customer_id, stripe_subscription_id, plan, status, 
-         current_period_start, current_period_end, access_token)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      ON CONFLICT (user_id) DO UPDATE SET
-        stripe_customer_id = $2,
-        stripe_subscription_id = $3,
-        plan = $4,
-        status = $5,
-        current_period_start = $6,
-        current_period_end = $7,
-        access_token = $8,
-        updated_at = NOW()
-    `, [
-      userId,
-      customer,
-      subscription,
-      planName,
-      'active',
-      new Date(subscriptionDetails.current_period_start * 1000).toISOString(),
-      currentPeriodEnd.toISOString(),
-      accessToken
-    ]);
+    // Start a database transaction to ensure both tables are updated consistently
+    await query('BEGIN');
     
-    console.log(`Subscription created for user ${userId}`);
+    try {
+      // Update or create subscription in your database
+      await query(`
+        INSERT INTO subscriptions 
+          (user_id, stripe_customer_id, stripe_subscription_id, plan, status, 
+           current_period_start, current_period_end, access_token)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (user_id) DO UPDATE SET
+          stripe_customer_id = $2,
+          stripe_subscription_id = $3,
+          plan = $4,
+          status = $5,
+          current_period_start = $6,
+          current_period_end = $7,
+          access_token = $8,
+          updated_at = NOW()
+      `, [
+        userId,
+        customer,
+        subscription,
+        planName,
+        'active',
+        new Date(subscriptionDetails.current_period_start * 1000).toISOString(),
+        currentPeriodEnd.toISOString(),
+        accessToken
+      ]);
+      
+      // Update the user table with Stripe customer ID
+      await query(`
+        UPDATE users SET
+          stripe_customer_id = $1,
+          updated_at = NOW()
+        WHERE id = $2
+      `, [
+        customer,
+        userId
+      ]);
+      
+      // Commit the transaction
+      await query('COMMIT');
+      
+      console.log(`Subscription created for user ${userId} with plan ${planName}`);
+    } catch (error) {
+      // If there's an error, roll back the transaction
+      await query('ROLLBACK');
+      throw error;
+    }
   } catch (error) {
     console.error('Error updating subscription:', error);
   }
