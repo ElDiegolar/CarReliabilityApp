@@ -99,23 +99,41 @@ async function handler(req, res) {
     let stripeCustomerId = session.customer || null;
     let stripeSubscriptionId = session.subscription?.id || null;
     
-    // Use UPSERT to either create or update the subscription in one query
-    try {
+    // Check if subscription already exists
+    const existingSubResult = await query(
+      'SELECT id FROM user_subscriptions WHERE user_id = $1',
+      [req.user.id]
+    );
+    
+    if (existingSubResult.rows.length > 0) {
+      // Subscription exists, update it
+      await query(`
+        UPDATE user_subscriptions SET
+          plan_id = $1,
+          status = $2,
+          current_period_start = $3,
+          current_period_end = $4,
+          stripe_customer_id = $5,
+          stripe_subscription_id = $6,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = $7
+      `, [
+        planId,
+        'active',
+        now.toISOString(),
+        currentPeriodEnd.toISOString(),
+        stripeCustomerId,
+        stripeSubscriptionId,
+        req.user.id
+      ]);
+    } else {
+      // No existing subscription, insert a new one
       await query(`
         INSERT INTO user_subscriptions 
-          (user_id, plan_id, status,
+          (user_id, plan_id, status, 
            current_period_start, current_period_end,
            stripe_customer_id, stripe_subscription_id)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
-        ON CONFLICT (user_id) 
-        DO UPDATE SET 
-          plan_id = EXCLUDED.plan_id,
-          status = EXCLUDED.status,
-          current_period_start = EXCLUDED.current_period_start,
-          current_period_end = EXCLUDED.current_period_end,
-          stripe_customer_id = EXCLUDED.stripe_customer_id,
-          stripe_subscription_id = EXCLUDED.stripe_subscription_id,
-          updated_at = CURRENT_TIMESTAMP
       `, [
         req.user.id,
         planId,
@@ -125,83 +143,25 @@ async function handler(req, res) {
         stripeCustomerId,
         stripeSubscriptionId
       ]);
-      
-      console.log('Subscription created or updated successfully');
-    } catch (e) {
-      console.error('Error upserting subscription:', e);
-      
-      // If the UPSERT fails (possibly due to ON CONFLICT constraint), 
-      // try a simple INSERT as a fallback
-      if (e.message.includes('constraint')) {
-        console.log('Attempting fallback to simple insert...');
-        
-        // Try to delete existing subscription first
-        await query('DELETE FROM user_subscriptions WHERE user_id = $1', [req.user.id]);
-        
-        // Then insert new one
-        await query(`
-          INSERT INTO user_subscriptions 
-            (user_id, plan_id, status,
-             current_period_start, current_period_end,
-             stripe_customer_id, stripe_subscription_id)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `, [
-          req.user.id,
-          planId,
-          'active',
-          now.toISOString(),
-          currentPeriodEnd.toISOString(),
-          stripeCustomerId,
-          stripeSubscriptionId
-        ]);
-      } else {
-        // If it's not a constraint error, rethrow
-        throw e;
-      }
     }
     
-    // Get the updated subscription
-    const updatedSubResult = await query(
-      'SELECT us.*, sp.name as plan_name FROM user_subscriptions us ' +
-      'JOIN subscription_plans sp ON us.plan_id = sp.id ' +
-      'WHERE us.user_id = $1',
-      [req.user.id]
-    );
+    console.log('Subscription created or updated successfully');
     
-    if (updatedSubResult.rows.length === 0) {
-      console.error('Unable to find subscription after creation/update');
-      
-      // Create an access token for the response, even if we don't store it
-      const generatedAccessToken = Array(32)
-        .fill(0)
-        .map(() => Math.random().toString(36).charAt(2))
-        .join('');
-      
-      // Return a basic response
-      return res.status(200).json({
-        success: true,
-        accessToken: generatedAccessToken,
-        subscription: {
-          plan: plan,
-          status: 'active',
-          current_period_end: currentPeriodEnd.toISOString(),
-          expiresAt: currentPeriodEnd.toISOString()
-        }
-      });
-    }
+    // Generate an access token for API access
+    const generatedAccessToken = Array(32)
+      .fill(0)
+      .map(() => Math.random().toString(36).charAt(2))
+      .join('');
     
-    const subscriptionData = updatedSubResult.rows[0];
-    
-    // Return success response - note we can't return access_token if it doesn't exist in the DB
+    // Return success response
     return res.status(200).json({
       success: true,
-      // Generate a token for API access even if we don't store it in the DB
-      accessToken: Array(32).fill(0).map(() => Math.random().toString(36).charAt(2)).join(''),
+      accessToken: generatedAccessToken,
       subscription: {
-        plan: subscriptionData.plan_name,
-        status: subscriptionData.status,
-        current_period_end: subscriptionData.current_period_end,
-        expiresAt: subscriptionData.current_period_end
+        plan: plan,
+        status: 'active',
+        current_period_end: currentPeriodEnd.toISOString(),
+        expiresAt: currentPeriodEnd.toISOString()
       }
     });
   } catch (error) {
