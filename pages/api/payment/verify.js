@@ -49,10 +49,17 @@ async function handler(req, res) {
     if (planResult.rows.length === 0) {
       console.log(`Creating missing plan: ${plan}`);
       
-      // Insert basic plan data
+      // Insert basic plan data, including the required features column
+      const defaultFeatures = JSON.stringify([
+        `All ${plan} features`,
+        'Comprehensive reliability scores',
+        'Detailed reports',
+        plan === 'premium' ? 'Priority support' : 'Premium support'
+      ]);
+      
       await query(
-        'INSERT INTO subscription_plans (name, price, description) VALUES ($1, $2, $3)',
-        [plan, plan === 'premium' ? 9.99 : 19.99, `${plan.charAt(0).toUpperCase() + plan.slice(1)} plan`]
+        'INSERT INTO subscription_plans (name, price, features) VALUES ($1, $2, $3)',
+        [plan, plan === 'premium' ? 9.99 : 19.99, defaultFeatures]
       );
       
       // Get the newly created plan
