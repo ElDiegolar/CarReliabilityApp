@@ -5,133 +5,134 @@ import Layout from '../components/Layout';
 export default function Home() {
   return (
     <Layout>
-      <div className="hero">
-        <h1>Get Reliable Information About Your Vehicle</h1>
-        <p className="description">
-          Detailed vehicle reliability data, common issues, and expert analysis.
-        </p>
-        <div className="action-buttons">
-          <Link href="/search" className="button primary">
-            Search a Vehicle
-          </Link>
-          <Link href="/login" className="button secondary">
-            Sign Up for Premium
-          </Link>
-        </div>
+    <div className="hero">
+      <h1>Discover How Reliable Your Car Really Is</h1>
+      <p className="description">
+        Explore detailed reliability scores, spot common issues, and let our AI give you the inside scoop.
+      </p>
+      <div className="action-buttons">
+        <Link href="/search" className="button primary">
+          🔍 Search a Vehicle
+        </Link>
+        <Link href="/login" className="button secondary">
+          🚀 Sign Up for Premium
+        </Link>
       </div>
+    </div>
 
-      <div className="features">
-        <h2>Our Features</h2>
-        <div className="feature-grid">
-          <div className="feature-card">
-            <h3>Reliability Scores</h3>
-            <p>Get comprehensive reliability scores for engines, transmissions, electrical systems, and more.</p>
-          </div>
-          <div className="feature-card">
-            <h3>Common Issues</h3>
-            <p>Learn about common problems, estimated repair costs, and when they typically occur.</p>
-          </div>
-          <div className="feature-card">
-            <h3>Expert Analysis</h3>
-            <p>Access detailed AI-powered analysis of each vehicle's reliability compared to similar models.</p>
-          </div>
-          <div className="feature-card">
-            <h3>Premium Data</h3>
-            <p>Subscribe for in-depth reports, recall information, and detailed reliability insights.</p>
-          </div>
+    <div className="features">
+      <h2>Why You’ll Love It</h2>
+      <div className="feature-grid">
+        <div className="feature-card">
+          <h3>Reliability Scores</h3>
+          <p>Get no-nonsense scores for engines, transmissions, electrical systems, and more.</p>
+        </div>
+        <div className="feature-card">
+          <h3>Common Issues</h3>
+          <p>See what tends to go wrong, how much it’ll cost, and when to expect it.</p>
+        </div>
+        <div className="feature-card">
+          <h3>Expert Analysis</h3>
+          <p>Our smart AI breaks down how your car stacks up against others.</p>
+        </div>
+        <div className="feature-card">
+          <h3>Premium Data</h3>
+          <p>Unlock juicy details like recalls, full reliability reports, and more.</p>
         </div>
       </div>
+    </div>
 
-      <div className="pricing-section">
-        <h2>Choose Your Plan</h2>
-        <p className="pricing-description">Access the vehicle reliability data you need with our flexible subscription plans</p>
-        
-        <div className="pricing-grid">
-          <div className="pricing-card">
-            <div className="pricing-header">
-              <h3>Free</h3>
-              <div className="price">$0</div>
-              <div className="price-period">forever</div>
-            </div>
-            <ul className="pricing-features">
-              <li>Basic reliability scores</li>
-              <li>Engine & transmission data</li>
-              <li>Limited vehicle searches</li>
-              <li>Basic analysis</li>
-            </ul>
-            <div className="pricing-action">
-              <Link href="/search" className="pricing-button free">
-                Try Now
-              </Link>
-            </div>
-          </div>
-          
-          <div className="pricing-card popular">
-            <div className="popular-badge">Most Popular</div>
-            <div className="pricing-header">
-              <h3>Premium</h3>
-              <div className="price">$9.99</div>
-              <div className="price-period">per month</div>
-            </div>
-            <ul className="pricing-features">
-              <li>Comprehensive reliability scores</li>
-              <li>All vehicle systems data</li>
-              <li>Common issues with repair costs</li>
-              <li>10 saved search history</li>
-              <li>Detailed AI analysis</li>
-              <li>Priority support</li>
-            </ul>
-            <div className="pricing-action">
-              <Link href="/pricing" className="pricing-button premium">
-                Subscribe Now
-              </Link>
-            </div>
-          </div>
-          
-          <div className="pricing-card">
-            <div className="pricing-header">
-              <h3>Professional</h3>
-              <div className="price">$19.99</div>
-              <div className="price-period">per month</div>
-            </div>
-            <ul className="pricing-features">
-              <li>Everything in Premium</li>
-              <li>Unlimited search history</li>
-              <li>Batch vehicle analysis</li>
-              <li>Market value analysis</li>
-              <li>Dealership integration</li>
-              <li>API access</li>
-              <li>24/7 priority support</li>
-            </ul>
-            <div className="pricing-action">
-              <Link href="/pricing" className="pricing-button pro">
-                Get Professional
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="pricing-section">
+      <h2>Pick the Plan That Fits You</h2>
+      <p className="pricing-description">Whether you're just curious or all-in, we've got a plan for you.</p>
 
-      <div className="how-it-works">
-        <h2>How It Works</h2>
-        <div className="steps">
-          <div className="step">
-            <div className="step-number">1</div>
-            <h3>Enter Vehicle Details</h3>
-            <p>Provide the year, make, model, and mileage of the vehicle you want to research.</p>
+      <div className="pricing-grid">
+        <div className="pricing-card">
+          <div className="pricing-header">
+            <h3>Free</h3>
+            <div className="price">$0</div>
+            <div className="price-period">forever</div>
           </div>
-          <div className="step">
-            <div className="step-number">2</div>
-            <h3>Get Instant Results</h3>
-            <p>Our AI analyzes data from multiple sources to provide accurate reliability information.</p>
+          <ul className="pricing-features">
+            <li>Basic reliability scores</li>
+            <li>Engine & transmission data</li>
+            <li>Limited vehicle searches</li>
+            <li>Basic analysis</li>
+          </ul>
+          <div className="pricing-action">
+            <Link href="/search" className="pricing-button free">
+              Try It Out
+            </Link>
           </div>
-          <div className="step">
-            <div className="step-number">3</div>
-            <h3>Make Informed Decisions</h3>
-            <p>Use the reliability data to make better decisions about buying, selling, or maintaining vehicles.</p>
+        </div>
+
+        <div className="pricing-card popular">
+          <div className="popular-badge">Most Popular</div>
+          <div className="pricing-header">
+            <h3>Premium</h3>
+            <div className="price">$9.99</div>
+            <div className="price-period">per month</div>
+          </div>
+          <ul className="pricing-features">
+            <li>All reliability scores unlocked</li>
+            <li>Full systems coverage</li>
+            <li>Common issues & repair costs</li>
+            <li>10 saved searches</li>
+            <li>AI-powered insights</li>
+            <li>Priority support</li>
+          </ul>
+          <div className="pricing-action">
+            <Link href="/pricing" className="pricing-button premium">
+              Go Premium
+            </Link>
+          </div>
+        </div>
+
+        <div className="pricing-card">
+          <div className="pricing-header">
+            <h3>Professional</h3>
+            <div className="price">$19.99</div>
+            <div className="price-period">per month</div>
+          </div>
+          <ul className="pricing-features">
+            <li>Everything in Premium</li>
+            <li>Unlimited searches</li>
+            <li>Batch vehicle reports</li>
+            <li>Market value insights</li>
+            <li>Dealer tools</li>
+            <li>API access</li>
+            <li>24/7 support</li>
+          </ul>
+          <div className="pricing-action">
+            <Link href="/pricing" className="pricing-button pro">
+              Get Pro Access
+            </Link>
           </div>
         </div>
       </div>
+    </div>
+
+    <div className="how-it-works">
+      <h2>Here’s How It Works</h2>
+      <div className="steps">
+        <div className="step">
+          <div className="step-number">1</div>
+          <h3>Tell Us About Your Ride</h3>
+          <p>Pop in the year, make, model, and mileage — easy peasy.</p>
+        </div>
+        <div className="step">
+          <div className="step-number">2</div>
+          <h3>Let the Magic Happen</h3>
+          <p>Our AI crunches the data and serves up detailed results instantly.</p>
+        </div>
+        <div className="step">
+          <div className="step-number">3</div>
+          <h3>Drive Smarter</h3>
+          <p>Use your new knowledge to buy, sell, or maintain with confidence.</p>
+        </div>
+      </div>
+    </div>
+
 
       <style jsx>{`
         .hero {

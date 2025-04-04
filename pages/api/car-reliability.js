@@ -113,6 +113,7 @@ export default async function handler(req, res) {
         },
         "commonIssues":[
           {description: [description of issue here], costToFix: [cost to fix here in $], occurrence: [occurrences you found], mileage: [mileage at which issue occurs]},
+          {engineCodes: [description of known engine codes], and link to car user manual for more details}
         ],
         "aiAnalysis": ""
       }
