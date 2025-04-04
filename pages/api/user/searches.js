@@ -12,17 +12,28 @@ async function handler(req, res) {
   }
 
   try {
-    // Get user subscription information to determine history limit
-    const userResult = await query(
-      'SELECT id FROM users WHERE id = $1',
-      [req.user.id]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+    // First, get table structure to find the timestamp column
+    const tableStructureResult = await query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'searches'
+    `);
+    
+    const columns = tableStructureResult.rows.map(row => row.column_name);
+    console.log('Available columns in searches table:', columns);
+    
+    // Determine which column to use for timestamp
+    let timestampColumn = 'timestamp'; // Default fallback
+    
+    if (columns.includes('created_at')) {
+      timestampColumn = 'created_at';
+    } else if (columns.includes('search_date')) {
+      timestampColumn = 'search_date';
+    } else if (columns.includes('date')) {
+      timestampColumn = 'date';
     }
-
-    // Check subscription type
+    
+    // Check user subscription for limit determination
     const now = new Date().toISOString();
     const subscriptionResult = await query(`
       SELECT us.*, sp.name as plan_name 
@@ -36,27 +47,31 @@ async function handler(req, res) {
     const isProfessional = subscription && subscription.plan_name === 'professional';
     
     // Determine search limit based on subscription
-    let searchLimit = 10; // Default limit for premium users
-    let limitClause = 'LIMIT 10';
-    
-    if (isProfessional) {
-      searchLimit = 1000; // Very high limit for professional users
-      limitClause = 'LIMIT 1000';
-    }
+    let limitClause = isProfessional ? 'LIMIT 1000' : 'LIMIT 10';
 
-    // Get search history
-    const searchesResult = await query(`
+    // Get search history with correct column for ordering
+    const searchesQuery = `
       SELECT * FROM searches 
       WHERE user_id = $1 
-      ORDER BY created_at DESC
+      ORDER BY ${timestampColumn} DESC
       ${limitClause}
-    `, [req.user.id]);
+    `;
+    
+    console.log('Executing query:', searchesQuery);
+    const searchesResult = await query(searchesQuery, [req.user.id]);
 
-    // Return searches with plan info
-    return res.status(200).json(searchesResult.rows);
+    // Add a timestamp property to each search for the frontend
+    const processedSearches = searchesResult.rows.map(search => {
+      return {
+        ...search,
+        timestamp: search[timestampColumn], // Add a standardized timestamp field
+      };
+    });
+
+    return res.status(200).json(processedSearches);
   } catch (error) {
     console.error('Search history error:', error);
-    return res.status(500).json({ error: 'Failed to fetch search history' });
+    return res.status(500).json({ error: 'Failed to fetch search history', message: error.message });
   }
 }
 

@@ -59,9 +59,21 @@ export default function SearchHistory() {
   }, [getToken]);
 
   // Function to format date
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+  const formatDate = (search) => {
+    // Find the timestamp field, trying different possible column names
+    const timestamp = search.timestamp || search.created_at || search.search_date || search.date;
+    
+    if (!timestamp) {
+      return 'Unknown date';
+    }
+    
+    try {
+      const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      return new Date(timestamp).toLocaleDateString(undefined, options);
+    } catch (e) {
+      console.error('Error formatting date:', e);
+      return 'Invalid date';
+    }
   };
 
   // Check if user has limited search history
@@ -124,14 +136,14 @@ export default function SearchHistory() {
                     <span className="model">{search.model}</span>
                   </div>
                   <div className="mileage-col">
-                    {search.mileage.toLocaleString()} miles
+                    {search.mileage ? search.mileage.toLocaleString() : '0'} miles
                   </div>
                   <div className="date-col">
-                    {formatDate(search.created_at)}
+                    {formatDate(search)}
                   </div>
                   <div className="actions-col">
                     <Link 
-                      href={`/search?year=${search.year}&make=${search.make}&model=${search.model}&mileage=${search.mileage}`}
+                      href={`/search?year=${search.year}&make=${search.make}&model=${search.model}&mileage=${search.mileage || 0}`}
                       className="action-button"
                     >
                       Search Again
