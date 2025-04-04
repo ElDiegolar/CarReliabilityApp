@@ -114,47 +114,80 @@ async function handleCheckoutSessionCompleted(session) {
         }
     }
     
+    // First get the plan_id from subscription_plans table
+    const planResult = await query(
+      'SELECT id FROM subscription_plans WHERE name = $1',
+      [planName]
+    );
+    
+    // If plan doesn't exist yet, create it
+    let planId;
+    if (planResult.rows.length === 0) {
+      console.log(`Creating missing plan: ${planName}`);
+      
+      // Insert basic plan data, including the required features column
+      const defaultFeatures = JSON.stringify([
+        `All ${planName} features`,
+        'Comprehensive reliability scores',
+        'Detailed reports',
+        planName === 'premium' ? 'Priority support' : 'Premium support'
+      ]);
+      
+      const newPlanResult = await query(
+        'INSERT INTO subscription_plans (name, price, features) VALUES ($1, $2, $3) RETURNING id',
+        [planName, planName === 'premium' ? 9.99 : 19.99, defaultFeatures]
+      );
+      
+      planId = newPlanResult.rows[0].id;
+    } else {
+      planId = planResult.rows[0].id;
+    }
+    
     // Generate a unique access token for API access
     const accessToken = generateAccessToken();
     
     // Calculate expiration date
     const currentPeriodEnd = new Date(subscriptionDetails.current_period_end * 1000);
+    const currentPeriodStart = new Date(subscriptionDetails.current_period_start * 1000);
     
     // Start a database transaction to ensure both tables are updated consistently
     await query('BEGIN');
     
     try {
-      // Update or create subscription in your database
+      // Update or create subscription in your database - use user_subscriptions instead of subscriptions
       await query(`
-        INSERT INTO subscriptions 
-          (user_id, stripe_customer_id, stripe_subscription_id, plan, status, 
-           current_period_start, current_period_end, access_token)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        INSERT INTO user_subscriptions 
+          (user_id, plan_id, status, payment_session_id, 
+           current_period_start, current_period_end, access_token,
+           stripe_customer_id, stripe_subscription_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         ON CONFLICT (user_id) DO UPDATE SET
-          stripe_customer_id = $2,
-          stripe_subscription_id = $3,
-          plan = $4,
-          status = $5,
-          current_period_start = $6,
-          current_period_end = $7,
-          access_token = $8,
-          updated_at = NOW()
+          plan_id = $2,
+          status = $3,
+          payment_session_id = $4,
+          current_period_start = $5,
+          current_period_end = $6,
+          access_token = $7,
+          stripe_customer_id = $8,
+          stripe_subscription_id = $9,
+          updated_at = CURRENT_TIMESTAMP
       `, [
         userId,
-        customer,
-        subscription,
-        planName,
+        planId,
         'active',
-        new Date(subscriptionDetails.current_period_start * 1000).toISOString(),
+        session.id,
+        currentPeriodStart.toISOString(),
         currentPeriodEnd.toISOString(),
-        accessToken
+        accessToken,
+        customer,
+        subscription
       ]);
       
-      // Update the user table with Stripe customer ID
+      // Update the user table with Stripe customer ID if needed
       await query(`
         UPDATE users SET
           stripe_customer_id = $1,
-          updated_at = NOW()
+          updated_at = CURRENT_TIMESTAMP
         WHERE id = $2
       `, [
         customer,
@@ -181,9 +214,9 @@ async function handleSubscriptionUpdated(subscription) {
     // Get user ID from metadata or customer ID mapping
     const stripeSubscriptionId = subscription.id;
     
-    // Find the user ID associated with this subscription
+    // Find the user ID associated with this subscription - using user_subscriptions
     const userResult = await query(
-      'SELECT user_id FROM subscriptions WHERE stripe_subscription_id = $1',
+      'SELECT user_id FROM user_subscriptions WHERE stripe_subscription_id = $1',
       [stripeSubscriptionId]
     );
     
@@ -194,13 +227,13 @@ async function handleSubscriptionUpdated(subscription) {
     
     const userId = userResult.rows[0].user_id;
     
-    // Update the subscription details
+    // Update the subscription details - using user_subscriptions
     await query(`
-      UPDATE subscriptions SET
+      UPDATE user_subscriptions SET
         status = $1,
         current_period_start = $2,
         current_period_end = $3,
-        updated_at = NOW()
+        updated_at = CURRENT_TIMESTAMP
       WHERE stripe_subscription_id = $4
     `, [
       subscription.status,
@@ -220,12 +253,11 @@ async function handleSubscriptionDeleted(subscription) {
   try {
     const stripeSubscriptionId = subscription.id;
     
-    // Update subscription status to cancelled
+    // Update subscription status to cancelled - using user_subscriptions
     await query(`
-      UPDATE subscriptions SET
+      UPDATE user_subscriptions SET
         status = 'cancelled',
-        cancelled_at = NOW(),
-        updated_at = NOW()
+        updated_at = CURRENT_TIMESTAMP
       WHERE stripe_subscription_id = $1
     `, [stripeSubscriptionId]);
     
@@ -244,9 +276,9 @@ async function handleInvoicePaymentSucceeded(invoice) {
   try {
     const stripeSubscriptionId = invoice.subscription;
     
-    // Get the new period end date from the invoice
+    // Get the user ID - using user_subscriptions
     const subscriptionResult = await query(
-      'SELECT user_id FROM subscriptions WHERE stripe_subscription_id = $1',
+      'SELECT user_id FROM user_subscriptions WHERE stripe_subscription_id = $1',
       [stripeSubscriptionId]
     );
     
@@ -261,13 +293,13 @@ async function handleInvoicePaymentSucceeded(invoice) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
     
-    // Update the subscription with new period dates
+    // Update the subscription with new period dates - using user_subscriptions
     await query(`
-      UPDATE subscriptions SET
+      UPDATE user_subscriptions SET
         status = 'active',
         current_period_start = $1,
         current_period_end = $2,
-        updated_at = NOW()
+        updated_at = CURRENT_TIMESTAMP
       WHERE stripe_subscription_id = $3
     `, [
       new Date(subscription.current_period_start * 1000).toISOString(),
@@ -290,11 +322,11 @@ async function handleInvoicePaymentFailed(invoice) {
   try {
     const stripeSubscriptionId = invoice.subscription;
     
-    // Update subscription status to past_due
+    // Update subscription status to past_due - using user_subscriptions
     await query(`
-      UPDATE subscriptions SET
+      UPDATE user_subscriptions SET
         status = 'past_due',
-        updated_at = NOW()
+        updated_at = CURRENT_TIMESTAMP
       WHERE stripe_subscription_id = $1
     `, [stripeSubscriptionId]);
     
