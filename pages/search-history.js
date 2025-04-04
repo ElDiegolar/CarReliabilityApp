@@ -10,11 +10,28 @@ export default function SearchHistory() {
   const [searches, setSearches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
     const fetchSearchHistory = async () => {
       try {
         const token = getToken();
+        
+        if (!token) {
+          throw new Error('Authentication required');
+        }
+        
+        // First fetch subscription status
+        const profileResponse = await fetch('/api/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json();
+          setSubscription(profileData.subscription);
+        }
         
         const response = await fetch('/api/user/searches', {
           headers: {
@@ -23,6 +40,9 @@ export default function SearchHistory() {
         });
         
         if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error('Authentication required');
+          }
           throw new Error('Failed to load search history');
         }
         
@@ -44,17 +64,43 @@ export default function SearchHistory() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  // Check if user has limited search history
+  const hasLimitedHistory = () => {
+    if (!subscription) return true;
+    return subscription.plan === 'premium'; // Professional plan has unlimited history
+  };
+
+  // Get the max number of searches to display
+  const getSearchHistoryLimit = () => {
+    if (!hasLimitedHistory()) return searches.length;
+    return 10; // Limit for premium users
+  };
+
+  // Filter searches based on subscription
+  const filteredSearches = hasLimitedHistory() 
+    ? searches.slice(0, getSearchHistoryLimit()) 
+    : searches;
+
   return (
     <ProtectedRoute>
       <Layout title="Your Search History">
         <div className="history-container">
           <h1>Your Search History</h1>
           
+          {subscription && hasLimitedHistory() && (
+            <div className="subscription-note">
+              <p>Your current plan allows up to {getSearchHistoryLimit()} recent searches.</p>
+              <Link href="/pricing" className="upgrade-link">
+                Upgrade to Professional for unlimited search history
+              </Link>
+            </div>
+          )}
+          
           {loading ? (
             <div className="loading">Loading search history...</div>
           ) : error ? (
             <div className="error">{error}</div>
-          ) : searches.length === 0 ? (
+          ) : filteredSearches.length === 0 ? (
             <div className="empty-state">
               <p>You haven't searched for any vehicles yet.</p>
               <Link href="/search" className="button primary">
@@ -70,7 +116,7 @@ export default function SearchHistory() {
                 <div className="actions-col">Actions</div>
               </div>
               
-              {searches.map((search) => (
+              {filteredSearches.map((search) => (
                 <div key={search.id} className="search-item">
                   <div className="vehicle-col">
                     <span className="year">{search.year}</span>
@@ -105,6 +151,28 @@ export default function SearchHistory() {
           
           h1 {
             margin-bottom: 2rem;
+          }
+          
+          .subscription-note {
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+          }
+          
+          .subscription-note p {
+            margin: 0;
+            color: #0070f3;
+          }
+          
+          .upgrade-link {
+            color: #0070f3;
+            text-decoration: underline;
+            font-weight: 500;
           }
           
           .loading, .error, .empty-state {
@@ -246,6 +314,15 @@ export default function SearchHistory() {
             .actions-col {
               justify-content: flex-start;
               margin-top: 0.5rem;
+            }
+            
+            .subscription-note {
+              flex-direction: column;
+              text-align: center;
+            }
+            
+            .subscription-note p {
+              margin-bottom: 1rem;
             }
           }
         `}</style>
