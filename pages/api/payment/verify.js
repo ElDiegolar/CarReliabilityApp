@@ -12,6 +12,14 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Check if user exists
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ 
+      error: 'Authentication required', 
+      message: 'Please log in again to continue' 
+    });
+  }
+
   const { sessionId, plan = 'premium' } = req.body;
   
   if (!sessionId) {
@@ -26,8 +34,6 @@ async function handler(req, res) {
       expand: ['subscription']
     });
     
-    // Skip client reference check for now - this is causing the Unauthorized error
-    // The session_id should be sufficient for verification
     console.log('Session data:', {
       clientReferenceId: session.client_reference_id,
       userId: req.user.id,

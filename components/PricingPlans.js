@@ -1,3 +1,4 @@
+// components/PricingPlans.js
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,8 +12,7 @@ export default function PricingPlans() {
     {
       name: 'Premium',
       price: 9.99,
-      priceId: 'price_premium_monthly',
-      paymentUrl: 'https://buy.stripe.com/test_7sI6qEg7N6601b2289',
+      priceId: 'price_1R9oNVCroJxw12Z2DvMMlELN', // Use your actual Stripe price IDs
       period: 'month',
       isPopular: true,
       features: [
@@ -21,13 +21,12 @@ export default function PricingPlans() {
         'Common issues with repair costs',
         'Priority support',
         'Limited search history',
-      ]
+      ],
     },
     {
       name: 'Professional',
       price: 19.99,
-      priceId: 'price_professional_monthly',
-      paymentUrl: 'https://buy.stripe.com/test_fZe2ao3l12TO4nebIL',
+      priceId: 'price_2R9oNVCroJxw12Z2DvMMlELN', // Use your actual Stripe price IDs
       period: 'month',
       features: [
         'Everything in Premium',
@@ -37,30 +36,58 @@ export default function PricingPlans() {
         'Dealership integration',
         'Unlimited search history',
         'API access',
-        '24/7 priority support'
-      ]
-    }
+        '24/7 priority support',
+      ],
+    },
   ];
 
   const handleSelectPlan = async (plan) => {
     if (!isAuthenticated) {
       router.push({
         pathname: '/login',
-        query: { returnUrl: '/pricing', plan: plan.priceId }
+        query: { returnUrl: '/pricing' },
       });
       return;
     }
 
     setLoading(true);
     try {
-      if (plan.paymentUrl) {
-        window.location.href = plan.paymentUrl;
+      const token = getToken();
+      
+      const response = await fetch('/api/payment/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          priceId: plan.priceId
+        })
+      });
+      
+      if (response.status === 401) {
+        // Token expired, redirect to login
+        router.push({
+          pathname: '/login',
+          query: { returnUrl: '/pricing' }
+        });
+        return;
+      }
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.message || data.error);
+      }
+      
+      if (data.url) {
+        window.location.href = data.url;
       } else {
-        alert('No payment link found for this plan.');
+        throw new Error('No checkout URL returned');
       }
     } catch (err) {
-      console.error('Redirect error:', err);
-      alert('Something went wrong. Please try again.');
+      console.error('Checkout error:', err);
+      alert(`Something went wrong. Please try again. ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -70,23 +97,14 @@ export default function PricingPlans() {
     <div className="pricing-container">
       <div className="plans-grid">
         {plans.map((plan) => (
-          <div
-            key={plan.name}
-            className={`plan-card ${plan.isPopular ? 'popular' : ''}`}
-          >
+          <div key={plan.name} className={`plan-card ${plan.isPopular ? 'popular' : ''}`}>
             {plan.isPopular && <div className="popular-badge">Most Popular</div>}
-
             <h3 className="plan-name">{plan.name}</h3>
-
             <div className="plan-price">
               <span className="currency">$</span>
               <span className="amount">{plan.price}</span>
             </div>
-
-            <div className="plan-period">
-              per {plan.period}
-            </div>
-
+            <div className="plan-period">per {plan.period}</div>
             <ul className="plan-features">
               {plan.features.map((feature, index) => (
                 <li key={index}>
@@ -107,7 +125,6 @@ export default function PricingPlans() {
                 </li>
               ))}
             </ul>
-
             <button
               className={`plan-button ${plan.isPopular ? 'popular' : ''}`}
               onClick={() => handleSelectPlan(plan)}
@@ -118,13 +135,6 @@ export default function PricingPlans() {
           </div>
         ))}
       </div>
-
-      {process.env.NODE_ENV === 'development' && (
-        <div className="debug-info">
-          <p>Auth Status: {isAuthenticated ? 'Authenticated' : 'Not Authenticated'}</p>
-          <p>Token Exists: {getToken() ? 'Yes' : 'No'}</p>
-        </div>
-      )}
     </div>
   );
 }

@@ -10,6 +10,14 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Check if user exists and has an email
+  if (!req.user || !req.user.email) {
+    return res.status(401).json({ 
+      error: 'Authentication required', 
+      message: 'Please log in again to continue with payment' 
+    });
+  }
+
   try {
     const { priceId } = req.body;
     
@@ -59,7 +67,19 @@ async function handler(req, res) {
     });
   } catch (error) {
     console.error('Create checkout error:', error);
-    return res.status(500).json({ error: 'Failed to create checkout session' });
+    
+    // Handle specific Stripe errors more gracefully
+    if (error.type === 'StripeInvalidRequestError') {
+      return res.status(400).json({ 
+        error: 'Invalid payment information',
+        message: error.message 
+      });
+    }
+    
+    return res.status(500).json({ 
+      error: 'Failed to create checkout session',
+      message: error.message
+    });
   }
 }
 
