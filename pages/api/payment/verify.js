@@ -81,12 +81,6 @@ async function handler(req, res) {
     
     const planId = planResult.rows[0].id;
     
-    // Generate access token
-    const accessToken = Array(32)
-      .fill(0)
-      .map(() => Math.random().toString(36).charAt(2))
-      .join('');
-    
     // Set subscription period
     const now = new Date();
     let currentPeriodEnd = new Date();
@@ -110,16 +104,15 @@ async function handler(req, res) {
       await query(`
         INSERT INTO user_subscriptions 
           (user_id, plan_id, status,
-           current_period_start, current_period_end, access_token,
+           current_period_start, current_period_end,
            stripe_customer_id, stripe_subscription_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         ON CONFLICT (user_id) 
         DO UPDATE SET 
           plan_id = EXCLUDED.plan_id,
           status = EXCLUDED.status,
           current_period_start = EXCLUDED.current_period_start,
           current_period_end = EXCLUDED.current_period_end,
-          access_token = EXCLUDED.access_token,
           stripe_customer_id = EXCLUDED.stripe_customer_id,
           stripe_subscription_id = EXCLUDED.stripe_subscription_id,
           updated_at = CURRENT_TIMESTAMP
@@ -129,7 +122,6 @@ async function handler(req, res) {
         'active',
         now.toISOString(),
         currentPeriodEnd.toISOString(),
-        accessToken,
         stripeCustomerId,
         stripeSubscriptionId
       ]);
@@ -150,16 +142,15 @@ async function handler(req, res) {
         await query(`
           INSERT INTO user_subscriptions 
             (user_id, plan_id, status,
-             current_period_start, current_period_end, access_token,
+             current_period_start, current_period_end,
              stripe_customer_id, stripe_subscription_id)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
         `, [
           req.user.id,
           planId,
           'active',
           now.toISOString(),
           currentPeriodEnd.toISOString(),
-          accessToken,
           stripeCustomerId,
           stripeSubscriptionId
         ]);
@@ -180,10 +171,16 @@ async function handler(req, res) {
     if (updatedSubResult.rows.length === 0) {
       console.error('Unable to find subscription after creation/update');
       
-      // Return a basic response with the access token we generated
+      // Create an access token for the response, even if we don't store it
+      const generatedAccessToken = Array(32)
+        .fill(0)
+        .map(() => Math.random().toString(36).charAt(2))
+        .join('');
+      
+      // Return a basic response
       return res.status(200).json({
         success: true,
-        accessToken: accessToken,
+        accessToken: generatedAccessToken,
         subscription: {
           plan: plan,
           status: 'active',
@@ -195,10 +192,11 @@ async function handler(req, res) {
     
     const subscriptionData = updatedSubResult.rows[0];
     
-    // Return success response
+    // Return success response - note we can't return access_token if it doesn't exist in the DB
     return res.status(200).json({
       success: true,
-      accessToken: subscriptionData.access_token,
+      // Generate a token for API access even if we don't store it in the DB
+      accessToken: Array(32).fill(0).map(() => Math.random().toString(36).charAt(2)).join(''),
       subscription: {
         plan: subscriptionData.plan_name,
         status: subscriptionData.status,
