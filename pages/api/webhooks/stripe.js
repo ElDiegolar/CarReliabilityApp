@@ -89,7 +89,7 @@ async function handleCheckoutSessionCompleted(session) {
     const subscriptionDetails = await stripe.subscriptions.retrieve(subscription);
     
     // Get the plan information
-    const planId = subscriptionDetails.items.data[0].price.id;
+    let planId = subscriptionDetails.items.data[0].price.id;
     let planName = 'premium'; // Default
     
     // Map Stripe price IDs to your plan names
@@ -120,8 +120,6 @@ async function handleCheckoutSessionCompleted(session) {
       [planName]
     );
     
-    // If plan doesn't exist yet, create it
-    let planId;
     if (planResult.rows.length === 0) {
       console.log(`Creating missing plan: ${planName}`);
       
