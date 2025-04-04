@@ -109,15 +109,14 @@ async function handler(req, res) {
     try {
       await query(`
         INSERT INTO user_subscriptions 
-          (user_id, plan_id, status, payment_session_id, 
+          (user_id, plan_id, status,
            current_period_start, current_period_end, access_token,
            stripe_customer_id, stripe_subscription_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         ON CONFLICT (user_id) 
         DO UPDATE SET 
           plan_id = EXCLUDED.plan_id,
           status = EXCLUDED.status,
-          payment_session_id = EXCLUDED.payment_session_id,
           current_period_start = EXCLUDED.current_period_start,
           current_period_end = EXCLUDED.current_period_end,
           access_token = EXCLUDED.access_token,
@@ -128,7 +127,6 @@ async function handler(req, res) {
         req.user.id,
         planId,
         'active',
-        sessionId,
         now.toISOString(),
         currentPeriodEnd.toISOString(),
         accessToken,
@@ -151,15 +149,14 @@ async function handler(req, res) {
         // Then insert new one
         await query(`
           INSERT INTO user_subscriptions 
-            (user_id, plan_id, status, payment_session_id, 
+            (user_id, plan_id, status,
              current_period_start, current_period_end, access_token,
              stripe_customer_id, stripe_subscription_id)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         `, [
           req.user.id,
           planId,
           'active',
-          sessionId,
           now.toISOString(),
           currentPeriodEnd.toISOString(),
           accessToken,
