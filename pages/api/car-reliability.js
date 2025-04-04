@@ -29,10 +29,13 @@ export default async function handler(req, res) {
       // Verify token
       const now = new Date().toISOString();
       const subscriptionResult = await query(`
-        SELECT user_id FROM subscriptions 
-        WHERE access_token = $1 AND status = $2 
-        AND (current_period_end IS NULL OR current_period_end > $3)
-      `, [premiumToken, 'active', now]);
+        SELECT us.user_id
+        FROM user_subscriptions us
+        JOIN subscription_plans sp ON us.plan_id = sp.id
+        WHERE us.status = $1 
+        AND (us.current_period_end IS NULL OR us.current_period_end > $2)
+        AND (sp.name = 'premium' OR sp.name = 'professional')
+      `, ['active', now]);
       
       if (subscriptionResult.rows.length > 0) {
         isPremium = true;
@@ -42,12 +45,16 @@ export default async function handler(req, res) {
       // If user is authenticated but no token provided
       user_id = userId;
       
-      // Check if user has active subscription
+      // Check if user has active subscription (premium or professional)
       const now = new Date().toISOString();
       const subscriptionResult = await query(`
-        SELECT id FROM subscriptions 
-        WHERE user_id = $1 AND status = $2 
-        AND (current_period_end IS NULL OR current_period_end > $3)
+        SELECT us.id
+        FROM user_subscriptions us
+        JOIN subscription_plans sp ON us.plan_id = sp.id
+        WHERE us.user_id = $1 
+        AND us.status = $2 
+        AND (us.current_period_end IS NULL OR us.current_period_end > $3)
+        AND (sp.name = 'premium' OR sp.name = 'professional')
       `, [userId, 'active', now]);
       
       if (subscriptionResult.rows.length > 0) {
