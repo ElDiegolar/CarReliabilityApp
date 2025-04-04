@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 export default function PricingPlans() {
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, getToken } = useAuth();
   const router = useRouter();
 
   const plans = [
@@ -38,7 +38,7 @@ export default function PricingPlans() {
         'API access',
         '24/7 priority support',
       ],
-      priceId: 'price_1R9oNVCroJxwl2Z2DvMMLELN' ,
+      priceId: 'price_1R9oNVCroJxwl2Z2DvMMLELN',
     },
   ];
 
@@ -55,21 +55,33 @@ export default function PricingPlans() {
     setSelectedPlan(plan.name);
     
     try {
+      const token = getToken();
+      
       // Create a checkout session on the server
       const response = await fetch('/api/payment/create-checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          priceId: plan.priceId,
-          userId: user.id,
+          priceId: plan.priceId
+          // Remove userId from the request body
         }),
       });
       
+      if (response.status === 401) {
+        // Handle expired token
+        router.push({
+          pathname: '/login',
+          query: { returnUrl: '/pricing' },
+        });
+        return;
+      }
+      
       if (!response.ok) {
-        throw new Error('Failed to create checkout session');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create checkout session');
       }
       
       const { sessionId, url } = await response.json();
@@ -78,7 +90,7 @@ export default function PricingPlans() {
       window.location.href = url;
     } catch (err) {
       console.error('Checkout error:', err);
-      alert('Something went wrong. Please try again.');
+      alert(`Something went wrong. Please try again. ${err.message}`);
     } finally {
       setLoading(false);
       setSelectedPlan(null);
