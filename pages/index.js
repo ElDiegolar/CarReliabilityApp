@@ -1,138 +1,125 @@
-// pages/index.js - Home page component
+// pages/index.js - Home page component with i18n
 import Link from 'next/link';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import Layout from '../components/Layout';
 
 export default function Home() {
+  const { t } = useTranslation('common');
+
   return (
     <Layout>
-    <div className="hero">
-      <h1>Discover How Reliable Your Car Really Is</h1>
-      <p className="description">
-        Explore detailed reliability scores, spot common issues, and let our AI give you the inside scoop.
-      </p>
-      <div className="action-buttons">
-        <Link href="/search" className="button primary">
-          🔍 Search a Vehicle
-        </Link>
-        <Link href="/login" className="button secondary">
-          🚀 Sign Up for Premium
-        </Link>
-      </div>
-    </div>
-
-    <div className="features">
-      <h2>Why You’ll Love It</h2>
-      <div className="feature-grid">
-        <div className="feature-card">
-          <h3>Reliability Scores</h3>
-          <p>Get no-nonsense scores for engines, transmissions, electrical systems, and more.</p>
-        </div>
-        <div className="feature-card">
-          <h3>Common Issues</h3>
-          <p>See what tends to go wrong, how much it’ll cost, and when to expect it.</p>
-        </div>
-        <div className="feature-card">
-          <h3>Expert Analysis</h3>
-          <p>Our smart AI breaks down how your car stacks up against others.</p>
-        </div>
-        <div className="feature-card">
-          <h3>Premium Data</h3>
-          <p>Unlock juicy details like recalls, full reliability reports, and more.</p>
+      <div className="hero">
+        <h1>{t('hero.title')}</h1>
+        <p className="description">
+          {t('hero.description')}
+        </p>
+        <div className="action-buttons">
+          <Link href="/search" className="button primary">
+            {t('hero.search')}
+          </Link>
+          <Link href="/login" className="button secondary">
+            {t('hero.signup')}
+          </Link>
         </div>
       </div>
-    </div>
 
-    <div className="pricing-section">
-      <h2>Pick the Plan That Fits You</h2>
-      <p className="pricing-description">Whether you're just curious or all-in, we've got a plan for you.</p>
-
-      <div className="pricing-grid">
-        <div className="pricing-card">
-          <div className="pricing-header">
-            <h3>Free</h3>
-            <div className="price">$0</div>
-            <div className="price-period">forever</div>
+      <div className="features">
+        <h2>{t('features.title')}</h2>
+        <div className="feature-grid">
+          <div className="feature-card">
+            <h3>{t('features.reliabilityScores.title')}</h3>
+            <p>{t('features.reliabilityScores.description')}</p>
           </div>
-          <ul className="pricing-features">
-            <li>Basic reliability scores</li>
-            <li>Engine & transmission data</li>
-            <li>Limited vehicle searches</li>
-            <li>Basic analysis</li>
-          </ul>
-          <div className="pricing-action">
-            <Link href="/search" className="pricing-button free">
-              Try It Out
-            </Link>
+          <div className="feature-card">
+            <h3>{t('features.commonIssues.title')}</h3>
+            <p>{t('features.commonIssues.description')}</p>
           </div>
-        </div>
-
-        <div className="pricing-card popular">
-          <div className="popular-badge">Most Popular</div>
-          <div className="pricing-header">
-            <h3>Premium</h3>
-            <div className="price">$9.99</div>
-            <div className="price-period">per month</div>
+          <div className="feature-card">
+            <h3>{t('features.expertAnalysis.title')}</h3>
+            <p>{t('features.expertAnalysis.description')}</p>
           </div>
-          <ul className="pricing-features">
-            <li>All reliability scores unlocked</li>
-            <li>Full systems coverage</li>
-            <li>Common issues & repair costs</li>
-            <li>10 saved searches</li>
-            <li>AI-powered insights</li>
-            <li>Priority support</li>
-          </ul>
-          <div className="pricing-action">
-            <Link href="/pricing" className="pricing-button premium">
-              Go Premium
-            </Link>
-          </div>
-        </div>
-
-        <div className="pricing-card">
-          <div className="pricing-header">
-            <h3>Professional</h3>
-            <div className="price">$19.99</div>
-            <div className="price-period">per month</div>
-          </div>
-          <ul className="pricing-features">
-            <li>Everything in Premium</li>
-            <li>Unlimited searches</li>
-            <li>Batch vehicle reports</li>
-            <li>Market value insights</li>
-            <li>Dealer tools</li>
-            <li>API access</li>
-            <li>24/7 support</li>
-          </ul>
-          <div className="pricing-action">
-            <Link href="/pricing" className="pricing-button pro">
-              Get Pro Access
-            </Link>
+          <div className="feature-card">
+            <h3>{t('features.premiumData.title')}</h3>
+            <p>{t('features.premiumData.description')}</p>
           </div>
         </div>
       </div>
-    </div>
 
-    <div className="how-it-works">
-      <h2>Here’s How It Works</h2>
-      <div className="steps">
-        <div className="step">
-          <div className="step-number">1</div>
-          <h3>Tell Us About Your Ride</h3>
-          <p>Pop in the year, make, model, and mileage — easy peasy.</p>
-        </div>
-        <div className="step">
-          <div className="step-number">2</div>
-          <h3>Let the Magic Happen</h3>
-          <p>Our AI crunches the data and serves up detailed results instantly.</p>
-        </div>
-        <div className="step">
-          <div className="step-number">3</div>
-          <h3>Drive Smarter</h3>
-          <p>Use your new knowledge to buy, sell, or maintain with confidence.</p>
+      <div className="pricing-section">
+        <h2>{t('pricing.title')}</h2>
+        <p className="pricing-description">{t('pricing.description')}</p>
+        
+        <div className="pricing-grid">
+          <div className="pricing-card">
+            <div className="pricing-header">
+              <h3>{t('pricing.free.title')}</h3>
+              <div className="price">$0</div>
+              <div className="price-period">{t('pricing.free.period')}</div>
+            </div>
+            <ul className="pricing-features">
+              {t('pricing.free.features', { returnObjects: true }).map((feature, index) => (
+                <li key={index}>{feature}</li>
+              ))}
+            </ul>
+            <div className="pricing-action">
+              <Link href="/search" className="pricing-button free">
+                {t('pricing.free.cta')}
+              </Link>
+            </div>
+          </div>
+          
+          <div className="pricing-card popular">
+            <div className="popular-badge">{t('pricing.premium.badge')}</div>
+            <div className="pricing-header">
+              <h3>{t('pricing.premium.title')}</h3>
+              <div className="price">$9.99</div>
+              <div className="price-period">{t('pricing.premium.period')}</div>
+            </div>
+            <ul className="pricing-features">
+              {t('pricing.premium.features', { returnObjects: true }).map((feature, index) => (
+                <li key={index}>{feature}</li>
+              ))}
+            </ul>
+            <div className="pricing-action">
+              <Link href="/pricing" className="pricing-button premium">
+                {t('pricing.premium.cta')}
+              </Link>
+            </div>
+          </div>
+          
+          <div className="pricing-card">
+            <div className="pricing-header">
+              <h3>{t('pricing.professional.title')}</h3>
+              <div className="price">$19.99</div>
+              <div className="price-period">{t('pricing.professional.period')}</div>
+            </div>
+            <ul className="pricing-features">
+              {t('pricing.professional.features', { returnObjects: true }).map((feature, index) => (
+                <li key={index}>{feature}</li>
+              ))}
+            </ul>
+            <div className="pricing-action">
+              <Link href="/pricing" className="pricing-button pro">
+                {t('pricing.professional.cta')}
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
+      <div className="how-it-works">
+        <h2>{t('howItWorks.title')}</h2>
+        <div className="steps">
+          {t('howItWorks.steps', { returnObjects: true }).map((step, index) => (
+            <div className="step" key={index}>
+              <div className="step-number">{index + 1}</div>
+              <h3>{step.title}</h3>
+              <p>{step.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <style jsx>{`
         .hero {
@@ -434,4 +421,13 @@ export default function Home() {
       `}</style>
     </Layout>
   );
+}
+
+// This function gets called at build time and on every request
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  };
 }

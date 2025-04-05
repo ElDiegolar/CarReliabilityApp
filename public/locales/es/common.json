@@ -1,0 +1,202 @@
+{
+    "hero": {
+      "title": "Obtenga información confiable sobre su vehículo",
+      "description": "Datos detallados de fiabilidad del vehículo, problemas comunes y análisis de expertos.",
+      "search": "Buscar un vehículo",
+      "signup": "Registrarse para Premium"
+    },
+    "features": {
+      "title": "Nuestras Características",
+      "reliabilityScores": {
+        "title": "Puntuaciones de fiabilidad",
+        "description": "Obtenga puntuaciones de fiabilidad completas para motores, transmisiones, sistemas eléctricos y más."
+      },
+      "commonIssues": {
+        "title": "Problemas comunes",
+        "description": "Conozca los problemas comunes, los costos estimados de reparación y cuándo suelen ocurrir."
+      },
+      "expertAnalysis": {
+        "title": "Análisis de expertos",
+        "description": "Acceda a un análisis detallado impulsado por IA de la fiabilidad de cada vehículo en comparación con modelos similares."
+      },
+      "premiumData": {
+        "title": "Datos Premium",
+        "description": "Suscríbase para obtener informes detallados, información sobre retiros del mercado y detalles de fiabilidad."
+      }
+    },
+    "pricing": {
+      "title": "Elija su plan",
+      "description": "Acceda a los datos de fiabilidad del vehículo que necesita con nuestros planes de suscripción flexibles",
+      "free": {
+        "title": "Gratis",
+        "period": "para siempre",
+        "features": [
+          "Puntuaciones básicas de fiabilidad",
+          "Datos de motor y transmisión",
+          "Búsquedas limitadas de vehículos",
+          "Análisis básico"
+        ],
+        "cta": "Probar ahora"
+      },
+      "premium": {
+        "title": "Premium",
+        "period": "por mes",
+        "badge": "Más Popular",
+        "features": [
+          "Puntuaciones completas de fiabilidad",
+          "Datos de todos los sistemas del vehículo",
+          "Problemas comunes con costos de reparación",
+          "Historial de 10 búsquedas guardadas",
+          "Análisis detallado de IA",
+          "Soporte prioritario"
+        ],
+        "cta": "Suscribirse ahora"
+      },
+      "professional": {
+        "title": "Profesional",
+        "period": "por mes",
+        "features": [
+          "Todo en Premium",
+          "Historial de búsqueda ilimitado",
+          "Análisis de vehículos por lotes",
+          "Análisis de valor de mercado",
+          "Integración con concesionarios",
+          "Acceso a API",
+          "Soporte prioritario 24/7"
+        ],
+        "cta": "Obtener Profesional"
+      }
+    },
+    "howItWorks": {
+      "title": "Cómo funciona",
+      "steps": [
+        {
+          "title": "Ingrese los detalles del vehículo",
+          "description": "Proporcione el año, marca, modelo y kilometraje del vehículo que desea investigar."
+        },
+        {
+          "title": "Obtenga resultados instantáneos",
+          "description": "Nuestra IA analiza datos de múltiples fuentes para proporcionar información precisa sobre fiabilidad."
+        },
+        {
+          "title": "Tome decisiones informadas",
+          "description": "Utilice los datos de fiabilidad para tomar mejores decisiones sobre compra, venta o mantenimiento de vehículos."
+        }
+      ]
+    },
+    "auth": {
+      "login": "Iniciar sesión",
+      "register": "Registrarse",
+      "createAccount": "Crear una cuenta",
+      "loggingIn": "Iniciando sesión...",
+      "creatingAccount": "Creando cuenta...",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "noAccount": "¿No tiene una cuenta?",
+      "haveAccount": "¿Ya tiene una cuenta?",
+      "redirectNotice": "Será redirigido después de"
+    },
+    "search": {
+      "title": "Buscar fiabilidad de vehículos",
+      "premiumUser": "Usuario Premium",
+      "year": "Año",
+      "make": "Marca",
+      "model": "Modelo",
+      "mileage": "Kilometraje",
+      "searchButton": "Buscar",
+      "searching": "Buscando...",
+      "resultsFor": "Resultados para",
+      "overallScore": "Puntuación general de fiabilidad",
+      "categoryScores": "Puntuaciones por categoría",
+      "engine": "Motor",
+      "transmission": "Transmisión",
+      "electrical": "Sistema eléctrico",
+      "brakes": "Frenos",
+      "suspension": "Suspensión",
+      "fuelSystem": "Sistema de combustible",
+      "upgradeFull": "Actualice a premium para obtener desglose completo por categorías",
+      "commonIssues": "Problemas comunes",
+      "costToFix": "Costo de reparación",
+      "occurrence": "Ocurrencia",
+      "typicalMileage": "Kilometraje típico",
+      "analysis": "Análisis",
+      "upgradePrompt": "Actualice a premium para obtener análisis completo de IA e informes detallados.",
+      "goPremium": "Obtener Premium"
+    },
+    "profile": {
+      "title": "Su perfil",
+      "loading": "Cargando perfil...",
+      "accountInfo": "Información de la cuenta",
+      "email": "Correo electrónico",
+      "memberSince": "Miembro desde",
+      "subscription": "Suscripción",
+      "plan": "Plan",
+      "status": "Estado",
+      "renewalDate": "Fecha de renovación",
+      "noExpiration": "Sin vencimiento",
+      "manageSubscription": "Administrar suscripción",
+      "noSubscription": "No tiene una suscripción activa.",
+      "upgradePrompt": "Actualice a premium para acceso completo a todos los datos de fiabilidad y funciones.",
+      "upgradePremium": "Actualizar a Premium",
+      "accountSettings": "Configuración de la cuenta",
+      "changePassword": "Cambiar contraseña",
+      "deleteAccount": "Eliminar cuenta"
+    },
+    "history": {
+      "title": "Su historial de búsqueda",
+      "limitNote": "Su plan actual permite hasta {limit} búsquedas recientes.",
+      "upgradeLink": "Actualice a Profesional para historial de búsqueda ilimitado",
+      "loading": "Cargando historial de búsqueda...",
+      "noSearches": "Aún no ha buscado ningún vehículo.",
+      "searchNow": "Buscar ahora",
+      "vehicle": "Vehículo",
+      "mileage": "Kilometraje",
+      "date": "Fecha",
+      "actions": "Acciones",
+      "searchAgain": "Buscar de nuevo",
+      "miles": "kilómetros"
+    },
+    "payment": {
+      "success": {
+        "title": "¡Pago exitoso!",
+        "verifying": "Verificando su pago...",
+        "thankYou": "Gracias por su suscripción. Ahora tiene acceso premium a todas las funciones.",
+        "accessToken": "Su token de acceso premium:",
+        "tokenTip": "Puede usar este token para acceder a funciones premium desde otros dispositivos.",
+        "viewProfile": "Ver perfil",
+        "startSearching": "Comenzar a buscar"
+      },
+      "cancel": {
+        "title": "Pago cancelado",
+        "message": "Su pago fue cancelado y no se le ha cobrado. Si tiene alguna pregunta o inquietud, póngase en contacto con nuestro equipo de soporte.",
+        "viewPlans": "Ver planes",
+        "continueSearching": "Continuar buscando",
+        "needHelp": "¿Necesita ayuda?",
+        "supportMessage": "Si encontró algún problema durante el proceso de pago, nuestro equipo de soporte está disponible para ayudarlo.",
+        "contactSupport": "Contactar soporte"
+      },
+      "failure": {
+        "title": "Verificación de pago fallida",
+        "contactPrompt": "Póngase en contacto con nuestro equipo de soporte para obtener ayuda.",
+        "goToProfile": "Ir al perfil"
+      }
+    },
+    "nav": {
+      "home": "Inicio",
+      "search": "Búsqueda",
+      "pricing": "Precios",
+      "history": "Historial",
+      "profile": "Perfil",
+      "login": "Iniciar sesión",
+      "register": "Registrarse",
+      "logout": "Cerrar sesión",
+      "language": "Idioma"
+    },
+    "footer": {
+      "copyright": "© 2025 Car Reliability. Todos los derechos reservados.",
+      "privacy": "Política de privacidad",
+      "terms": "Términos de servicio",
+      "contact": "Contáctenos"
+    }
+  }

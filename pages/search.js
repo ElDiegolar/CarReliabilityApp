@@ -1,10 +1,13 @@
-// pages/search.js - Car search page
+// pages/search.js - Car search page with translations
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Search() {
+  const { t } = useTranslation('common');
   const { user, getToken } = useAuth();
   const [formData, setFormData] = useState({
     year: '',
@@ -96,18 +99,18 @@ export default function Search() {
   };
 
   return (
-    <Layout title="Search Vehicle Reliability">
-      <h1>Search Vehicle Reliability</h1>
+    <Layout title={t('search.title')}>
+      <h1>{t('search.title')}</h1>
       
       {isPremium && (
         <div className="premium-badge">
-          <span>Premium User</span>
+          <span>{t('search.premiumUser')}</span>
         </div>
       )}
       
       <form onSubmit={handleSubmit} className="search-form">
         <div className="form-group">
-          <label htmlFor="year">Year</label>
+          <label htmlFor="year">{t('search.year')}</label>
           <input
             type="number"
             id="year"
@@ -122,7 +125,7 @@ export default function Search() {
         </div>
         
         <div className="form-group">
-          <label htmlFor="make">Make</label>
+          <label htmlFor="make">{t('search.make')}</label>
           <input
             type="text"
             id="make"
@@ -135,7 +138,7 @@ export default function Search() {
         </div>
         
         <div className="form-group">
-          <label htmlFor="model">Model</label>
+          <label htmlFor="model">{t('search.model')}</label>
           <input
             type="text"
             id="model"
@@ -148,7 +151,7 @@ export default function Search() {
         </div>
         
         <div className="form-group">
-          <label htmlFor="mileage">Mileage</label>
+          <label htmlFor="mileage">{t('search.mileage')}</label>
           <input
             type="number"
             id="mileage"
@@ -163,7 +166,7 @@ export default function Search() {
         </div>
         
         <button type="submit" disabled={loading}>
-          {loading ? 'Searching...' : 'Search'}
+          {loading ? t('search.searching') : t('search.searchButton')}
         </button>
       </form>
       
@@ -171,10 +174,10 @@ export default function Search() {
       
       {results && (
         <div className="results">
-          <h2>Results for {formData.year} {formData.make} {formData.model}</h2>
+          <h2>{t('search.resultsFor')} {formData.year} {formData.make} {formData.model}</h2>
           
           <div className="score-card">
-            <h3>Overall Reliability Score</h3>
+            <h3>{t('search.overallScore')}</h3>
             <div className="score">
               <span className="score-value">{results.overallScore}</span>
               <span className="score-max">/100</span>
@@ -182,39 +185,39 @@ export default function Search() {
           </div>
           
           <div className="categories">
-            <h3>Category Scores</h3>
+            <h3>{t('search.categoryScores')}</h3>
             <div className="category-grid">
               <div className="category">
-                <h4>Engine</h4>
+                <h4>{t('search.engine')}</h4>
                 <div className="category-score">{results.categories.engine}/100</div>
               </div>
               <div className="category">
-                <h4>Transmission</h4>
+                <h4>{t('search.transmission')}</h4>
                 <div className="category-score">{results.categories.transmission}/100</div>
               </div>
               
               {results.isPremium ? (
                 <>
                   <div className="category">
-                    <h4>Electrical System</h4>
+                    <h4>{t('search.electrical')}</h4>
                     <div className="category-score">{results.categories.electricalSystem}/100</div>
                   </div>
                   <div className="category">
-                    <h4>Brakes</h4>
+                    <h4>{t('search.brakes')}</h4>
                     <div className="category-score">{results.categories.brakes}/100</div>
                   </div>
                   <div className="category">
-                    <h4>Suspension</h4>
+                    <h4>{t('search.suspension')}</h4>
                     <div className="category-score">{results.categories.suspension}/100</div>
                   </div>
                   <div className="category">
-                    <h4>Fuel System</h4>
+                    <h4>{t('search.fuelSystem')}</h4>
                     <div className="category-score">{results.categories.fuelSystem}/100</div>
                   </div>
                 </>
               ) : (
                 <div className="premium-prompt">
-                  <p>Upgrade to premium for full category breakdowns</p>
+                  <p>{t('search.upgradeFull')}</p>
                 </div>
               )}
             </div>
@@ -222,14 +225,14 @@ export default function Search() {
           
           {results.isPremium && results.commonIssues && results.commonIssues.length > 0 && (
             <div className="common-issues">
-              <h3>Common Issues</h3>
+              <h3>{t('search.commonIssues')}</h3>
               <ul>
                 {results.commonIssues.map((issue, index) => (
                   <li key={index}>
                     <strong>{issue.description}</strong>
-                    <div>Cost to Fix: {issue.costToFix}</div>
-                    <div>Occurrence: {issue.occurrence}</div>
-                    <div>Typical Mileage: {issue.mileage}</div>
+                    <div>{t('search.costToFix')}: {issue.costToFix}</div>
+                    <div>{t('search.occurrence')}: {issue.occurrence}</div>
+                    <div>{t('search.typicalMileage')}: {issue.mileage}</div>
                   </li>
                 ))}
               </ul>
@@ -237,14 +240,14 @@ export default function Search() {
           )}
           
           <div className="analysis">
-            <h3>Analysis</h3>
+            <h3>{t('search.analysis')}</h3>
             <p>{results.aiAnalysis}</p>
             
             {!results.isPremium && (
               <div className="upgrade-prompt">
-                <p>Upgrade to premium for full AI analysis and detailed reports.</p>
+                <p>{t('search.upgradePrompt')}</p>
                 <Link href="/pricing" className="upgrade-button">
-                  Go Premium
+                  {t('search.goPremium')}
                 </Link>
               </div>
             )}
@@ -419,4 +422,13 @@ export default function Search() {
       `}</style>
     </Layout>
   );
+}
+
+// This function gets called at build time on server-side
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  };
 }

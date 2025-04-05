@@ -1,8 +1,10 @@
-
+// next.config.js
+const { i18n } = require('./next-i18next.config');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  i18n,
 
   // Webpack configuration for client-side fallback
   webpack: (config, { isServer }) => {
@@ -34,8 +36,8 @@ const nextConfig = {
     // Available on both client and server
     apiUrl: process.env.NODE_ENV === 'development'
       ? 'http://localhost:3000/api' // Development API URL
-      : 'https://https://car-reliability-app.vercel.app/api', // Production API URL
+      : 'https://car-reliability-app.vercel.app/api', // Production API URL
   },
-}
+};
 
 module.exports = nextConfig;

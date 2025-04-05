@@ -1,5 +1,5 @@
-// pages/_app.js - Updated with Auth Provider
-import { useEffect } from 'react';
+// pages/_app.js
+import { appWithTranslation } from 'next-i18next';
 import { AuthProvider } from '../contexts/AuthContext';
 import '../styles/globals.css';
 
@@ -11,4 +11,4 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-export default MyApp;
+export default appWithTranslation(MyApp);

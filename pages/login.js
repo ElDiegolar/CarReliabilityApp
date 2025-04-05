@@ -1,12 +1,15 @@
-// pages/login.js - User login page
+// pages/login.js - User login page with translations
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const { returnUrl, plan } = router.query;
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -64,28 +67,28 @@ export default function Login() {
   };
 
   return (
-    <Layout title={isLogin ? 'Login' : 'Register'}>
+    <Layout title={isLogin ? t('auth.login') : t('auth.register')}>
       <div className="auth-container">
-        <h1>{isLogin ? 'Login' : 'Create an Account'}</h1>
+        <h1>{isLogin ? t('auth.login') : t('auth.createAccount')}</h1>
         
         <div className="auth-tabs">
           <button 
             className={`tab ${isLogin ? 'active' : ''}`}
             onClick={() => setIsLogin(true)}
           >
-            Login
+            {t('auth.login')}
           </button>
           <button 
             className={`tab ${!isLogin ? 'active' : ''}`}
             onClick={() => setIsLogin(false)}
           >
-            Register
+            {t('auth.register')}
           </button>
         </div>
         
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('auth.email')}</label>
             <input
               type="email"
               id="email"
@@ -98,7 +101,7 @@ export default function Login() {
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('auth.password')}</label>
             <input
               type="password"
               id="password"
@@ -113,7 +116,7 @@ export default function Login() {
           
           {!isLogin && (
             <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
+              <label htmlFor="confirmPassword">{t('auth.confirmPassword')}</label>
               <input
                 type="password"
                 id="confirmPassword"
@@ -131,8 +134,8 @@ export default function Login() {
           
           <button type="submit" className="auth-button" disabled={loading}>
             {loading
-              ? (isLogin ? 'Logging in...' : 'Creating account...')
-              : (isLogin ? 'Login' : 'Create Account')
+              ? (isLogin ? t('auth.loggingIn') : t('auth.creatingAccount'))
+              : (isLogin ? t('auth.login') : t('auth.createAccount'))
             }
           </button>
         </form>
@@ -140,20 +143,26 @@ export default function Login() {
         <div className="auth-footer">
           {isLogin ? (
             <p>
-              Don't have an account?{' '}
-              <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(false); }}>Register</a>
+              {t('auth.noAccount')}{' '}
+              <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(false); }}>
+                {t('auth.register')}
+              </a>
             </p>
           ) : (
             <p>
-              Already have an account?{' '}
-              <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(true); }}>Login</a>
+              {t('auth.haveAccount')}{' '}
+              <a href="#" onClick={(e) => { e.preventDefault(); setIsLogin(true); }}>
+                {t('auth.login')}
+              </a>
             </p>
           )}
         </div>
 
         {returnUrl && (
           <div className="returnUrl-info">
-            <p>You'll be redirected back after {isLogin ? 'logging in' : 'registration'}</p>
+            <p>
+              {t('auth.redirectNotice')} {isLogin ? t('auth.login').toLowerCase() : t('auth.register').toLowerCase()}
+            </p>
           </div>
         )}
       </div>
@@ -280,4 +289,13 @@ export default function Login() {
       `}</style>
     </Layout>
   );
+}
+
+// This function gets called at build time on server-side
+export async function getStaticProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  };
 }
