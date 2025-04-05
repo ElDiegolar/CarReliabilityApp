@@ -1,202 +1,267 @@
 {
-    "hero": {
-      "title": "Get Reliable Information About Your Vehicle",
-      "description": "Detailed vehicle reliability data, common issues, and expert analysis.",
-      "search": "Search a Vehicle",
-      "signup": "Sign Up for Premium"
+  "hero": {
+    "title": "Get Reliable Information About Your Vehicle",
+    "description": "Detailed vehicle reliability data, common issues, and expert analysis.",
+    "search": "Search a Vehicle",
+    "signup": "Sign Up for Premium"
+  },
+  "features": {
+    "title": "Our Features",
+    "reliabilityScores": {
+      "title": "Reliability Scores",
+      "description": "Get comprehensive reliability scores for engines, transmissions, electrical systems, and more."
     },
-    "features": {
-      "title": "Our Features",
-      "reliabilityScores": {
-        "title": "Reliability Scores",
-        "description": "Get comprehensive reliability scores for engines, transmissions, electrical systems, and more."
-      },
-      "commonIssues": {
-        "title": "Common Issues",
-        "description": "Learn about common problems, estimated repair costs, and when they typically occur."
-      },
-      "expertAnalysis": {
-        "title": "Expert Analysis",
-        "description": "Access detailed AI-powered analysis of each vehicle's reliability compared to similar models."
-      },
-      "premiumData": {
-        "title": "Premium Data",
-        "description": "Subscribe for in-depth reports, recall information, and detailed reliability insights."
-      }
+    "commonIssues": {
+      "title": "Common Issues",
+      "description": "Learn about common problems, estimated repair costs, and when they typically occur."
     },
-    "pricing": {
-      "title": "Choose Your Plan",
-      "description": "Access the vehicle reliability data you need with our flexible subscription plans",
-      "free": {
-        "title": "Free",
-        "period": "forever",
-        "features": [
-          "Basic reliability scores",
-          "Engine & transmission data",
-          "Limited vehicle searches",
-          "Basic analysis"
-        ],
-        "cta": "Try Now"
-      },
-      "premium": {
-        "title": "Premium",
-        "period": "per month",
-        "badge": "Most Popular",
-        "features": [
-          "Comprehensive reliability scores",
-          "All vehicle systems data",
-          "Common issues with repair costs",
-          "10 saved search history",
-          "Detailed AI analysis",
-          "Priority support"
-        ],
-        "cta": "Subscribe Now"
-      },
-      "professional": {
-        "title": "Professional",
-        "period": "per month",
-        "features": [
-          "Everything in Premium",
-          "Unlimited search history",
-          "Batch vehicle analysis",
-          "Market value analysis",
-          "Dealership integration",
-          "API access",
-          "24/7 priority support"
-        ],
-        "cta": "Get Professional"
-      }
+    "expertAnalysis": {
+      "title": "Expert Analysis",
+      "description": "Access detailed AI-powered analysis of each vehicle's reliability compared to similar models."
     },
-    "howItWorks": {
-      "title": "How It Works",
-      "steps": [
-        {
-          "title": "Enter Vehicle Details",
-          "description": "Provide the year, make, model, and mileage of the vehicle you want to research."
-        },
-        {
-          "title": "Get Instant Results",
-          "description": "Our AI analyzes data from multiple sources to provide accurate reliability information."
-        },
-        {
-          "title": "Make Informed Decisions",
-          "description": "Use the reliability data to make better decisions about buying, selling, or maintaining vehicles."
-        }
-      ]
-    },
-    "auth": {
-      "login": "Login",
-      "register": "Register",
-      "createAccount": "Create an Account",
-      "loggingIn": "Logging in...",
-      "creatingAccount": "Creating account...",
-      "email": "Email",
-      "password": "Password",
-      "confirmPassword": "Confirm Password",
-      "noAccount": "Don't have an account?",
-      "haveAccount": "Already have an account?",
-      "redirectNotice": "You'll be redirected back after"
-    },
-    "search": {
-      "title": "Search Vehicle Reliability",
-      "premiumUser": "Premium User",
-      "year": "Year",
-      "make": "Make",
-      "model": "Model",
-      "mileage": "Mileage",
-      "searchButton": "Search",
-      "searching": "Searching...",
-      "resultsFor": "Results for",
-      "overallScore": "Overall Reliability Score",
-      "categoryScores": "Category Scores",
-      "engine": "Engine",
-      "transmission": "Transmission",
-      "electrical": "Electrical System",
-      "brakes": "Brakes",
-      "suspension": "Suspension",
-      "fuelSystem": "Fuel System",
-      "upgradeFull": "Upgrade to premium for full category breakdowns",
-      "commonIssues": "Common Issues",
-      "costToFix": "Cost to Fix",
-      "occurrence": "Occurrence",
-      "typicalMileage": "Typical Mileage",
-      "analysis": "Analysis",
-      "upgradePrompt": "Upgrade to premium for full AI analysis and detailed reports.",
-      "goPremium": "Go Premium"
-    },
-    "profile": {
-      "title": "Your Profile",
-      "loading": "Loading profile...",
-      "accountInfo": "Account Information",
-      "email": "Email",
-      "memberSince": "Member Since",
-      "subscription": "Subscription",
-      "plan": "Plan",
-      "status": "Status",
-      "renewalDate": "Renewal Date",
-      "noExpiration": "No expiration",
-      "manageSubscription": "Manage Subscription",
-      "noSubscription": "You don't have an active subscription.",
-      "upgradePrompt": "Upgrade to premium for full access to all reliability data and features.",
-      "upgradePremium": "Upgrade to Premium",
-      "accountSettings": "Account Settings",
-      "changePassword": "Change Password",
-      "deleteAccount": "Delete Account"
-    },
-    "history": {
-      "title": "Your Search History",
-      "limitNote": "Your current plan allows up to {limit} recent searches.",
-      "upgradeLink": "Upgrade to Professional for unlimited search history",
-      "loading": "Loading search history...",
-      "noSearches": "You haven't searched for any vehicles yet.",
-      "searchNow": "Search Now",
-      "vehicle": "Vehicle",
-      "mileage": "Mileage",
-      "date": "Date",
-      "actions": "Actions",
-      "searchAgain": "Search Again",
-      "miles": "miles"
-    },
-    "payment": {
-      "success": {
-        "title": "Payment Successful!",
-        "verifying": "Verifying your payment...",
-        "thankYou": "Thank you for your subscription. You now have premium access to all features.",
-        "accessToken": "Your premium access token:",
-        "tokenTip": "You can use this token to access premium features from other devices.",
-        "viewProfile": "View Profile",
-        "startSearching": "Start Searching"
-      },
-      "cancel": {
-        "title": "Payment Cancelled",
-        "message": "Your payment was cancelled and you have not been charged. If you have any questions or concerns, please contact our support team.",
-        "viewPlans": "View Plans",
-        "continueSearching": "Continue Searching",
-        "needHelp": "Need Help?",
-        "supportMessage": "If you encountered any issues during the payment process, our support team is available to assist you.",
-        "contactSupport": "Contact Support"
-      },
-      "failure": {
-        "title": "Payment Verification Failed",
-        "contactPrompt": "Please contact our support team for assistance.",
-        "goToProfile": "Go to Profile"
-      }
-    },
-    "nav": {
-      "home": "Home",
-      "search": "Search",
-      "pricing": "Pricing",
-      "history": "History",
-      "profile": "Profile",
-      "login": "Login",
-      "register": "Register",
-      "logout": "Logout",
-      "language": "Language"
-    },
-    "footer": {
-      "copyright": "© 2025 Car Reliability. All rights reserved.",
-      "privacy": "Privacy Policy",
-      "terms": "Terms of Service",
-      "contact": "Contact Us"
+    "premiumData": {
+      "title": "Premium Data",
+      "description": "Subscribe for in-depth reports, recall information, and detailed reliability insights."
     }
+  },
+  "pricing": {
+    "title": "Choose Your Plan",
+    "description": "Access the vehicle reliability data you need with our flexible subscription plans",
+    "free": {
+      "title": "Free",
+      "period": "forever",
+      "features": [
+        "Basic reliability scores",
+        "Engine & transmission data",
+        "Limited vehicle searches",
+        "Basic analysis"
+      ],
+      "cta": "Try Now"
+    },
+    "premium": {
+      "title": "Premium",
+      "period": "per month",
+      "badge": "Most Popular",
+      "features": [
+        "Comprehensive reliability scores",
+        "All vehicle systems data",
+        "Common issues with repair costs",
+        "10 saved search history",
+        "Detailed AI analysis",
+        "Priority support"
+      ],
+      "cta": "Subscribe Now"
+    },
+    "professional": {
+      "title": "Professional",
+      "period": "per month",
+      "features": [
+        "Everything in Premium",
+        "Unlimited search history",
+        "Batch vehicle analysis",
+        "Market value analysis",
+        "Dealership integration",
+        "API access",
+        "24/7 priority support"
+      ],
+      "cta": "Get Professional"
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "steps": [
+      {
+        "title": "Enter Vehicle Details",
+        "description": "Provide the year, make, model, and mileage of the vehicle you want to research."
+      },
+      {
+        "title": "Get Instant Results",
+        "description": "Our AI analyzes data from multiple sources to provide accurate reliability information."
+      },
+      {
+        "title": "Make Informed Decisions",
+        "description": "Use the reliability data to make better decisions about buying, selling, or maintaining vehicles."
+      }
+    ]
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "createAccount": "Create an Account",
+    "loggingIn": "Logging in...",
+    "creatingAccount": "Creating account...",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "redirectNotice": "You'll be redirected back after",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "authFailed": "Authentication failed",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "confirmPasswordRequired": "Password confirmation is required",
+    "invalidEmail": "Please enter a valid email address",
+    "passwordTooShort": "Password must be at least 6 characters"
+  },
+  "search": {
+    "title": "Search Vehicle Reliability",
+    "premiumUser": "Premium User",
+    "year": "Year",
+    "make": "Make",
+    "model": "Model",
+    "mileage": "Mileage",
+    "searchButton": "Search",
+    "searching": "Searching...",
+    "resultsFor": "Results for",
+    "overallScore": "Overall Reliability Score",
+    "categoryScores": "Category Scores",
+    "engine": "Engine",
+    "transmission": "Transmission",
+    "electrical": "Electrical System",
+    "brakes": "Brakes",
+    "suspension": "Suspension",
+    "fuelSystem": "Fuel System",
+    "upgradeFull": "Upgrade to premium for full category breakdowns",
+    "commonIssues": "Common Issues",
+    "costToFix": "Cost to Fix",
+    "occurrence": "Occurrence",
+    "typicalMileage": "Typical Mileage",
+    "analysis": "Analysis",
+    "upgradePrompt": "Upgrade to premium for full AI analysis and detailed reports.",
+    "goPremium": "Go Premium",
+    "searchError": "Failed to fetch reliability data",
+    "requiredFields": "Year, make, model, and mileage are required",
+    "noResults": "No results found for this vehicle"
+  },
+  "profile": {
+    "title": "Your Profile",
+    "loading": "Loading profile...",
+    "accountInfo": "Account Information",
+    "email": "Email",
+    "memberSince": "Member Since",
+    "subscription": "Subscription",
+    "plan": "Plan",
+    "status": "Status",
+    "renewalDate": "Renewal Date",
+    "noExpiration": "No expiration",
+    "manageSubscription": "Manage Subscription",
+    "noSubscription": "You don't have an active subscription.",
+    "upgradePrompt": "Upgrade to premium for full access to all reliability data and features.",
+    "upgradePremium": "Upgrade to Premium",
+    "accountSettings": "Account Settings",
+    "changePassword": "Change Password",
+    "deleteAccount": "Delete Account",
+    "loadError": "Failed to load profile data",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "statusExpired": "Expired",
+    "statusPastDue": "Past Due",
+    "statusCancelled": "Cancelled",
+    "deleteConfirm": "Are you sure you want to delete your account? This action cannot be undone.",
+    "passwordChangeSuccess": "Password changed successfully",
+    "freePlan": "Free",
+    "premiumPlan": "Premium",
+    "professionalPlan": "Professional"
+  },
+  "history": {
+    "title": "Your Search History",
+    "limitNote": "Your current plan allows up to {limit} recent searches.",
+    "upgradeLink": "Upgrade to Professional for unlimited search history",
+    "loading": "Loading search history...",
+    "noSearches": "You haven't searched for any vehicles yet.",
+    "searchNow": "Search Now",
+    "vehicle": "Vehicle",
+    "mileage": "Mileage",
+    "date": "Date",
+    "actions": "Actions",
+    "searchAgain": "Search Again",
+    "miles": "miles",
+    "loadError": "Failed to load search history",
+    "clearHistory": "Clear History",
+    "clearConfirm": "Are you sure you want to clear your search history?",
+    "clearSuccess": "Search history cleared successfully"
+  },
+  "payment": {
+    "success": {
+      "title": "Payment Successful!",
+      "verifying": "Verifying your payment...",
+      "thankYou": "Thank you for your subscription. You now have premium access to all features.",
+      "accessToken": "Your premium access token:",
+      "tokenTip": "You can use this token to access premium features from other devices.",
+      "viewProfile": "View Profile",
+      "startSearching": "Start Searching"
+    },
+    "cancel": {
+      "title": "Payment Cancelled",
+      "message": "Your payment was cancelled and you have not been charged. If you have any questions or concerns, please contact our support team.",
+      "viewPlans": "View Plans",
+      "continueSearching": "Continue Searching",
+      "needHelp": "Need Help?",
+      "supportMessage": "If you encountered any issues during the payment process, our support team is available to assist you.",
+      "contactSupport": "Contact Support"
+    },
+    "failure": {
+      "title": "Payment Verification Failed",
+      "contactPrompt": "Please contact our support team for assistance.",
+      "goToProfile": "Go to Profile"
+    },
+    "checkout": {
+      "title": "Complete Your Subscription",
+      "processing": "Processing your request...",
+      "redirecting": "Redirecting to secure checkout...",
+      "cardInfo": "Card Information",
+      "cardNumber": "Card Number",
+      "expiryDate": "Expiry Date",
+      "cvc": "CVC",
+      "nameOnCard": "Name on Card",
+      "billingAddress": "Billing Address",
+      "subscribe": "Subscribe Now",
+      "securePayment": "Secure Payment",
+      "termsAgreement": "By subscribing, you agree to our Terms of Service and Privacy Policy."
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "pricing": "Pricing",
+    "history": "History",
+    "profile": "Profile",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "language": "Language"
+  },
+  "footer": {
+    "copyright": "© 2025 Car Reliability. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact Us"
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "authRequired": "Authentication required",
+    "sessionExpired": "Your session has expired. Please login again.",
+    "connectionError": "Connection error. Please check your internet connection.",
+    "serverError": "Server error. Please try again later.",
+    "permissionDenied": "Permission denied. You don't have access to this resource.",
+    "notFound": "Resource not found."
+  },
+  "notifications": {
+    "success": "Success!",
+    "error": "Error!",
+    "warning": "Warning!",
+    "info": "Information",
+    "loginSuccess": "Login successful!",
+    "logoutSuccess": "You have been logged out successfully.",
+    "registerSuccess": "Registration successful! Welcome to Car Reliability."
+  },
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "{count} days ago",
+    "dateFormat": "MM/DD/YYYY",
+    "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "monthNamesShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
   }
+}

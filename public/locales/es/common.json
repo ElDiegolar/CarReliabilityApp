@@ -95,7 +95,14 @@
       "confirmPassword": "Confirmar contraseña",
       "noAccount": "¿No tiene una cuenta?",
       "haveAccount": "¿Ya tiene una cuenta?",
-      "redirectNotice": "Será redirigido después de"
+      "redirectNotice": "Será redirigido después de",
+      "passwordsDoNotMatch": "Las contraseñas no coinciden",
+      "authFailed": "Autenticación fallida",
+      "emailRequired": "El correo electrónico es obligatorio",
+      "passwordRequired": "La contraseña es obligatoria",
+      "confirmPasswordRequired": "La confirmación de contraseña es obligatoria",
+      "invalidEmail": "Por favor, introduzca un correo electrónico válido",
+      "passwordTooShort": "La contraseña debe tener al menos 6 caracteres"
     },
     "search": {
       "title": "Buscar fiabilidad de vehículos",
@@ -122,7 +129,10 @@
       "typicalMileage": "Kilometraje típico",
       "analysis": "Análisis",
       "upgradePrompt": "Actualice a premium para obtener análisis completo de IA e informes detallados.",
-      "goPremium": "Obtener Premium"
+      "goPremium": "Obtener Premium",
+      "searchError": "Error al obtener datos de fiabilidad",
+      "requiredFields": "Año, marca, modelo y kilometraje son obligatorios",
+      "noResults": "No se encontraron resultados para este vehículo"
     },
     "profile": {
       "title": "Su perfil",
@@ -141,7 +151,18 @@
       "upgradePremium": "Actualizar a Premium",
       "accountSettings": "Configuración de la cuenta",
       "changePassword": "Cambiar contraseña",
-      "deleteAccount": "Eliminar cuenta"
+      "deleteAccount": "Eliminar cuenta",
+      "loadError": "Error al cargar datos del perfil",
+      "statusActive": "Activo",
+      "statusInactive": "Inactivo",
+      "statusExpired": "Expirado",
+      "statusPastDue": "Pago atrasado",
+      "statusCancelled": "Cancelado",
+      "deleteConfirm": "¿Está seguro de que desea eliminar su cuenta? Esta acción no se puede deshacer.",
+      "passwordChangeSuccess": "Contraseña cambiada con éxito",
+      "freePlan": "Gratis",
+      "premiumPlan": "Premium",
+      "professionalPlan": "Profesional"
     },
     "history": {
       "title": "Su historial de búsqueda",
@@ -155,7 +176,11 @@
       "date": "Fecha",
       "actions": "Acciones",
       "searchAgain": "Buscar de nuevo",
-      "miles": "kilómetros"
+      "miles": "kilómetros",
+      "loadError": "Error al cargar el historial de búsqueda",
+      "clearHistory": "Borrar historial",
+      "clearConfirm": "¿Está seguro de que desea borrar su historial de búsqueda?",
+      "clearSuccess": "Historial de búsqueda borrado con éxito"
     },
     "payment": {
       "success": {
@@ -180,6 +205,20 @@
         "title": "Verificación de pago fallida",
         "contactPrompt": "Póngase en contacto con nuestro equipo de soporte para obtener ayuda.",
         "goToProfile": "Ir al perfil"
+      },
+      "checkout": {
+        "title": "Complete su suscripción",
+        "processing": "Procesando su solicitud...",
+        "redirecting": "Redirigiendo a pago seguro...",
+        "cardInfo": "Información de tarjeta",
+        "cardNumber": "Número de tarjeta",
+        "expiryDate": "Fecha de vencimiento",
+        "cvc": "CVC",
+        "nameOnCard": "Nombre en la tarjeta",
+        "billingAddress": "Dirección de facturación",
+        "subscribe": "Suscribirse ahora",
+        "securePayment": "Pago seguro",
+        "termsAgreement": "Al suscribirse, acepta nuestros Términos de Servicio y Política de Privacidad."
       }
     },
     "nav": {
@@ -198,5 +237,31 @@
       "privacy": "Política de privacidad",
       "terms": "Términos de servicio",
       "contact": "Contáctenos"
+    },
+    "errors": {
+      "generic": "Se produjo un error. Por favor, inténtelo de nuevo.",
+      "authRequired": "Se requiere autenticación",
+      "sessionExpired": "Su sesión ha expirado. Por favor, inicie sesión de nuevo.",
+      "connectionError": "Error de conexión. Por favor, compruebe su conexión a internet.",
+      "serverError": "Error del servidor. Por favor, inténtelo más tarde.",
+      "permissionDenied": "Permiso denegado. No tiene acceso a este recurso.",
+      "notFound": "Recurso no encontrado."
+    },
+    "notifications": {
+      "success": "¡Éxito!",
+      "error": "¡Error!",
+      "warning": "¡Advertencia!",
+      "info": "Información",
+      "loginSuccess": "¡Inicio de sesión exitoso!",
+      "logoutSuccess": "Ha cerrado sesión con éxito.",
+      "registerSuccess": "¡Registro exitoso! Bienvenido a Car Reliability."
+    },
+    "dates": {
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "daysAgo": "Hace {count} días",
+      "dateFormat": "DD/MM/YYYY",
+      "monthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+      "monthNamesShort": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
     }
   }

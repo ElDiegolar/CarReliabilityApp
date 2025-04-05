@@ -1,12 +1,15 @@
-// pages/profile.js - User profile page with upgrade functionality
+// pages/profile.js - User profile page with upgrade functionality and translations
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router'; // Import router
+import { useRouter } from 'next/router';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import Layout from '../components/Layout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Profile() {
-  const router = useRouter(); // Initialize router
+  const router = useRouter();
+  const { t } = useTranslation('common');
   const { user, getToken } = useAuth();
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,32 +54,32 @@ export default function Profile() {
 
   return (
     <ProtectedRoute>
-      <Layout title="Your Profile">
+      <Layout title={t('profile.title')}>
         <div className="profile-container">
-          <h1>Your Profile</h1>
+          <h1>{t('profile.title')}</h1>
           
           {loading ? (
-            <div className="loading">Loading profile...</div>
+            <div className="loading">{t('profile.loading')}</div>
           ) : error ? (
             <div className="error">{error}</div>
           ) : (
             <div className="profile-content">
               <div className="profile-section">
-                <h2>Account Information</h2>
+                <h2>{t('profile.accountInfo')}</h2>
                 <div className="info-grid">
                   <div className="info-item">
-                    <label>Email</label>
+                    <label>{t('profile.email')}</label>
                     <div>{user?.email}</div>
                   </div>
                   <div className="info-item">
-                    <label>Member Since</label>
-                    <div>{user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</div>
+                    <label>{t('profile.memberSince')}</label>
+                    <div>{user?.created_at ? new Date(user.created_at).toLocaleDateString(router.locale) : 'N/A'}</div>
                   </div>
                 </div>
               </div>
               
               <div className="profile-section">
-                <h2>Subscription</h2>
+                <h2>{t('profile.subscription')}</h2>
                 {subscription ? (
                   <div className="subscription-details">
                     <div className="subscription-badge">
@@ -84,48 +87,48 @@ export default function Profile() {
                     </div>
                     <div className="info-grid">
                       <div className="info-item">
-                        <label>Plan</label>
+                        <label>{t('profile.plan')}</label>
                         <div>{subscription.plan}</div>
                       </div>
                       <div className="info-item">
-                        <label>Status</label>
+                        <label>{t('profile.status')}</label>
                         <div className={`status ${subscription.status}`}>
                           {subscription.status}
                         </div>
                       </div>
                       <div className="info-item">
-                        <label>Renewal Date</label>
+                        <label>{t('profile.renewalDate')}</label>
                         <div>
                           {subscription.expires_at
-                            ? new Date(subscription.expires_at).toLocaleDateString()
-                            : 'No expiration'}
+                            ? new Date(subscription.expires_at).toLocaleDateString(router.locale)
+                            : t('profile.noExpiration')}
                         </div>
                       </div>
                     </div>
                     
                     <div className="subscription-actions">
-                      <button className="button secondary">Manage Subscription</button>
+                      <button className="button secondary">{t('profile.manageSubscription')}</button>
                     </div>
                   </div>
                 ) : (
                   <div className="subscription-prompt">
-                    <p>You don't have an active subscription.</p>
-                    <p>Upgrade to premium for full access to all reliability data and features.</p>
+                    <p>{t('profile.noSubscription')}</p>
+                    <p>{t('profile.upgradePrompt')}</p>
                     <button 
                       className="button primary"
                       onClick={handleUpgrade}
                     >
-                      Upgrade to Premium
+                      {t('profile.upgradePremium')}
                     </button>
                   </div>
                 )}
               </div>
               
               <div className="profile-section">
-                <h2>Account Settings</h2>
+                <h2>{t('profile.accountSettings')}</h2>
                 <div className="settings-buttons">
-                  <button className="button secondary">Change Password</button>
-                  <button className="button danger">Delete Account</button>
+                  <button className="button secondary">{t('profile.changePassword')}</button>
+                  <button className="button danger">{t('profile.deleteAccount')}</button>
                 </div>
               </div>
             </div>
@@ -270,4 +273,13 @@ export default function Profile() {
       </Layout>
     </ProtectedRoute>
   );
+}
+
+// This function gets called at build time on server-side
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  };
 }

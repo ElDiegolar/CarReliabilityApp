@@ -1,72 +1,71 @@
 {
-    "hero": {
-      "title": "Erhalten Sie zuverlässige Informationen über Ihr Fahrzeug",
-      "description": "Detaillierte Fahrzeug-Zuverlässigkeitsdaten, häufige Probleme und Expertenanalysen.",
-      "search": "Fahrzeug suchen",
-      "signup": "Für Premium registrieren"
+  "hero": {
+    "title": "Erhalten Sie zuverlässige Informationen über Ihr Fahrzeug",
+    "description": "Detaillierte Fahrzeug-Zuverlässigkeitsdaten, häufige Probleme und Expertenanalysen.",
+    "search": "Fahrzeug suchen",
+    "signup": "Für Premium registrieren"
+  },
+  "features": {
+    "title": "Unsere Funktionen",
+    "reliabilityScores": {
+      "title": "Zuverlässigkeitsbewertungen",
+      "description": "Erhalten Sie umfassende Zuverlässigkeitsbewertungen für Motoren, Getriebe, elektrische Systeme und mehr."
     },
-    "features": {
-      "title": "Unsere Funktionen",
-      "reliabilityScores": {
-        "title": "Zuverlässigkeitsbewertungen",
-        "description": "Erhalten Sie umfassende Zuverlässigkeitsbewertungen für Motoren, Getriebe, elektrische Systeme und mehr."
-      },
-      "commonIssues": {
-        "title": "Häufige Probleme",
-        "description": "Erfahren Sie mehr über häufige Probleme, geschätzte Reparaturkosten und wann diese typischerweise auftreten."
-      },
-      "expertAnalysis": {
-        "title": "Expertenanalyse",
-        "description": "Zugriff auf detaillierte KI-gestützte Analyse der Zuverlässigkeit jedes Fahrzeugs im Vergleich zu ähnlichen Modellen."
-      },
-      "premiumData": {
-        "title": "Premium-Daten",
-        "description": "Abonnieren Sie für ausführliche Berichte, Rückrufinformationen und detaillierte Zuverlässigkeitseinblicke."
-      }
+    "commonIssues": {
+      "title": "Häufige Probleme",
+      "description": "Erfahren Sie mehr über häufige Probleme, geschätzte Reparaturkosten und wann diese typischerweise auftreten."
     },
-    "pricing": {
-      "title": "Wählen Sie Ihren Tarif",
-      "description": "Greifen Sie mit unseren flexiblen Abonnementplänen auf die benötigten Fahrzeug-Zuverlässigkeitsdaten zu",
-      "free": {
-        "title": "Kostenlos",
-        "period": "für immer",
-        "features": [
-          "Grundlegende Zuverlässigkeitsbewertungen",
-          "Motor- und Getriebedaten",
-          "Begrenzte Fahrzeugsuchen",
-          "Grundlegende Analyse"
-        ],
-        "cta": "Jetzt ausprobieren"
-      },
-      "premium": {
-        "title": "Premium",
-        "period": "pro Monat",
-        "badge": "Beliebtester",
-        "features": [
-          "Umfassende Zuverlässigkeitsbewertungen",
-          "Daten aller Fahrzeugsysteme",
-          "Häufige Probleme mit Reparaturkosten",
-          "10 gespeicherte Suchvorgänge",
-          "Detaillierte KI-Analyse",
-          "Prioritäts-Support"
-        ],
-        "cta": "Jetzt abonnieren"
-      },
-      "professional": {
-        "title": "Professional",
-        "period": "pro Monat",
-        "features": [
-          "Alles aus Premium",
-          "Unbegrenzter Suchverlauf",
-          "Batch-Fahrzeuganalyse",
-          "Marktwertanalyse",
-          "Händlerintegration",
-          "API-Zugang",
-          "24/7 Prioritäts-Support"
-        ],
-        "cta": "Professional erhalten"
-      }
+    "expertAnalysis": {
+      "title": "Expertenanalyse",
+      "description": "Zugriff auf detaillierte KI-gestützte Analyse der Zuverlässigkeit jedes Fahrzeugs im Vergleich zu ähnlichen Modellen."
     },
+    "premiumData": {
+      "title": "Premium-Daten",
+      "description": "Abonnieren Sie für ausführliche Berichte, Rückrufinformationen und detaillierte Zuverlässigkeitseinblicke."
+    }
+  },
+  "pricing": {
+    "title": "Wählen Sie Ihren Tarif",
+    "description": "Greifen Sie mit unseren flexiblen Abonnementplänen auf die benötigten Fahrzeug-Zuverlässigkeitsdaten zu",
+    "free": {
+      "title": "Kostenlos",
+      "period": "für immer",
+      "features": [
+        "Grundlegende Zuverlässigkeitsbewertungen",
+        "Motor- und Getriebedaten",
+        "Begrenzte Fahrzeugsuchen",
+        "Grundlegende Analyse"
+      ],
+      "cta": "Jetzt ausprobieren"
+    },  "premium": {
+      "title": "Premium",
+      "period": "pro Monat",
+      "badge": "Beliebtester",
+      "features": [
+        "Umfassende Zuverlässigkeitsbewertungen",
+        "Daten aller Fahrzeugsysteme",
+        "Häufige Probleme mit Reparaturkosten",
+        "10 gespeicherte Suchvorgänge",
+        "Detaillierte KI-Analyse",
+        "Prioritäts-Support"
+      ],
+      "cta": "Jetzt abonnieren"
+    },
+    "professional": {
+      "title": "Professional",
+      "period": "pro Monat",
+      "features": [
+        "Alles aus Premium",
+        "Unbegrenzter Suchverlauf",
+        "Batch-Fahrzeuganalyse",
+        "Marktwertanalyse",
+        "Händlerintegration",
+        "API-Zugang",
+        "24/7 Prioritäts-Support"
+      ],
+      "cta": "Professional erhalten"
+    }
+  },
     "howItWorks": {
       "title": "So funktioniert es",
       "steps": [
@@ -95,7 +94,14 @@
       "confirmPassword": "Passwort bestätigen",
       "noAccount": "Haben Sie noch kein Konto?",
       "haveAccount": "Haben Sie bereits ein Konto?",
-      "redirectNotice": "Sie werden nach"
+      "redirectNotice": "Sie werden nach der Anmeldung weitergeleitet",
+      "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+      "authFailed": "Authentifizierung fehlgeschlagen",
+      "emailRequired": "E-Mail ist erforderlich",
+      "passwordRequired": "Passwort ist erforderlich",
+      "confirmPasswordRequired": "Passwortbestätigung ist erforderlich",
+      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+      "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein"
     },
     "search": {
       "title": "Fahrzeug-Zuverlässigkeit suchen",
@@ -122,7 +128,10 @@
       "typicalMileage": "Typischer Kilometerstand",
       "analysis": "Analyse",
       "upgradePrompt": "Upgrade auf Premium für vollständige KI-Analyse und detaillierte Berichte.",
-      "goPremium": "Zu Premium wechseln"
+      "goPremium": "Zu Premium wechseln",
+      "searchError": "Fehler beim Abrufen der Zuverlässigkeitsdaten",
+      "requiredFields": "Jahr, Marke, Modell und Kilometerstand sind erforderlich",
+      "noResults": "Keine Ergebnisse für dieses Fahrzeug gefunden"
     },
     "profile": {
       "title": "Ihr Profil",
@@ -141,7 +150,18 @@
       "upgradePremium": "Auf Premium upgraden",
       "accountSettings": "Kontoeinstellungen",
       "changePassword": "Passwort ändern",
-      "deleteAccount": "Konto löschen"
+      "deleteAccount": "Konto löschen",
+      "loadError": "Fehler beim Laden der Profildaten",
+      "statusActive": "Aktiv",
+      "statusInactive": "Inaktiv",
+      "statusExpired": "Abgelaufen",
+      "statusPastDue": "Überfällig",
+      "statusCancelled": "Gekündigt",
+      "deleteConfirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "passwordChangeSuccess": "Passwort erfolgreich geändert",
+      "freePlan": "Kostenlos",
+      "premiumPlan": "Premium",
+      "professionalPlan": "Professional"
     },
     "history": {
       "title": "Ihr Suchverlauf",
@@ -155,7 +175,11 @@
       "date": "Datum",
       "actions": "Aktionen",
       "searchAgain": "Erneut suchen",
-      "miles": "Kilometer"
+      "miles": "Kilometer",
+      "loadError": "Fehler beim Laden des Suchverlaufs",
+      "clearHistory": "Verlauf löschen",
+      "clearConfirm": "Sind Sie sicher, dass Sie Ihren Suchverlauf löschen möchten?",
+      "clearSuccess": "Suchverlauf erfolgreich gelöscht"
     },
     "payment": {
       "success": {
@@ -180,6 +204,20 @@
         "title": "Zahlungsüberprüfung fehlgeschlagen",
         "contactPrompt": "Bitte kontaktieren Sie unser Support-Team für Unterstützung.",
         "goToProfile": "Zum Profil"
+      },
+      "checkout": {
+        "title": "Abonnement abschließen",
+        "processing": "Ihre Anfrage wird bearbeitet...",
+        "redirecting": "Weiterleitung zur sicheren Zahlungsabwicklung...",
+        "cardInfo": "Karteninformationen",
+        "cardNumber": "Kartennummer",
+        "expiryDate": "Ablaufdatum",
+        "cvc": "CVC",
+        "nameOnCard": "Name auf der Karte",
+        "billingAddress": "Rechnungsadresse",
+        "subscribe": "Jetzt abonnieren",
+        "securePayment": "Sichere Zahlung",
+        "termsAgreement": "Durch das Abonnieren akzeptieren Sie unsere Nutzungsbedingungen und Datenschutzrichtlinie."
       }
     },
     "nav": {
@@ -198,5 +236,31 @@
       "privacy": "Datenschutzrichtlinie",
       "terms": "Nutzungsbedingungen",
       "contact": "Kontakt"
+    },
+    "errors": {
+      "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+      "authRequired": "Authentifizierung erforderlich",
+      "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+      "connectionError": "Verbindungsfehler. Bitte überprüfen Sie Ihre Internetverbindung.",
+      "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
+      "permissionDenied": "Zugriff verweigert. Sie haben keinen Zugang zu dieser Ressource.",
+      "notFound": "Ressource nicht gefunden."
+    },
+    "notifications": {
+      "success": "Erfolg!",
+      "error": "Fehler!",
+      "warning": "Warnung!",
+      "info": "Information",
+      "loginSuccess": "Anmeldung erfolgreich!",
+      "logoutSuccess": "Sie wurden erfolgreich abgemeldet.",
+      "registerSuccess": "Registrierung erfolgreich! Willkommen bei Car Reliability."
+    },
+    "dates": {
+      "today": "Heute",
+      "yesterday": "Gestern",
+      "daysAgo": "Vor {count} Tagen",
+      "dateFormat": "DD.MM.YYYY",
+      "monthNames": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+      "monthNamesShort": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
     }
   }
