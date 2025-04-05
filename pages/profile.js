@@ -9,19 +9,18 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function Profile() {
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common'); // Get i18n from useTranslation hook
   const { user, getToken } = useAuth();
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Add these console logs to debug
+  // Add these console logs to debug (fixed)
   console.log('Current locale:', router.locale);
-  console.log('i18n initialized:', i18n.isInitialized);
-  console.log('i18n language:', i18n.language);
+  console.log('i18n initialized:', i18n?.isInitialized);
+  console.log('i18n language:', i18n?.language);
   console.log('Translation test "profile.title":', t('profile.title'));
-  console.log('Raw translation test:', i18n.t('profile.title'));
-  
+
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
@@ -100,7 +99,7 @@ export default function Profile() {
                       <div className="info-item">
                         <label>{t('profile.status')}</label>
                         <div className={`status ${subscription.status}`}>
-                          {subscription.status}
+                          {t(`profile.status${subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}`)}
                         </div>
                       </div>
                       <div className="info-item">
@@ -284,9 +283,20 @@ export default function Profile() {
 
 // This function gets called at build time on server-side
 export async function getServerSideProps({ locale }) {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale, ['common'])),
-    },
-  };
+  console.log('Server-side locale:', locale); // Add this for debugging
+  try {
+    const translations = await serverSideTranslations(locale || 'en', ['common']);
+    console.log('Translations loaded successfully for locale:', locale || 'en');
+    return {
+      props: {
+        ...translations,
+      },
+    };
+  } catch (error) {
+    console.error('Error loading translations:', error);
+    // Return minimal props to prevent page failure
+    return {
+      props: {},
+    };
+  }
 }
