@@ -14,7 +14,14 @@ export default function Profile() {
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
+  
+  // Add these console logs to debug
+  console.log('Current locale:', router.locale);
+  console.log('i18n initialized:', i18n.isInitialized);
+  console.log('i18n language:', i18n.language);
+  console.log('Translation test "profile.title":', t('profile.title'));
+  console.log('Raw translation test:', i18n.t('profile.title'));
+  
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
