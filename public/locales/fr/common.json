@@ -132,7 +132,8 @@
       "goPremium": "Passer à Premium",
       "searchError": "Impossible de récupérer les données de fiabilité",
       "requiredFields": "L'année, la marque, le modèle et le kilométrage sont requis",
-      "noResults": "Aucun résultat trouvé pour ce véhicule"
+      "noResults": "Aucun résultat trouvé pour ce véhicule",
+      "loadingMessage": "Recherche de fiabilité..."
     },
     "profile": {
       "title": "Votre profil",

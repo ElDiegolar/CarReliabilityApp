@@ -132,7 +132,8 @@
       "goPremium": "Ġib Premium",
       "searchError": "Ma rnexxiex tiġbed dejta tal-affidabbiltà",
       "requiredFields": "Is-sena, il-manifattur, il-mudell, u l-kilometraġġ huma meħtieġa",
-      "noResults": "Ma nstab l-ebda riżultat għal din il-vettura"
+      "noResults": "Ma nstab l-ebda riżultat għal din il-vettura",
+      "loadingMessage": "Qed infittex l-affidabbiltà..."
     },
     "profile": {
       "title": "Il-Profil Tiegħek",

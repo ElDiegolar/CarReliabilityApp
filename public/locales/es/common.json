@@ -132,7 +132,8 @@
       "goPremium": "Obtener Premium",
       "searchError": "Error al obtener datos de fiabilidad",
       "requiredFields": "Año, marca, modelo y kilometraje son obligatorios",
-      "noResults": "No se encontraron resultados para este vehículo"
+      "noResults": "No se encontraron resultados para este vehículo",
+      "loadingMessage": "Buscando fiabilidad..."
     },
     "profile": {
       "title": "Su perfil",

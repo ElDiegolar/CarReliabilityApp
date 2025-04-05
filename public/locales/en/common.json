@@ -132,7 +132,8 @@
     "goPremium": "Go Premium",
     "searchError": "Failed to fetch reliability data",
     "requiredFields": "Year, make, model, and mileage are required",
-    "noResults": "No results found for this vehicle"
+    "noResults": "No results found for this vehicle",
+    "loadingMessage": "Searching for reliability..."
   },
   "profile": {
     "title": "Your Profile",

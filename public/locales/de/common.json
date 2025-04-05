@@ -131,7 +131,8 @@
       "goPremium": "Zu Premium wechseln",
       "searchError": "Fehler beim Abrufen der Zuverlässigkeitsdaten",
       "requiredFields": "Jahr, Marke, Modell und Kilometerstand sind erforderlich",
-      "noResults": "Keine Ergebnisse für dieses Fahrzeug gefunden"
+      "noResults": "Keine Ergebnisse für dieses Fahrzeug gefunden",
+      "loadingMessage": "Suche nach Zuverlässigkeit..."
     },
     "profile": {
       "title": "Ihr Profil",
