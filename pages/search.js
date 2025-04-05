@@ -259,6 +259,13 @@ export default function Search() {
         </div>
       )}
 
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner" />
+          <span>{t('search.loadingMessage') || 'Loading...'}</span>
+        </div>
+      )}
+
       <style jsx>{`
         h1 {
           margin-bottom: 2rem;
@@ -327,6 +334,30 @@ export default function Search() {
           border-radius: 50%;
           animation: spin 0.6s linear infinite;
           display: inline-block;
+        }
+
+        .loading-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background-color: rgba(255, 255, 255, 0.85);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          flex-direction: column;
+        }
+
+        .loading-spinner {
+          width: 50px;
+          height: 50px;
+          border: 6px solid #ccc;
+          border-top: 6px solid #0070f3;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 1rem;
         }
 
         @keyframes spin {
