@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   }
   
   try {
-    const { year, make, model, mileage, premiumToken, userId } = req.body;
+    const { year, make, model, mileage, premiumToken, userId, locale } = req.body;
 
     if (!year || !make || !model || !mileage) {
       return res.status(400).json({ error: 'Year, make, model, and mileage are required' });
@@ -118,7 +118,7 @@ export default async function handler(req, res) {
         "aiAnalysis": ""
       }
 
-      Please ensure the JSON is valid and follows the exact key structure above.
+      Please ensure the JSON is valid and follows the exact key structure above and the return language in the following country code ${locale} translations.
     `;
 
     try {
