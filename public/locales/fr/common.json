@@ -95,7 +95,14 @@
       "confirmPassword": "Confirmer le mot de passe",
       "noAccount": "Vous n'avez pas de compte ?",
       "haveAccount": "Vous avez déjà un compte ?",
-      "redirectNotice": "Vous serez redirigé après"
+      "redirectNotice": "Vous serez redirigé après",
+      "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+      "authFailed": "L'authentification a échoué",
+      "emailRequired": "L'email est requis",
+      "passwordRequired": "Le mot de passe est requis",
+      "confirmPasswordRequired": "La confirmation du mot de passe est requise",
+      "invalidEmail": "Veuillez entrer une adresse email valide",
+      "passwordTooShort": "Le mot de passe doit comporter au moins 6 caractères"
     },
     "search": {
       "title": "Recherche de fiabilité des véhicules",
@@ -122,7 +129,10 @@
       "typicalMileage": "Kilométrage typique",
       "analysis": "Analyse",
       "upgradePrompt": "Passez à premium pour une analyse IA complète et des rapports détaillés.",
-      "goPremium": "Passer à Premium"
+      "goPremium": "Passer à Premium",
+      "searchError": "Impossible de récupérer les données de fiabilité",
+      "requiredFields": "L'année, la marque, le modèle et le kilométrage sont requis",
+      "noResults": "Aucun résultat trouvé pour ce véhicule"
     },
     "profile": {
       "title": "Votre profil",
@@ -141,7 +151,18 @@
       "upgradePremium": "Passer à Premium",
       "accountSettings": "Paramètres du compte",
       "changePassword": "Changer le mot de passe",
-      "deleteAccount": "Supprimer le compte"
+      "deleteAccount": "Supprimer le compte",
+      "loadError": "Impossible de charger les données du profil",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "statusExpired": "Expiré",
+      "statusPastDue": "En retard",
+      "statusCancelled": "Annulé",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée.",
+      "passwordChangeSuccess": "Mot de passe modifié avec succès",
+      "freePlan": "Gratuit",
+      "premiumPlan": "Premium",
+      "professionalPlan": "Professionnel"
     },
     "history": {
       "title": "Votre historique de recherche",
@@ -155,7 +176,11 @@
       "date": "Date",
       "actions": "Actions",
       "searchAgain": "Rechercher à nouveau",
-      "miles": "kilomètres"
+      "miles": "kilomètres",
+      "loadError": "Impossible de charger l'historique de recherche",
+      "clearHistory": "Effacer l'historique",
+      "clearConfirm": "Êtes-vous sûr de vouloir effacer votre historique de recherche ?",
+      "clearSuccess": "Historique de recherche effacé avec succès"
     },
     "payment": {
       "success": {
@@ -180,6 +205,20 @@
         "title": "Échec de vérification du paiement",
         "contactPrompt": "Veuillez contacter notre équipe d'assistance pour obtenir de l'aide.",
         "goToProfile": "Aller au profil"
+      },
+      "checkout": {
+        "title": "Finaliser votre abonnement",
+        "processing": "Traitement de votre demande...",
+        "redirecting": "Redirection vers un paiement sécurisé...",
+        "cardInfo": "Informations de la carte",
+        "cardNumber": "Numéro de carte",
+        "expiryDate": "Date d'expiration",
+        "cvc": "CVC",
+        "nameOnCard": "Nom sur la carte",
+        "billingAddress": "Adresse de facturation",
+        "subscribe": "S'abonner maintenant",
+        "securePayment": "Paiement sécurisé",
+        "termsAgreement": "En vous abonnant, vous acceptez nos Conditions de service et notre Politique de confidentialité."
       }
     },
     "nav": {
@@ -198,5 +237,31 @@
       "privacy": "Politique de confidentialité",
       "terms": "Conditions d'utilisation",
       "contact": "Nous contacter"
+    },
+    "errors": {
+      "generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "authRequired": "Authentification requise",
+      "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+      "connectionError": "Erreur de connexion. Veuillez vérifier votre connexion internet.",
+      "serverError": "Erreur de serveur. Veuillez réessayer plus tard.",
+      "permissionDenied": "Autorisation refusée. Vous n'avez pas accès à cette ressource.",
+      "notFound": "Ressource non trouvée."
+    },
+    "notifications": {
+      "success": "Succès !",
+      "error": "Erreur !",
+      "warning": "Avertissement !",
+      "info": "Information",
+      "loginSuccess": "Connexion réussie !",
+      "logoutSuccess": "Vous avez été déconnecté avec succès.",
+      "registerSuccess": "Inscription réussie ! Bienvenue sur Car Reliability."
+    },
+    "dates": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "daysAgo": "Il y a {count} jours",
+      "dateFormat": "DD/MM/YYYY",
+      "monthNames": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+      "monthNamesShort": ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]
     }
   }
