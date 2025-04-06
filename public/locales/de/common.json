@@ -1,9 +1,9 @@
 {
   "hero": {
     "title": "Erhalten Sie zuverlässige Informationen über Ihr Fahrzeug",
-    "description": "Detaillierte Fahrzeug-Zuverlässigkeitsdaten, häufige Probleme und Expertenanalysen.",
+    "description": "Detaillierte Fahrzeugzuverlässigkeitsdaten, häufige Probleme und Expertenanalysen.",
     "search": "Fahrzeug suchen",
-    "signup": "Für Premium registrieren"
+    "signup": "Für Premium anmelden"
   },
   "features": {
     "title": "Unsere Funktionen",
@@ -13,7 +13,7 @@
     },
     "commonIssues": {
       "title": "Häufige Probleme",
-      "description": "Erfahren Sie mehr über häufige Probleme, geschätzte Reparaturkosten und wann diese typischerweise auftreten."
+      "description": "Erfahren Sie mehr über häufige Probleme, geschätzte Reparaturkosten und wann sie typischerweise auftreten."
     },
     "expertAnalysis": {
       "title": "Expertenanalyse",
@@ -25,8 +25,8 @@
     }
   },
   "pricing": {
-    "title": "Wählen Sie Ihren Tarif",
-    "description": "Greifen Sie mit unseren flexiblen Abonnementplänen auf die benötigten Fahrzeug-Zuverlässigkeitsdaten zu",
+    "title": "Wählen Sie Ihren Plan",
+    "description": "Greifen Sie mit unseren flexiblen Abonnementplänen auf die benötigten Fahrzeugzuverlässigkeitsdaten zu",
     "free": {
       "title": "Kostenlos",
       "period": "für immer",
@@ -37,17 +37,18 @@
         "Grundlegende Analyse"
       ],
       "cta": "Jetzt ausprobieren"
-    },  "premium": {
+    },
+    "premium": {
       "title": "Premium",
       "period": "pro Monat",
-      "badge": "Beliebtester",
+      "badge": "Beliebteste",
       "features": [
         "Umfassende Zuverlässigkeitsbewertungen",
         "Daten aller Fahrzeugsysteme",
         "Häufige Probleme mit Reparaturkosten",
         "10 gespeicherte Suchvorgänge",
         "Detaillierte KI-Analyse",
-        "Prioritäts-Support"
+        "Vorrangiger Support"
       ],
       "cta": "Jetzt abonnieren"
     },
@@ -55,213 +56,261 @@
       "title": "Professional",
       "period": "pro Monat",
       "features": [
-        "Alles aus Premium",
+        "Alles im Premium-Paket",
         "Unbegrenzter Suchverlauf",
-        "Batch-Fahrzeuganalyse",
+        "Stapelverarbeitung von Fahrzeuganalysen",
         "Marktwertanalyse",
         "Händlerintegration",
         "API-Zugang",
-        "24/7 Prioritäts-Support"
+        "24/7 vorrangiger Support"
       ],
       "cta": "Professional erhalten"
     }
   },
-    "howItWorks": {
-      "title": "So funktioniert es",
-      "steps": [
-        {
-          "title": "Fahrzeugdetails eingeben",
-          "description": "Geben Sie Jahr, Marke, Modell und Kilometerstand des Fahrzeugs an, das Sie recherchieren möchten."
-        },
-        {
-          "title": "Sofortige Ergebnisse erhalten",
-          "description": "Unsere KI analysiert Daten aus verschiedenen Quellen, um genaue Zuverlässigkeitsinformationen zu liefern."
-        },
-        {
-          "title": "Informierte Entscheidungen treffen",
-          "description": "Nutzen Sie die Zuverlässigkeitsdaten, um bessere Entscheidungen beim Kauf, Verkauf oder der Wartung von Fahrzeugen zu treffen."
-        }
-      ]
-    },
-    "auth": {
-      "login": "Anmelden",
-      "register": "Registrieren",
-      "createAccount": "Konto erstellen",
-      "loggingIn": "Anmeldung läuft...",
-      "creatingAccount": "Konto wird erstellt...",
-      "email": "E-Mail",
-      "password": "Passwort",
-      "confirmPassword": "Passwort bestätigen",
-      "noAccount": "Haben Sie noch kein Konto?",
-      "haveAccount": "Haben Sie bereits ein Konto?",
-      "redirectNotice": "Sie werden nach der Anmeldung weitergeleitet",
-      "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
-      "authFailed": "Authentifizierung fehlgeschlagen",
-      "emailRequired": "E-Mail ist erforderlich",
-      "passwordRequired": "Passwort ist erforderlich",
-      "confirmPasswordRequired": "Passwortbestätigung ist erforderlich",
-      "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
-      "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein"
-    },
-    "search": {
-      "title": "Fahrzeug-Zuverlässigkeit suchen",
-      "premiumUser": "Premium-Benutzer",
-      "year": "Jahr",
-      "make": "Marke",
-      "model": "Modell",
-      "mileage": "Kilometerstand",
-      "searchButton": "Suchen",
-      "searching": "Suche läuft...",
-      "resultsFor": "Ergebnisse für",
-      "overallScore": "Gesamtzuverlässigkeitsbewertung",
-      "categoryScores": "Kategoriebewertungen",
-      "engine": "Motor",
-      "transmission": "Getriebe",
-      "electrical": "Elektrisches System",
-      "brakes": "Bremsen",
-      "suspension": "Aufhängung",
-      "fuelSystem": "Kraftstoffsystem",
-      "upgradeFull": "Upgrade auf Premium für vollständige Kategorieaufschlüsselung",
-      "commonIssues": "Häufige Probleme",
-      "costToFix": "Reparaturkosten",
-      "occurrence": "Häufigkeit",
-      "typicalMileage": "Typischer Kilometerstand",
-      "analysis": "Analyse",
-      "upgradePrompt": "Upgrade auf Premium für vollständige KI-Analyse und detaillierte Berichte.",
-      "goPremium": "Zu Premium wechseln",
-      "searchError": "Fehler beim Abrufen der Zuverlässigkeitsdaten",
-      "requiredFields": "Jahr, Marke, Modell und Kilometerstand sind erforderlich",
-      "noResults": "Keine Ergebnisse für dieses Fahrzeug gefunden",
-      "loadingMessage": "Suche nach Zuverlässigkeit..."
-    },
-    "profile": {
-      "title": "Ihr Profil",
-      "loading": "Profil wird geladen...",
-      "accountInfo": "Kontoinformationen",
-      "email": "E-Mail",
-      "memberSince": "Mitglied seit",
-      "subscription": "Abonnement",
-      "plan": "Tarif",
-      "status": "Status",
-      "renewalDate": "Verlängerungsdatum",
-      "noExpiration": "Kein Ablaufdatum",
-      "manageSubscription": "Abonnement verwalten",
-      "noSubscription": "Sie haben kein aktives Abonnement.",
-      "upgradePrompt": "Upgrade auf Premium für vollen Zugriff auf alle Zuverlässigkeitsdaten und Funktionen.",
-      "upgradePremium": "Auf Premium upgraden",
-      "accountSettings": "Kontoeinstellungen",
-      "changePassword": "Passwort ändern",
-      "deleteAccount": "Konto löschen",
-      "loadError": "Fehler beim Laden der Profildaten",
-      "statusActive": "Aktiv",
-      "statusInactive": "Inaktiv",
-      "statusExpired": "Abgelaufen",
-      "statusPastDue": "Überfällig",
-      "statusCancelled": "Gekündigt",
-      "deleteConfirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-      "passwordChangeSuccess": "Passwort erfolgreich geändert",
-      "freePlan": "Kostenlos",
-      "premiumPlan": "Premium",
-      "professionalPlan": "Professional"
-    },
-    "history": {
-      "title": "Ihr Suchverlauf",
-      "limitNote": "Ihr aktueller Tarif erlaubt bis zu {limit} kürzliche Suchen.",
-      "upgradeLink": "Upgrade auf Professional für unbegrenzten Suchverlauf",
-      "loading": "Suchverlauf wird geladen...",
-      "noSearches": "Sie haben noch keine Fahrzeuge gesucht.",
-      "searchNow": "Jetzt suchen",
-      "vehicle": "Fahrzeug",
-      "mileage": "Kilometerstand",
-      "date": "Datum",
-      "actions": "Aktionen",
-      "searchAgain": "Erneut suchen",
-      "miles": "Kilometer",
-      "loadError": "Fehler beim Laden des Suchverlaufs",
-      "clearHistory": "Verlauf löschen",
-      "clearConfirm": "Sind Sie sicher, dass Sie Ihren Suchverlauf löschen möchten?",
-      "clearSuccess": "Suchverlauf erfolgreich gelöscht"
-    },
-    "payment": {
-      "success": {
-        "title": "Zahlung erfolgreich!",
-        "verifying": "Ihre Zahlung wird überprüft...",
-        "thankYou": "Vielen Dank für Ihr Abonnement. Sie haben nun Premium-Zugriff auf alle Funktionen.",
-        "accessToken": "Ihr Premium-Zugriffstoken:",
-        "tokenTip": "Sie können diesen Token verwenden, um von anderen Geräten aus auf Premium-Funktionen zuzugreifen.",
-        "viewProfile": "Profil anzeigen",
-        "startSearching": "Mit der Suche beginnen"
+  "howItWorks": {
+    "title": "So funktioniert es",
+    "steps": [
+      {
+        "title": "Fahrzeugdetails eingeben",
+        "description": "Geben Sie Jahr, Marke, Modell und Kilometerstand des Fahrzeugs an, das Sie recherchieren möchten."
       },
-      "cancel": {
-        "title": "Zahlung abgebrochen",
-        "message": "Ihre Zahlung wurde abgebrochen und Ihnen wurde nichts berechnet. Bei Fragen oder Bedenken kontaktieren Sie bitte unser Support-Team.",
-        "viewPlans": "Tarife anzeigen",
-        "continueSearching": "Weiter suchen",
-        "needHelp": "Brauchen Sie Hilfe?",
-        "supportMessage": "Wenn Sie während des Zahlungsvorgangs Probleme hatten, steht Ihnen unser Support-Team zur Verfügung.",
-        "contactSupport": "Support kontaktieren"
+      {
+        "title": "Sofortige Ergebnisse erhalten",
+        "description": "Unsere KI analysiert Daten aus mehreren Quellen, um genaue Zuverlässigkeitsinformationen zu liefern."
       },
-      "failure": {
-        "title": "Zahlungsüberprüfung fehlgeschlagen",
-        "contactPrompt": "Bitte kontaktieren Sie unser Support-Team für Unterstützung.",
-        "goToProfile": "Zum Profil"
-      },
-      "checkout": {
-        "title": "Abonnement abschließen",
-        "processing": "Ihre Anfrage wird bearbeitet...",
-        "redirecting": "Weiterleitung zur sicheren Zahlungsabwicklung...",
-        "cardInfo": "Karteninformationen",
-        "cardNumber": "Kartennummer",
-        "expiryDate": "Ablaufdatum",
-        "cvc": "CVC",
-        "nameOnCard": "Name auf der Karte",
-        "billingAddress": "Rechnungsadresse",
-        "subscribe": "Jetzt abonnieren",
-        "securePayment": "Sichere Zahlung",
-        "termsAgreement": "Durch das Abonnieren akzeptieren Sie unsere Nutzungsbedingungen und Datenschutzrichtlinie."
+      {
+        "title": "Informierte Entscheidungen treffen",
+        "description": "Nutzen Sie die Zuverlässigkeitsdaten, um bessere Entscheidungen beim Kauf, Verkauf oder der Wartung von Fahrzeugen zu treffen."
       }
+    ]
+  },
+  "auth": {
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "createAccount": "Konto erstellen",
+    "loggingIn": "Anmeldung läuft...",
+    "creatingAccount": "Konto wird erstellt...",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "noAccount": "Noch kein Konto?",
+    "haveAccount": "Bereits ein Konto?",
+    "redirectNotice": "Sie werden nach der Anmeldung weitergeleitet",
+    "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+    "authFailed": "Authentifizierung fehlgeschlagen",
+    "emailRequired": "E-Mail ist erforderlich",
+    "passwordRequired": "Passwort ist erforderlich",
+    "confirmPasswordRequired": "Passwortbestätigung ist erforderlich",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "passwordTooShort": "Passwort muss mindestens 6 Zeichen lang sein"
+  },
+  "search": {
+    "title": "Fahrzeugzuverlässigkeit suchen",
+    "premiumUser": "Premium-Benutzer",
+    "year": "Jahr",
+    "make": "Marke",
+    "model": "Modell",
+    "mileage": "Kilometerstand",
+    "searchButton": "Suchen",
+    "searching": "Suche läuft...",
+    "resultsFor": "Ergebnisse für",
+    "overallScore": "Gesamtzuverlässigkeitsbewertung",
+    "categoryScores": "Kategoriebewertungen",
+    "engine": "Motor",
+    "transmission": "Getriebe",
+    "electrical": "Elektrisches System",
+    "brakes": "Bremsen",
+    "suspension": "Aufhängung",
+    "fuelSystem": "Kraftstoffsystem",
+    "upgradeFull": "Upgrade auf Premium für vollständige Kategorieaufschlüsselung",
+    "commonIssues": "Häufige Probleme",
+    "costToFix": "Reparaturkosten",
+    "occurrence": "Häufigkeit",
+    "typicalMileage": "Typischer Kilometerstand",
+    "analysis": "Analyse",
+    "upgradePrompt": "Upgrade auf Premium für vollständige KI-Analyse und detaillierte Berichte.",
+    "goPremium": "Premium erhalten",
+    "searchError": "Fehler beim Abrufen von Zuverlässigkeitsdaten",
+    "requiredFields": "Jahr, Marke, Modell und Kilometerstand sind erforderlich",
+    "noResults": "Keine Ergebnisse für dieses Fahrzeug gefunden",
+    "loadingMessage": "Suche nach Zuverlässigkeit..."
+  },
+  "profile": {
+    "title": "Ihr Profil",
+    "loading": "Profil wird geladen...",
+    "accountInfo": "Kontoinformationen",
+    "email": "E-Mail",
+    "memberSince": "Mitglied seit",
+    "subscription": "Abonnement",
+    "plan": "Plan",
+    "status": "Status",
+    "renewalDate": "Verlängerungsdatum",
+    "noExpiration": "Kein Ablaufdatum",
+    "manageSubscription": "Abonnement verwalten",
+    "noSubscription": "Sie haben kein aktives Abonnement.",
+    "upgradePrompt": "Upgrade auf Premium für vollen Zugriff auf alle Zuverlässigkeitsdaten und Funktionen.",
+    "upgradePremium": "Auf Premium upgraden",
+    "accountSettings": "Kontoeinstellungen",
+    "changePassword": "Passwort ändern",
+    "deleteAccount": "Konto löschen",
+    "loadError": "Fehler beim Laden der Profildaten",
+    "statusActive": "Aktiv",
+    "statusInactive": "Inaktiv",
+    "statusExpired": "Abgelaufen",
+    "statusPastDue": "Überfällig",
+    "statusCancelled": "Gekündigt",
+    "deleteConfirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "passwordChanged": "Passwort erfolgreich geändert",
+    "freePlan": "Kostenlos",
+    "premiumPlan": "Premium",
+    "professionalPlan": "Professional",
+    "member": "MITGLIED"
+  },
+  "passwordModal": {
+    "title": "Passwort ändern",
+    "currentPassword": "Aktuelles Passwort",
+    "newPassword": "Neues Passwort",
+    "confirmNewPassword": "Neues Passwort bestätigen",
+    "passwordsDoNotMatch": "Neue Passwörter stimmen nicht überein",
+    "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
+    "loginRequired": "Sie müssen angemeldet sein, um Ihr Passwort zu ändern",
+    "changeFailed": "Passwortänderung fehlgeschlagen",
+    "changing": "Änderung läuft...",
+    "changePassword": "Passwort ändern"
+  },
+  "deleteModal": {
+    "title": "Konto löschen",
+    "warningPermanent": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten, einschließlich Suchverlauf und Abonnementinformationen, werden dauerhaft gelöscht.",
+    "subscriptionWarning": "Wenn Sie ein aktives Abonnement haben, müssen Sie es separat über Ihren Zahlungsanbieter kündigen.",
+    "typeDeleteToConfirm": "Geben Sie DELETE ein, um zu bestätigen",
+    "loginRequired": "Sie müssen angemeldet sein, um Ihr Konto zu löschen",
+    "deleteFailed": "Kontolöschung fehlgeschlagen",
+    "deleting": "Löschung läuft...",
+    "deleteAccount": "Mein Konto löschen"
+  },
+  "searchHistory": {
+    "title": "Ihr Suchverlauf",
+    "loading": "Suchverlauf wird geladen...",
+    "authRequired": "Authentifizierung erforderlich",
+    "loadFailed": "Fehler beim Laden des Suchverlaufs",
+    "unknownDate": "Unbekanntes Datum",
+    "invalidDate": "Ungültiges Datum",
+    "limitedPlan": "Ihr aktueller Plan erlaubt bis zu {{limit}} aktuelle Suchen.",
+    "upgradeProfessional": "Upgrade auf Professional für unbegrenzten Suchverlauf",
+    "noSearches": "Sie haben noch keine Fahrzeuge gesucht.",
+    "searchNow": "Jetzt suchen",
+    "vehicle": "Fahrzeug",
+    "mileage": "Kilometerstand",
+    "date": "Datum",
+    "actions": "Aktionen",
+    "miles": "Kilometer",
+    "searchAgain": "Erneut suchen"
+  },
+  "history": {
+    "title": "Ihr Suchverlauf",
+    "limitNote": "Ihr aktueller Plan erlaubt bis zu {limit} aktuelle Suchen.",
+    "upgradeLink": "Upgrade auf Professional für unbegrenzten Suchverlauf",
+    "loading": "Suchverlauf wird geladen...",
+    "noSearches": "Sie haben noch keine Fahrzeuge gesucht.",
+    "searchNow": "Jetzt suchen",
+    "vehicle": "Fahrzeug",
+    "mileage": "Kilometerstand",
+    "date": "Datum",
+    "actions": "Aktionen",
+    "searchAgain": "Erneut suchen",
+    "miles": "Kilometer",
+    "loadError": "Fehler beim Laden des Suchverlaufs",
+    "clearHistory": "Verlauf löschen",
+    "clearConfirm": "Sind Sie sicher, dass Sie Ihren Suchverlauf löschen möchten?",
+    "clearSuccess": "Suchverlauf erfolgreich gelöscht"
+  },
+  "payment": {
+    "success": {
+      "title": "Zahlung erfolgreich!",
+      "verifying": "Ihre Zahlung wird überprüft...",
+      "thankYou": "Vielen Dank für Ihr Abonnement. Sie haben jetzt Premium-Zugriff auf alle Funktionen.",
+      "accessToken": "Ihr Premium-Zugriffstoken:",
+      "tokenTip": "Sie können dieses Token verwenden, um von anderen Geräten aus auf Premium-Funktionen zuzugreifen.",
+      "viewProfile": "Profil anzeigen",
+      "startSearching": "Mit der Suche beginnen"
     },
-    "nav": {
-      "home": "Startseite",
-      "search": "Suche",
-      "pricing": "Preise",
-      "history": "Verlauf",
-      "profile": "Profil",
-      "login": "Anmelden",
-      "register": "Registrieren",
-      "logout": "Abmelden",
-      "language": "Sprache"
+    "cancel": {
+      "title": "Zahlung abgebrochen",
+      "message": "Ihre Zahlung wurde abgebrochen und Ihnen wurde nichts berechnet. Bei Fragen oder Bedenken kontaktieren Sie bitte unser Support-Team.",
+      "viewPlans": "Pläne anzeigen",
+      "continueSearching": "Weiter suchen",
+      "needHelp": "Benötigen Sie Hilfe?",
+      "supportMessage": "Wenn während des Zahlungsvorgangs Probleme aufgetreten sind, steht Ihnen unser Support-Team zur Verfügung.",
+      "contactSupport": "Support kontaktieren"
     },
-    "footer": {
-      "copyright": "© 2025 Car Reliability. Alle Rechte vorbehalten.",
-      "privacy": "Datenschutzrichtlinie",
-      "terms": "Nutzungsbedingungen",
-      "contact": "Kontakt"
+    "failure": {
+      "title": "Zahlungsüberprüfung fehlgeschlagen",
+      "contactPrompt": "Bitte kontaktieren Sie unser Support-Team für Unterstützung.",
+      "goToProfile": "Zum Profil gehen"
     },
-    "errors": {
-      "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
-      "authRequired": "Authentifizierung erforderlich",
-      "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
-      "connectionError": "Verbindungsfehler. Bitte überprüfen Sie Ihre Internetverbindung.",
-      "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
-      "permissionDenied": "Zugriff verweigert. Sie haben keinen Zugang zu dieser Ressource.",
-      "notFound": "Ressource nicht gefunden."
-    },
-    "notifications": {
-      "success": "Erfolg!",
-      "error": "Fehler!",
-      "warning": "Warnung!",
-      "info": "Information",
-      "loginSuccess": "Anmeldung erfolgreich!",
-      "logoutSuccess": "Sie wurden erfolgreich abgemeldet.",
-      "registerSuccess": "Registrierung erfolgreich! Willkommen bei Car Reliability."
-    },
-    "dates": {
-      "today": "Heute",
-      "yesterday": "Gestern",
-      "daysAgo": "Vor {count} Tagen",
-      "dateFormat": "DD.MM.YYYY",
-      "monthNames": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
-      "monthNamesShort": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
+    "checkout": {
+      "title": "Abonnement abschließen",
+      "processing": "Ihre Anfrage wird bearbeitet...",
+      "redirecting": "Weiterleitung zur sicheren Bezahlung...",
+      "cardInfo": "Karteninformationen",
+      "cardNumber": "Kartennummer",
+      "expiryDate": "Ablaufdatum",
+      "cvc": "CVC",
+      "nameOnCard": "Name auf der Karte",
+      "billingAddress": "Rechnungsadresse",
+      "subscribe": "Jetzt abonnieren",
+      "securePayment": "Sichere Bezahlung",
+      "termsAgreement": "Durch das Abonnieren stimmen Sie unseren Nutzungsbedingungen und Datenschutzrichtlinien zu."
     }
+  },
+  "nav": {
+    "home": "Startseite",
+    "search": "Suche",
+    "pricing": "Preise",
+    "history": "Verlauf",
+    "profile": "Profil",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden",
+    "language": "Sprache"
+  },
+  "footer": {
+    "copyright": "© 2025 Car Reliability. Alle Rechte vorbehalten.",
+    "privacy": "Datenschutzrichtlinie",
+    "terms": "Nutzungsbedingungen",
+    "contact": "Kontakt"
+  },
+  "errors": {
+    "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+    "authRequired": "Authentifizierung erforderlich",
+    "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+    "connectionError": "Verbindungsfehler. Bitte überprüfen Sie Ihre Internetverbindung.",
+    "serverError": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "permissionDenied": "Zugriff verweigert. Sie haben keinen Zugriff auf diese Ressource.",
+    "notFound": "Ressource nicht gefunden."
+  },
+  "notifications": {
+    "success": "Erfolg!",
+    "error": "Fehler!",
+    "warning": "Warnung!",
+    "info": "Information",
+    "loginSuccess": "Anmeldung erfolgreich!",
+    "logoutSuccess": "Sie wurden erfolgreich abgemeldet.",
+    "registerSuccess": "Registrierung erfolgreich! Willkommen bei Car Reliability."
+  },
+  "common": {
+    "warning": "Warnung",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "confirm": "Bestätigen",
+    "error": "Fehler"
+  },
+  "dates": {
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "daysAgo": "Vor {count} Tagen",
+    "dateFormat": "DD.MM.YYYY",
+    "monthNames": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+    "monthNamesShort": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
   }
+}

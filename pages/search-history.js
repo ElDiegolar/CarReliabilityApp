@@ -1,11 +1,16 @@
-// pages/search-history.js - User search history page
+// pages/search-history.js - User search history page with i18n support
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Layout from '../components/Layout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function SearchHistory() {
+  const router = useRouter();
+  const { t } = useTranslation('common');
   const { getToken } = useAuth();
   const [searches, setSearches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +23,7 @@ export default function SearchHistory() {
         const token = getToken();
         
         if (!token) {
-          throw new Error('Authentication required');
+          throw new Error(t('searchHistory.authRequired'));
         }
         
         // First fetch subscription status
@@ -41,9 +46,9 @@ export default function SearchHistory() {
         
         if (!response.ok) {
           if (response.status === 401) {
-            throw new Error('Authentication required');
+            throw new Error(t('searchHistory.authRequired'));
           }
-          throw new Error('Failed to load search history');
+          throw new Error(t('searchHistory.loadFailed'));
         }
         
         const data = await response.json();
@@ -56,7 +61,7 @@ export default function SearchHistory() {
     };
     
     fetchSearchHistory();
-  }, [getToken]);
+  }, [getToken, t]);
 
   // Function to format date
   const formatDate = (search) => {
@@ -64,15 +69,22 @@ export default function SearchHistory() {
     const timestamp = search.timestamp || search.created_at || search.search_date || search.date;
     
     if (!timestamp) {
-      return 'Unknown date';
+      return t('searchHistory.unknownDate');
     }
     
     try {
-      const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-      return new Date(timestamp).toLocaleDateString(undefined, options);
+      const options = { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      };
+      
+      return new Date(timestamp).toLocaleDateString(router.locale, options);
     } catch (e) {
       console.error('Error formatting date:', e);
-      return 'Invalid date';
+      return t('searchHistory.invalidDate');
     }
   };
 
@@ -95,37 +107,37 @@ export default function SearchHistory() {
 
   return (
     <ProtectedRoute>
-      <Layout title="Your Search History">
+      <Layout title={t('searchHistory.title')}>
         <div className="history-container">
-          <h1>Your Search History</h1>
+          <h1>{t('searchHistory.title')}</h1>
           
           {subscription && hasLimitedHistory() && (
             <div className="subscription-note">
-              <p>Your current plan allows up to {getSearchHistoryLimit()} recent searches.</p>
+              <p>{t('searchHistory.limitedPlan', { limit: getSearchHistoryLimit() })}</p>
               <Link href="/pricing" className="upgrade-link">
-                Upgrade to Professional for unlimited search history
+                {t('searchHistory.upgradeProfessional')}
               </Link>
             </div>
           )}
           
           {loading ? (
-            <div className="loading">Loading search history...</div>
+            <div className="loading">{t('searchHistory.loading')}</div>
           ) : error ? (
             <div className="error">{error}</div>
           ) : filteredSearches.length === 0 ? (
             <div className="empty-state">
-              <p>You haven't searched for any vehicles yet.</p>
+              <p>{t('searchHistory.noSearches')}</p>
               <Link href="/search" className="button primary">
-                Search Now
+                {t('searchHistory.searchNow')}
               </Link>
             </div>
           ) : (
             <div className="search-list">
               <div className="search-header">
-                <div className="vehicle-col">Vehicle</div>
-                <div className="mileage-col">Mileage</div>
-                <div className="date-col">Date</div>
-                <div className="actions-col">Actions</div>
+                <div className="vehicle-col">{t('searchHistory.vehicle')}</div>
+                <div className="mileage-col">{t('searchHistory.mileage')}</div>
+                <div className="date-col">{t('searchHistory.date')}</div>
+                <div className="actions-col">{t('searchHistory.actions')}</div>
               </div>
               
               {filteredSearches.map((search) => (
@@ -136,7 +148,7 @@ export default function SearchHistory() {
                     <span className="model">{search.model}</span>
                   </div>
                   <div className="mileage-col">
-                    {search.mileage ? search.mileage.toLocaleString() : '0'} miles
+                    {search.mileage ? search.mileage.toLocaleString() : '0'} {t('searchHistory.miles')}
                   </div>
                   <div className="date-col">
                     {formatDate(search)}
@@ -146,7 +158,7 @@ export default function SearchHistory() {
                       href={`/search?year=${search.year}&make=${search.make}&model=${search.model}&mileage=${search.mileage || 0}`}
                       className="action-button"
                     >
-                      Search Again
+                      {t('searchHistory.searchAgain')}
                     </Link>
                   </div>
                 </div>
@@ -341,4 +353,22 @@ export default function SearchHistory() {
       </Layout>
     </ProtectedRoute>
   );
+}
+
+// This function gets called at build time on server-side
+export async function getServerSideProps({ locale }) {
+  try {
+    const translations = await serverSideTranslations(locale || 'en', ['common']);
+    return {
+      props: {
+        ...translations,
+      },
+    };
+  } catch (error) {
+    console.error('Error loading translations:', error);
+    // Return minimal props to prevent page failure
+    return {
+      props: {},
+    };
+  }
 }

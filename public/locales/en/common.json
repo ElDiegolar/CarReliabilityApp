@@ -160,10 +160,51 @@
     "statusPastDue": "Past Due",
     "statusCancelled": "Cancelled",
     "deleteConfirm": "Are you sure you want to delete your account? This action cannot be undone.",
-    "passwordChangeSuccess": "Password changed successfully",
+    "passwordChanged": "Password changed successfully",
     "freePlan": "Free",
     "premiumPlan": "Premium",
-    "professionalPlan": "Professional"
+    "professionalPlan": "Professional",
+    "member": "MEMBER"
+  },
+  "passwordModal": {
+    "title": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "passwordsDoNotMatch": "New passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters long",
+    "loginRequired": "You must be logged in to change your password",
+    "changeFailed": "Failed to change password",
+    "changing": "Changing...",
+    "changePassword": "Change Password"
+  },
+  "deleteModal": {
+    "title": "Delete Account",
+    "warningPermanent": "This action cannot be undone. All your data, including search history and subscription information, will be permanently deleted.",
+    "subscriptionWarning": "If you have an active subscription, you will need to cancel it separately through your payment provider.",
+    "typeDeleteToConfirm": "Type DELETE to confirm",
+    "loginRequired": "You must be logged in to delete your account",
+    "deleteFailed": "Failed to delete account",
+    "deleting": "Deleting...",
+    "deleteAccount": "Delete My Account"
+  },
+  "searchHistory": {
+    "title": "Your Search History",
+    "loading": "Loading search history...",
+    "authRequired": "Authentication required",
+    "loadFailed": "Failed to load search history",
+    "unknownDate": "Unknown date",
+    "invalidDate": "Invalid date",
+    "limitedPlan": "Your current plan allows up to {{limit}} recent searches.",
+    "upgradeProfessional": "Upgrade to Professional for unlimited search history",
+    "noSearches": "You haven't searched for any vehicles yet.",
+    "searchNow": "Search Now",
+    "vehicle": "Vehicle",
+    "mileage": "Mileage",
+    "date": "Date",
+    "actions": "Actions",
+    "miles": "miles",
+    "searchAgain": "Search Again"
   },
   "history": {
     "title": "Your Search History",
@@ -256,6 +297,13 @@
     "loginSuccess": "Login successful!",
     "logoutSuccess": "You have been logged out successfully.",
     "registerSuccess": "Registration successful! Welcome to Car Reliability."
+  },
+  "common": {
+    "warning": "Warning",
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm",
+    "error": "Error"
   },
   "dates": {
     "today": "Today",

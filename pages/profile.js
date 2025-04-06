@@ -1,4 +1,4 @@
-// pages/profile.js - User profile page with upgrade functionality and translations
+// pages/profile.js - i18n-enabled with modal functionality
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -6,16 +6,21 @@ import { useTranslation } from 'next-i18next';
 import Layout from '../components/Layout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
+import PasswordChangeModal from '../components/PasswordChangeModal';
+import DeleteAccountModal from '../components/DeleteAccountModal';
 
 export default function Profile() {
   const router = useRouter();
-  const { t, i18n } = useTranslation('common'); // Get i18n from useTranslation hook
+  const { t, i18n } = useTranslation('common');
   const { user, getToken } = useAuth();
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   
-  // Add these console logs to debug (fixed)
+  // Add these console logs to debug
   console.log('Current locale:', router.locale);
   console.log('i18n initialized:', i18n?.isInitialized);
   console.log('i18n language:', i18n?.language);
@@ -24,22 +29,30 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
-      
+  
       try {
         const token = getToken();
-        
+  
         const response = await fetch('/api/profile', {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
-        
+  
+        if (response.status === 401) {
+          router.push('/login');
+          // Unauthorized — show message but don't trigger more fetches
+          setError('Unauthorized. Please log in again.');
+          return;
+        }
+  
         if (!response.ok) {
+          router.push('/login');
           throw new Error('Failed to load profile data');
         }
-        
+  
         const data = await response.json();
-        
+  
         if (data.subscription) {
           setSubscription(data.subscription);
         }
@@ -49,13 +62,27 @@ export default function Profile() {
         setLoading(false);
       }
     };
-    
+  
     fetchProfile();
-  }, [user, getToken]);
+  }, [user, getToken, router]);
 
   // Handler for upgrading to premium
   const handleUpgrade = () => {
     router.push('/pricing');
+  };
+
+  // Handle password change success
+  const handlePasswordChangeSuccess = () => {
+    setNotification({
+      show: true,
+      message: t('profile.passwordChanged'),
+      type: 'success'
+    });
+    
+    // Hide notification after 5 seconds
+    setTimeout(() => {
+      setNotification({ show: false, message: '', type: '' });
+    }, 5000);
   };
 
   return (
@@ -63,6 +90,12 @@ export default function Profile() {
       <Layout title={t('profile.title')}>
         <div className="profile-container">
           <h1>{t('profile.title')}</h1>
+          
+          {notification.show && (
+            <div className={`notification ${notification.type}`}>
+              {notification.message}
+            </div>
+          )}
           
           {loading ? (
             <div className="loading">{t('profile.loading')}</div>
@@ -89,7 +122,7 @@ export default function Profile() {
                 {subscription ? (
                   <div className="subscription-details">
                     <div className="subscription-badge">
-                      {subscription.plan.toUpperCase()} MEMBER
+                      {subscription.plan.toUpperCase()} {t('profile.member')}
                     </div>
                     <div className="info-grid">
                       <div className="info-item">
@@ -133,12 +166,35 @@ export default function Profile() {
               <div className="profile-section">
                 <h2>{t('profile.accountSettings')}</h2>
                 <div className="settings-buttons">
-                  <button className="button secondary">{t('profile.changePassword')}</button>
-                  <button className="button danger">{t('profile.deleteAccount')}</button>
+                  <button 
+                    className="button secondary"
+                    onClick={() => setShowPasswordModal(true)}
+                  >
+                    {t('profile.changePassword')}
+                  </button>
+                  <button 
+                    className="button danger"
+                    onClick={() => setShowDeleteModal(true)}
+                  >
+                    {t('profile.deleteAccount')}
+                  </button>
                 </div>
               </div>
             </div>
           )}
+          
+          {/* Password Change Modal */}
+          <PasswordChangeModal 
+            isOpen={showPasswordModal}
+            onClose={() => setShowPasswordModal(false)}
+            onSuccess={handlePasswordChangeSuccess}
+          />
+          
+          {/* Delete Account Modal */}
+          <DeleteAccountModal 
+            isOpen={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+          />
         </div>
         
         <style jsx>{`
@@ -149,6 +205,30 @@ export default function Profile() {
           
           h1 {
             margin-bottom: 2rem;
+          }
+          
+          .notification {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.3s ease-out;
+          }
+          
+          .notification.success {
+            background-color: #e6fffa;
+            color: #0d9488;
+            border-left: 4px solid #0d9488;
+          }
+          
+          .notification.error {
+            background-color: #fff5f5;
+            color: #e53e3e;
+            border-left: 4px solid #e53e3e;
+          }
+          
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
           }
           
           .loading, .error {
