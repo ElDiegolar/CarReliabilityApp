@@ -1,12 +1,15 @@
-// pages/payment-success.js - Payment success page
+// pages/payment-success.js - Payment success page with translations
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function PaymentSuccess() {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const { session_id } = router.query;
   const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -21,7 +24,7 @@ export default function PaymentSuccess() {
           const token = getToken();
           
           if (!token) {
-            throw new Error('Authentication required');
+            throw new Error(t('errors.authRequired'));
           }
           
           console.log('Verifying payment with session ID:', session_id);
@@ -40,7 +43,7 @@ export default function PaymentSuccess() {
           
           if (!response.ok) {
             const errorText = await response.text();
-            let errorMessage = 'Payment verification failed';
+            let errorMessage = t('payment.failure.title');
             let errorData = {};
             
             try {
@@ -61,7 +64,7 @@ export default function PaymentSuccess() {
           setSubscription(data);
         } catch (err) {
           console.error('Error in payment verification:', err);
-          setError(err.message || 'An unknown error occurred');
+          setError(err.message || t('errors.generic'));
         } finally {
           setLoading(false);
         }
@@ -71,15 +74,15 @@ export default function PaymentSuccess() {
     } else {
       setLoading(false);
     }
-  }, [session_id, getToken]);
+  }, [session_id, getToken, t]);
 
   return (
-    <Layout title="Payment Successful">
+    <Layout title={t('payment.success.title')}>
       <div className="success-container">
         {loading ? (
           <div className="loading-state">
             <div className="loading-spinner"></div>
-            <p>Verifying your payment...</p>
+            <p>{t('payment.success.verifying')}</p>
           </div>
         ) : error ? (
           <div className="error-state">
@@ -88,15 +91,15 @@ export default function PaymentSuccess() {
               <line x1="12" y1="8" x2="12" y2="12"></line>
               <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <h1>Payment Verification Failed</h1>
+            <h1>{t('payment.failure.title')}</h1>
             <p>{error}</p>
-            <p>Please contact our support team for assistance.</p>
+            <p>{t('payment.failure.contactPrompt')}</p>
             <div className="action-buttons">
               <Link href="/profile">
-                <a className="button secondary">Go to Profile</a>
+                <a className="button secondary">{t('payment.failure.goToProfile')}</a>
               </Link>
               <Link href="/search">
-                <a className="button primary">Start Searching</a>
+                <a className="button primary">{t('payment.success.startSearching')}</a>
               </Link>
             </div>
           </div>
@@ -106,26 +109,26 @@ export default function PaymentSuccess() {
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
               <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
-            <h1>Payment Successful!</h1>
-            <p>Thank you for your subscription. You now have premium access to all features.</p>
+            <h1>{t('payment.success.title')}</h1>
+            <p>{t('payment.success.thankYou')}</p>
             
             {subscription && subscription.accessToken && (
               <div className="subscription-details">
                 <p className="subscription-info">
-                  Your premium access token: <span className="access-token">{subscription.accessToken}</span>
+                  {t('payment.success.accessToken')} <span className="access-token">{subscription.accessToken}</span>
                 </p>
                 <p className="token-tip">
-                  You can use this token to access premium features from other devices.
+                  {t('payment.success.tokenTip')}
                 </p>
               </div>
             )}
             
             <div className="action-buttons">
               <Link href="/profile">
-                <a className="button secondary">View Profile</a>
+                <a className="button secondary">{t('payment.success.viewProfile')}</a>
               </Link>
               <Link href="/search">
-                <a className="button primary">Start Searching</a>
+                <a className="button primary">{t('payment.success.startSearching')}</a>
               </Link>
             </div>
           </div>
@@ -239,4 +242,13 @@ export default function PaymentSuccess() {
       `}</style>
     </Layout>
   );
+}
+
+// Add getServerSideProps to load translations
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', ['common'])),
+    },
+  };
 }
