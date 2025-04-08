@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       Common Issues: List known problem areas that might occur with this vehicle, along with potential cost to fix in USD. 
       Add reference to the number of these issues found.
       Mileage: Provide an estimate of the mileage at which these issues typically occur.
-      AI Analysis: Mention any important recall issues and write a detailed paragraph analyzing the overall reliability of the vehicle. 
+      AI Analysis: Mention any important recall issues and write a detailed report analyzing the overall reliability of the vehicle. 
       Mention how it compares to similar cars in its class, note any major concerns, and highlight any particular strengths. 
       Provide supporting sources for your determinations.
 
