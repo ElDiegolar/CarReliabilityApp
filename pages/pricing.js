@@ -66,7 +66,6 @@ export default function PricingPlans() {
         },
         body: JSON.stringify({
           priceId: plan.priceId
-          // Remove userId from the request body
         }),
       });
       
@@ -143,9 +142,7 @@ export default function PricingPlans() {
       <style jsx>{`
         .pricing-container {
           width: 100%;
-          max-width: 1200px;
           margin: 0 auto;
-          padding: 2rem 1rem;
         }
         
         .plans-grid {

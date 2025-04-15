@@ -46,6 +46,19 @@ export default function Home() {
         </div>
       </div>
 
+      <div className="how-it-works">
+        <h2>{t('howItWorks.title')}</h2>
+        <div className="steps">
+          {t('howItWorks.steps', { returnObjects: true }).map((step, index) => (
+            <div className="step" key={index}>
+              <div className="step-number">{index + 1}</div>
+              <h3>{step.title}</h3>
+              <p>{step.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      
       <div className="pricing-section">
         <h2>{t('pricing.title')}</h2>
         <p className="pricing-description">{t('pricing.description')}</p>
@@ -108,18 +121,6 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="how-it-works">
-        <h2>{t('howItWorks.title')}</h2>
-        <div className="steps">
-          {t('howItWorks.steps', { returnObjects: true }).map((step, index) => (
-            <div className="step" key={index}>
-              <div className="step-number">{index + 1}</div>
-              <h3>{step.title}</h3>
-              <p>{step.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
 
       <style jsx>{`
         .hero {
