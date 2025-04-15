@@ -23,7 +23,7 @@ export default function Search() {
   const [error, setError] = useState('');
   const [subscription, setSubscription] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
-  const [isFormCollapsed, setIsFormCollapsed] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     const checkSubscription = async () => {
@@ -61,8 +61,8 @@ export default function Search() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setSubmitted(true);
     setError('');
-    setIsFormCollapsed(true);
 
     try {
       const requestBody = {
@@ -100,254 +100,377 @@ export default function Search() {
     }
   };
 
-  const toggleSearchForm = () => {
-    setIsFormCollapsed(!isFormCollapsed);
-  };
-
   return (
     <Layout title={t('search.title')}>
-      <div className="search-container">
-        <h1>{t('search.title')}</h1>
+      <h1>{t('search.title')}</h1>
 
-        {isPremium && (
-          <div className="premium-badge">
-            <span>{t('search.premiumUser')}</span>
+      {isPremium && (
+        <div className="premium-badge">
+          <span>{t('search.premiumUser')}</span>
+        </div>
+      )}
+
+      {!submitted && (
+        <form onSubmit={handleSubmit} className="search-form">
+          <div className="form-group">
+            <label htmlFor="year">{t('search.year')}</label>
+            <input
+              type="number"
+              id="year"
+              name="year"
+              value={formData.year}
+              onChange={handleChange}
+              min="1980"
+              max="2025"
+              required
+              placeholder="e.g. 2018"
+            />
           </div>
-        )}
 
-        {isFormCollapsed ? (
-          <div className="search-summary">
-            <div className="search-info">
-              <span className="search-label">{t('search.searchedFor')}:</span>
-              <span className="vehicle-info">
-                {formData.year} {formData.make} {formData.model} - {formData.mileage} {t('search.miles')}
-              </span>
-            </div>
-            <button 
-              onClick={toggleSearchForm} 
-              className="modify-search-button"
-            >
-              {t('search.modifySearch')}
-            </button>
+          <div className="form-group">
+            <label htmlFor="make">{t('search.make')}</label>
+            <input
+              type="text"
+              id="make"
+              name="make"
+              value={formData.make}
+              onChange={handleChange}
+              required
+              placeholder="e.g. Toyota"
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="search-form">
-            <div className="form-group">
-              <label htmlFor="year">{t('search.year')}</label>
-              <input
-                type="number"
-                id="year"
-                name="year"
-                value={formData.year}
-                onChange={handleChange}
-                min="1980"
-                max="2025"
-                required
-                placeholder="e.g. 2018"
-              />
+
+          <div className="form-group">
+            <label htmlFor="model">{t('search.model')}</label>
+            <input
+              type="text"
+              id="model"
+              name="model"
+              value={formData.model}
+              onChange={handleChange}
+              required
+              placeholder="e.g. Camry"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="mileage">{t('search.mileage')}</label>
+            <input
+              type="number"
+              id="mileage"
+              name="mileage"
+              value={formData.mileage}
+              onChange={handleChange}
+              min="0"
+              max="500000"
+              required
+              placeholder="e.g. 50000"
+            />
+          </div>
+
+          <button type="submit" disabled={loading}>
+            {loading ? <span className="spinner" /> : t('search.searchButton')}
+          </button>
+        </form>
+      )}
+
+      {error && <p className="error">{error}</p>}
+
+      {results && (
+        <div className="results">
+          <h2>{t('search.resultsFor')} {formData.year} {formData.make} {formData.model}</h2>
+
+          <div className="score-card">
+            <h3>{t('search.overallScore')}</h3>
+            <div className="score">
+              <span className="score-value">{results.overallScore}</span>
+              <span className="score-max">/100</span>
             </div>
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="make">{t('search.make')}</label>
-              <input
-                type="text"
-                id="make"
-                name="make"
-                value={formData.make}
-                onChange={handleChange}
-                required
-                placeholder="e.g. Toyota"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="model">{t('search.model')}</label>
-              <input
-                type="text"
-                id="model"
-                name="model"
-                value={formData.model}
-                onChange={handleChange}
-                required
-                placeholder="e.g. Camry"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="mileage">{t('search.mileage')}</label>
-              <input
-                type="number"
-                id="mileage"
-                name="mileage"
-                value={formData.mileage}
-                onChange={handleChange}
-                min="0"
-                max="500000"
-                required
-                placeholder="e.g. 50000"
-              />
-            </div>
-
-            <button type="submit" disabled={loading} className="search-button">
-              {loading ? <span className="spinner" /> : t('search.searchButton')}
-            </button>
-          </form>
-        )}
-
-        {error && <p className="error">{error}</p>}
-
-        {results && (
-          <div className="results">
-            <div className="report-box">
-              <h2 className="report-title">{t('search.resultsFor')} {formData.year} {formData.make} {formData.model}</h2>
-
-              <div className="report-section">
-                <h3>{t('search.overallScore')}</h3>
-                <div className="score-highlight">
-                  <span className="score-value">{results.overallScore}</span><span>/100</span>
-                </div>
+          <div className="categories">
+            <h3>{t('search.categoryScores')}</h3>
+            <div className="category-grid">
+              <div className="category">
+                <h4>{t('search.engine')}</h4>
+                <div className="category-score">{results.categories.engine}/100</div>
+              </div>
+              <div className="category">
+                <h4>{t('search.transmission')}</h4>
+                <div className="category-score">{results.categories.transmission}/100</div>
               </div>
 
-              <div className="report-section">
-                <h3>{t('search.categoryScores')}</h3>
-                <div className="category-grid">
-                  <div className="category"><strong>{t('search.engine')}:</strong> {results.categories.engine}/100</div>
-                  <div className="category"><strong>{t('search.transmission')}:</strong> {results.categories.transmission}/100</div>
-
-                  {results.isPremium ? (
-                    <>
-                      <div className="category"><strong>{t('search.electrical')}:</strong> {results.categories.electricalSystem}/100</div>
-                      <div className="category"><strong>{t('search.brakes')}:</strong> {results.categories.brakes}/100</div>
-                      <div className="category"><strong>{t('search.suspension')}:</strong> {results.categories.suspension}/100</div>
-                      <div className="category"><strong>{t('search.fuelSystem')}:</strong> {results.categories.fuelSystem}/100</div>
-                    </>
-                  ) : (
-                    <div className="premium-prompt">
-                      <p>{t('search.upgradeFull')}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {results.isPremium && results.commonIssues?.length > 0 && (
-                <div className="report-section">
-                  <h3>{t('search.commonIssues')}</h3>
-                  <ul className="issues-list">
-                    {results.commonIssues.map((issue, index) => (
-                      <li key={index} className="issue-item">
-                        <strong>{issue.description}</strong>
-                        {issue.costToFix && <div>{t('search.costToFix')}: {issue.costToFix}</div>}
-                        {issue.occurrence && <div>{t('search.occurrence')}: {issue.occurrence}</div>}
-                        {issue.mileage && <div>{t('search.typicalMileage')}: {issue.mileage}</div>}
-                        {issue.engineCodes && (
-                          <div className="engine-codes">
-                            <h4>{t('search.engineCodes')}</h4>
-                            <pre className="code-box">{issue.engineCodes}</pre>
-                          </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+              {results.isPremium ? (
+                <>
+                  <div className="category">
+                    <h4>{t('search.electrical')}</h4>
+                    <div className="category-score">{results.categories.electricalSystem}/100</div>
+                  </div>
+                  <div className="category">
+                    <h4>{t('search.brakes')}</h4>
+                    <div className="category-score">{results.categories.brakes}/100</div>
+                  </div>
+                  <div className="category">
+                    <h4>{t('search.suspension')}</h4>
+                    <div className="category-score">{results.categories.suspension}/100</div>
+                  </div>
+                  <div className="category">
+                    <h4>{t('search.fuelSystem')}</h4>
+                    <div className="category-score">{results.categories.fuelSystem}/100</div>
+                  </div>
+                </>
+              ) : (
+                <div className="premium-prompt">
+                  <p>{t('search.upgradeFull')}</p>
                 </div>
               )}
-
-              <div className="report-section">
-                <h3>{t('search.analysis')}</h3>
-                <p>{results.aiAnalysis}</p>
-
-                {!results.isPremium && (
-                  <div className="upgrade-prompt">
-                    <p>{t('search.upgradePrompt')}</p>
-                    <Link href="/pricing" className="upgrade-button">
-                      {t('search.goPremium')}
-                    </Link>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
-        )}
 
-        {loading && (
-          <div className="loading-overlay">
-            <div className="loading-spinner" />
-            <span>{t('search.loadingMessage') || 'Loading...'}</span>
+          {results.isPremium && results.commonIssues && results.commonIssues.length > 0 && (
+            <div className="common-issues">
+              <h3>{t('search.commonIssues')}</h3>
+              <ul>
+                {results.commonIssues.map((issue, index) => (
+                  <li key={index}>
+                    <strong>{issue.description}</strong>
+                    <div>{t('search.costToFix')}: {issue.costToFix}</div>
+                    <div>{t('search.occurrence')}: {issue.occurrence}</div>
+                    <div>{t('search.typicalMileage')}: {issue.mileage}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="analysis">
+            <h3>{t('search.analysis')}</h3>
+            <p>{results.aiAnalysis}</p>
+
+            {!results.isPremium && (
+              <div className="upgrade-prompt">
+                <p>{t('search.upgradePrompt')}</p>
+                <Link href="/pricing" className="upgrade-button">
+                  {t('search.goPremium')}
+                </Link>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+      )}
 
-        <style jsx>{`
-          .report-box {
-            background: #fff;
-            border: 2px solid #e2e8f0;
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            margin: 2rem 0;
-          }
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner" />
+          <span>{t('search.loadingMessage') || 'Loading...'}</span>
+        </div>
+      )}
 
-          .report-title {
-            font-size: 1.75rem;
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid #cbd5e0;
-            padding-bottom: 0.5rem;
-          }
+      <style jsx>{`
+        h1 {
+          margin-bottom: 2rem;
+        }
 
-          .report-section {
-            margin-bottom: 2rem;
-          }
+        .premium-badge {
+          display: inline-block;
+          background-color: #0070f3;
+          color: white;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          margin-bottom: 1.5rem;
+          font-weight: bold;
+        }
 
-          .score-highlight {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #3182ce;
-            display: flex;
-            align-items: baseline;
-            gap: 0.5rem;
-          }
+        .search-form {
+          display: flex;
+          flex-direction: column;
+          max-width: 500px;
+          margin-bottom: 2rem;
+        }
 
-          .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-          }
+        .form-group {
+          margin-bottom: 1rem;
+        }
 
-          .category {
-            background-color: #f7fafc;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            border: 1px solid #e2e8f0;
-          }
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: bold;
+        }
 
-          .issues-list {
-            list-style-type: none;
-            padding-left: 0;
-          }
+        input {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          font-size: 1rem;
+        }
 
-          .issue-item {
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            border-left: 4px solid #e53e3e;
-            background-color: #fff5f5;
-            border-radius: 0.5rem;
-          }
+        button {
+          padding: 0.75rem 1.5rem;
+          background-color: #0070f3;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
 
-          .engine-codes h4 {
-            margin-top: 0.5rem;
-            font-weight: 600;
-          }
+        button:hover {
+          background-color: #0060df;
+        }
 
-          .code-box {
-            background-color: #edf2f7;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            margin-top: 0.25rem;
-            font-family: monospace;
+        button:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+        }
+
+        .spinner {
+          width: 20px;
+          height: 20px;
+          border: 3px solid #fff;
+          border-top: 3px solid #0070f3;
+          border-radius: 50%;
+          animation: spin 0.6s linear infinite;
+          display: inline-block;
+        }
+
+        .loading-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background-color: rgba(255, 255, 255, 0.85);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          flex-direction: column;
+        }
+
+        .loading-spinner {
+          width: 50px;
+          height: 50px;
+          border: 6px solid #ccc;
+          border-top: 6px solid #0070f3;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
           }
-        `}</style>
-      </div>
+        }
+
+        .error {
+          color: red;
+          margin-bottom: 1rem;
+        }
+
+        .results {
+          margin-top: 2rem;
+        }
+
+        .score-card {
+          background-color: #f5f5f5;
+          padding: 1.5rem;
+          border-radius: 8px;
+          margin-bottom: 2rem;
+          text-align: center;
+        }
+
+        .score {
+          font-size: 3rem;
+          font-weight: bold;
+          color: #0070f3;
+        }
+
+        .score-max {
+          font-size: 1.5rem;
+          color: #666;
+        }
+
+        .categories {
+          margin-bottom: 2rem;
+        }
+
+        .category-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 1rem;
+        }
+
+        .category {
+          background-color: #f9f9f9;
+          padding: 1rem;
+          border-radius: 4px;
+          text-align: center;
+        }
+
+        .category h4 {
+          margin-top: 0;
+          margin-bottom: 0.5rem;
+        }
+
+        .category-score {
+          font-size: 1.25rem;
+          font-weight: bold;
+          color: #0070f3;
+        }
+
+        .premium-prompt, .upgrade-prompt {
+          background-color: #fffbea;
+          padding: 1rem;
+          border-radius: 4px;
+          text-align: center;
+          grid-column: 1 / -1;
+        }
+
+        .common-issues {
+          margin-bottom: 2rem;
+        }
+
+        .common-issues ul {
+          list-style-type: none;
+          padding: 0;
+        }
+
+        .common-issues li {
+          background-color: #f9f9f9;
+          padding: 1rem;
+          border-radius: 4px;
+          margin-bottom: 1rem;
+        }
+
+        .analysis {
+          background-color: #f9f9f9;
+          padding: 1.5rem;
+          border-radius: 8px;
+        }
+
+        .upgrade-prompt {
+          margin-top: 1rem;
+        }
+
+        .upgrade-button {
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background-color: #0070f3;
+          color: white;
+          border-radius: 4px;
+          font-weight: 500;
+          margin-top: 0.5rem;
+          text-decoration: none;
+        }
+
+        .upgrade-button:hover {
+          background-color: #0060df;
+        }
+      `}</style>
     </Layout>
   );
 }

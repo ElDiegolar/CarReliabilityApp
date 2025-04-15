@@ -3,7 +3,13 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
 
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
+import Layout from '../components/Layout';
+
 export default function PricingPlans() {
+  
+    const { t } = useTranslation('common');
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const { isAuthenticated, getToken } = useAuth();
@@ -97,6 +103,8 @@ export default function PricingPlans() {
   };
 
   return (
+    
+        <Layout title={t('pricing.title')}>
     <div className="pricing-container">
       <div className="plans-grid">
         {plans.map((plan) => (
@@ -263,5 +271,14 @@ export default function PricingPlans() {
         }
       `}</style>
     </div>
+    </Layout>
   );
+}
+
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  };
 }
