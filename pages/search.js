@@ -1,4 +1,4 @@
-// pages/search.js - Revised search page with consistent styling
+// pages/search.js - Car search page with translations and reset functionality
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -112,90 +112,76 @@ export default function Search() {
     });
   };
 
-  // Helper function to calculate color based on score
-  const getScoreColor = (score) => {
-    if (score >= 80) return '#22c55e'; // Green for high scores
-    if (score >= 60) return '#f59e0b'; // Amber for medium scores
-    return '#ef4444'; // Red for low scores
-  };
-
   return (
     <Layout title={t('search.title')}>
       <h1>{t('search.title')}</h1>
 
       {isPremium && (
         <div className="premium-badge">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-          </svg>
           <span>{t('search.premiumUser')}</span>
         </div>
       )}
 
       {!submitted && (
         <form onSubmit={handleSubmit} className="search-form">
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="year">{t('search.year')}</label>
-              <input
-                type="number"
-                id="year"
-                name="year"
-                value={formData.year}
-                onChange={handleChange}
-                min="1980"
-                max="2025"
-                required
-                placeholder="e.g. 2018"
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="year">{t('search.year')}</label>
+            <input
+              type="number"
+              id="year"
+              name="year"
+              value={formData.year}
+              onChange={handleChange}
+              min="1980"
+              max="2025"
+              required
+              placeholder="e.g. 2018"
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="make">{t('search.make')}</label>
-              <input
-                type="text"
-                id="make"
-                name="make"
-                value={formData.make}
-                onChange={handleChange}
-                required
-                placeholder="e.g. Toyota"
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="make">{t('search.make')}</label>
+            <input
+              type="text"
+              id="make"
+              name="make"
+              value={formData.make}
+              onChange={handleChange}
+              required
+              placeholder="e.g. Toyota"
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="model">{t('search.model')}</label>
-              <input
-                type="text"
-                id="model"
-                name="model"
-                value={formData.model}
-                onChange={handleChange}
-                required
-                placeholder="e.g. Camry"
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="model">{t('search.model')}</label>
+            <input
+              type="text"
+              id="model"
+              name="model"
+              value={formData.model}
+              onChange={handleChange}
+              required
+              placeholder="e.g. Camry"
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="mileage">{t('search.mileage')}</label>
-              <input
-                type="number"
-                id="mileage"
-                name="mileage"
-                value={formData.mileage}
-                onChange={handleChange}
-                min="0"
-                max="500000"
-                required
-                placeholder="e.g. 50000"
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="mileage">{t('search.mileage')}</label>
+            <input
+              type="number"
+              id="mileage"
+              name="mileage"
+              value={formData.mileage}
+              onChange={handleChange}
+              min="0"
+              max="500000"
+              required
+              placeholder="e.g. 50000"
+            />
           </div>
 
           <button type="submit" disabled={loading}>
-            {loading ? (
-              <span className="spinner"></span>
-            ) : t('search.searchButton')}
+            {loading ? <span className="spinner" /> : t('search.searchButton')}
           </button>
         </form>
       )}
@@ -207,24 +193,16 @@ export default function Search() {
           <div className="results-header">
             <h2>{t('search.resultsFor')} {formData.year} {formData.make} {formData.model}</h2>
             <button onClick={handleReset} className="reset-button">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2.5 2v6h6M21.5 22v-6h-6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
-              </svg>
-              <span>{t('search.newSearch', 'New Search')}</span>
+              {t('search.newSearch', 'New Search')}
             </button>
           </div>
-          
+
           <div className="score-card">
             <h3>{t('search.overallScore')}</h3>
-            <div className="score" style={{ color: getScoreColor(results.overallScore) }}>
+            <div className="score">
               <span className="score-value">{results.overallScore}</span>
               <span className="score-max">/100</span>
             </div>
-            <p className="score-label">
-              {results.overallScore >= 80 ? t('search.scoreExcellent', 'Excellent') : 
-               results.overallScore >= 60 ? t('search.scoreGood', 'Good') : 
-               t('search.scorePoor', 'Poor')}
-            </p>
           </div>
 
           <div className="categories">
@@ -232,74 +210,35 @@ export default function Search() {
             <div className="category-grid">
               <div className="category">
                 <h4>{t('search.engine')}</h4>
-                <div className="category-score" style={{ color: getScoreColor(results.categories.engine) }}>{results.categories.engine}/100</div>
-                <div className="score-bar">
-                  <div className="score-fill" style={{ 
-                    width: `${results.categories.engine}%`,
-                    backgroundColor: getScoreColor(results.categories.engine)
-                  }}></div>
-                </div>
+                <div className="category-score">{results.categories.engine}/100</div>
               </div>
               <div className="category">
                 <h4>{t('search.transmission')}</h4>
-                <div className="category-score" style={{ color: getScoreColor(results.categories.transmission) }}>{results.categories.transmission}/100</div>
-                <div className="score-bar">
-                  <div className="score-fill" style={{ 
-                    width: `${results.categories.transmission}%`,
-                    backgroundColor: getScoreColor(results.categories.transmission)
-                  }}></div>
-                </div>
+                <div className="category-score">{results.categories.transmission}/100</div>
               </div>
 
               {results.isPremium ? (
                 <>
                   <div className="category">
                     <h4>{t('search.electrical')}</h4>
-                    <div className="category-score" style={{ color: getScoreColor(results.categories.electricalSystem) }}>{results.categories.electricalSystem}/100</div>
-                    <div className="score-bar">
-                      <div className="score-fill" style={{ 
-                        width: `${results.categories.electricalSystem}%`,
-                        backgroundColor: getScoreColor(results.categories.electricalSystem)
-                      }}></div>
-                    </div>
+                    <div className="category-score">{results.categories.electricalSystem}/100</div>
                   </div>
                   <div className="category">
                     <h4>{t('search.brakes')}</h4>
-                    <div className="category-score" style={{ color: getScoreColor(results.categories.brakes) }}>{results.categories.brakes}/100</div>
-                    <div className="score-bar">
-                      <div className="score-fill" style={{ 
-                        width: `${results.categories.brakes}%`,
-                        backgroundColor: getScoreColor(results.categories.brakes)
-                      }}></div>
-                    </div>
+                    <div className="category-score">{results.categories.brakes}/100</div>
                   </div>
                   <div className="category">
                     <h4>{t('search.suspension')}</h4>
-                    <div className="category-score" style={{ color: getScoreColor(results.categories.suspension) }}>{results.categories.suspension}/100</div>
-                    <div className="score-bar">
-                      <div className="score-fill" style={{ 
-                        width: `${results.categories.suspension}%`,
-                        backgroundColor: getScoreColor(results.categories.suspension)
-                      }}></div>
-                    </div>
+                    <div className="category-score">{results.categories.suspension}/100</div>
                   </div>
                   <div className="category">
                     <h4>{t('search.fuelSystem')}</h4>
-                    <div className="category-score" style={{ color: getScoreColor(results.categories.fuelSystem) }}>{results.categories.fuelSystem}/100</div>
-                    <div className="score-bar">
-                      <div className="score-fill" style={{ 
-                        width: `${results.categories.fuelSystem}%`,
-                        backgroundColor: getScoreColor(results.categories.fuelSystem)
-                      }}></div>
-                    </div>
+                    <div className="category-score">{results.categories.fuelSystem}/100</div>
                   </div>
                 </>
               ) : (
                 <div className="premium-prompt">
                   <p>{t('search.upgradeFull')}</p>
-                  <Link href="/pricing" className="upgrade-button">
-                    {t('search.viewPricingPlans', 'View Pricing Plans')}
-                  </Link>
                 </div>
               )}
             </div>
@@ -310,7 +249,7 @@ export default function Search() {
               <h3>{t('search.commonIssues')}</h3>
               <ul>
                 {results.commonIssues.map((issue, index) => (
-                  <li key={index} className="issue-item">
+                  <li key={index}>
                     <strong>{issue.description}</strong>
                     <div>{t('search.costToFix')}: {issue.costToFix}</div>
                     <div>{t('search.occurrence')}: {issue.occurrence}</div>
@@ -328,12 +267,6 @@ export default function Search() {
             ) : (
               <div className="upgrade-prompt">
                 <p>{t('search.upgradePrompt')}</p>
-                <ul className="upgrade-benefits">
-                  <li>{t('search.benefit1', 'Comprehensive reliability scores')}</li>
-                  <li>{t('search.benefit2', 'Detailed issue analysis')}</li>
-                  <li>{t('search.benefit3', 'Expert insights')}</li>
-                  <li>{t('search.benefit4', 'Historical data')}</li>
-                </ul>
                 <Link href="/pricing" className="upgrade-button">
                   {t('search.goPremium')}
                 </Link>
@@ -356,29 +289,20 @@ export default function Search() {
         }
 
         .premium-badge {
-          display: inline-flex;
-          align-items: center;
+          display: inline-block;
           background-color: #0070f3;
           color: white;
           padding: 0.5rem 1rem;
           border-radius: 4px;
           margin-bottom: 1.5rem;
           font-weight: bold;
-          gap: 0.5rem;
         }
 
         .search-form {
           display: flex;
           flex-direction: column;
-          max-width: 800px;
+          max-width: 500px;
           margin-bottom: 2rem;
-        }
-        
-        .form-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1rem;
-          margin-bottom: 1.5rem;
         }
 
         .form-group {
@@ -398,12 +322,6 @@ export default function Search() {
           border-radius: 4px;
           font-size: 1rem;
         }
-        
-        input:focus {
-          border-color: #0070f3;
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.15);
-        }
 
         button {
           padding: 0.75rem 1.5rem;
@@ -414,10 +332,6 @@ export default function Search() {
           font-size: 1rem;
           cursor: pointer;
           transition: background-color 0.2s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
         }
 
         button:hover {
@@ -428,11 +342,12 @@ export default function Search() {
           background-color: #ccc;
           cursor: not-allowed;
         }
-        
+
         .reset-button {
           background-color: #f3f4f6;
           color: #374151;
           font-size: 0.9rem;
+          padding: 0.5rem 1rem;
         }
         
         .reset-button:hover {
@@ -506,17 +421,12 @@ export default function Search() {
         .score {
           font-size: 3rem;
           font-weight: bold;
+          color: #0070f3;
         }
 
         .score-max {
           font-size: 1.5rem;
           color: #666;
-        }
-        
-        .score-label {
-          font-weight: 600;
-          margin-top: 0.5rem;
-          font-size: 1.2rem;
         }
 
         .categories {
@@ -533,6 +443,7 @@ export default function Search() {
           background-color: #f9f9f9;
           padding: 1rem;
           border-radius: 4px;
+          text-align: center;
         }
 
         .category h4 {
@@ -543,51 +454,15 @@ export default function Search() {
         .category-score {
           font-size: 1.25rem;
           font-weight: bold;
-          margin-bottom: 0.5rem;
-        }
-        
-        .score-bar {
-          height: 8px;
-          background-color: #e5e7eb;
-          border-radius: 999px;
-          overflow: hidden;
-        }
-        
-        .score-fill {
-          height: 100%;
-          border-radius: 999px;
-          transition: width 1s ease-out;
+          color: #0070f3;
         }
 
         .premium-prompt, .upgrade-prompt {
-          background-color: #f0f7ff;
-          padding: 1.5rem;
-          border-radius: 8px;
+          background-color: #fffbea;
+          padding: 1rem;
+          border-radius: 4px;
           text-align: center;
           grid-column: 1 / -1;
-        }
-        
-        .upgrade-benefits {
-          list-style-type: none;
-          padding: 0;
-          margin: 1rem 0;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: 0.5rem;
-          text-align: left;
-        }
-        
-        .upgrade-benefits li {
-          position: relative;
-          padding-left: 1.5rem;
-        }
-        
-        .upgrade-benefits li::before {
-          content: "✓";
-          position: absolute;
-          left: 0;
-          color: #0070f3;
-          font-weight: bold;
         }
 
         .common-issues {
@@ -597,16 +472,13 @@ export default function Search() {
         .common-issues ul {
           list-style-type: none;
           padding: 0;
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 1rem;
         }
 
-        .issue-item {
+        .common-issues li {
           background-color: #f9f9f9;
           padding: 1rem;
           border-radius: 4px;
-          margin-bottom: 0.5rem;
+          margin-bottom: 1rem;
         }
 
         .analysis {
@@ -641,7 +513,7 @@ export default function Search() {
             gap: 1rem;
           }
           
-          .form-grid, .category-grid, .common-issues ul {
+          .category-grid {
             grid-template-columns: 1fr;
           }
         }
