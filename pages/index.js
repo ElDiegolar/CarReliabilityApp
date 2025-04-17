@@ -7,6 +7,56 @@ import Layout from '../components/Layout';
 export default function Home() {
   const { t } = useTranslation('common');
 
+  // Default fallbacks for when translations fail or return non-arrays
+  const defaultSteps = [
+    { title: 'Enter Vehicle Details', description: 'Provide the year, make, model, and mileage of the vehicle you want to research.' },
+    { title: 'Get Instant Results', description: 'Our AI analyzes data from multiple sources to provide accurate reliability information.' },
+    { title: 'Make Informed Decisions', description: 'Use the reliability data to make better decisions about buying, selling, or maintaining vehicles.' }
+  ];
+
+  const defaultFreeFeatures = [
+    'Basic reliability scores',
+    'Engine & transmission data',
+    'Limited vehicle searches',
+    'Basic analysis'
+  ];
+
+  const defaultPremiumFeatures = [
+    'Comprehensive reliability scores',
+    'All vehicle systems data',
+    'Common issues with repair costs',
+    'Priority support',
+    'Limited search history'
+  ];
+
+  const defaultProfessionalFeatures = [
+    'Everything in Premium',
+    'Batch vehicle analysis',
+    'Comparison tools',
+    'Market value analysis',
+    'Dealership integration',
+    'Unlimited search history',
+    'API access',
+    '24/7 priority support'
+  ];
+
+  // Safe translation function for arrays
+  const safeTranslationArray = (path, defaultArray) => {
+    try {
+      const result = t(path, { returnObjects: true });
+      return Array.isArray(result) ? result : defaultArray;
+    } catch (e) {
+      console.error(`Error getting translation array for ${path}:`, e);
+      return defaultArray;
+    }
+  };
+
+  // Get arrays safely
+  const steps = safeTranslationArray('howItWorks.steps', defaultSteps);
+  const freeFeatures = safeTranslationArray('pricing.free.features', defaultFreeFeatures);
+  const premiumFeatures = safeTranslationArray('pricing.premium.features', defaultPremiumFeatures);
+  const professionalFeatures = safeTranslationArray('pricing.professional.features', defaultProfessionalFeatures);
+
   return (
     <Layout>
       <div className="hero">
@@ -49,7 +99,7 @@ export default function Home() {
       <div className="how-it-works">
         <h2>{t('howItWorks.title')}</h2>
         <div className="steps">
-          {t('howItWorks.steps', { returnObjects: true }).map((step, index) => (
+          {steps.map((step, index) => (
             <div className="step" key={index}>
               <div className="step-number">{index + 1}</div>
               <h3>{step.title}</h3>
@@ -71,7 +121,7 @@ export default function Home() {
               <div className="price-period">{t('pricing.free.period')}</div>
             </div>
             <ul className="pricing-features">
-              {t('pricing.free.features', { returnObjects: true }).map((feature, index) => (
+              {freeFeatures.map((feature, index) => (
                 <li key={index}>{feature}</li>
               ))}
             </ul>
@@ -90,7 +140,7 @@ export default function Home() {
               <div className="price-period">{t('pricing.premium.period')}</div>
             </div>
             <ul className="pricing-features">
-              {t('pricing.premium.features', { returnObjects: true }).map((feature, index) => (
+              {premiumFeatures.map((feature, index) => (
                 <li key={index}>{feature}</li>
               ))}
             </ul>
@@ -108,7 +158,7 @@ export default function Home() {
               <div className="price-period">{t('pricing.professional.period')}</div>
             </div>
             <ul className="pricing-features">
-              {t('pricing.professional.features', { returnObjects: true }).map((feature, index) => (
+              {professionalFeatures.map((feature, index) => (
                 <li key={index}>{feature}</li>
               ))}
             </ul>
@@ -413,6 +463,7 @@ export default function Home() {
           .pricing-grid {
             grid-template-columns: 1fr;
             max-width: 400px;
+            margin: 0 auto;
           }
           
           .pricing-card.popular {
@@ -426,9 +477,17 @@ export default function Home() {
 
 // This function gets called at build time and on every request
 export async function getStaticProps({ locale }) {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale, ['common'])),
-    },
-  };
+  try {
+    return {
+      props: {
+        ...(await serverSideTranslations(locale || 'en', ['common'])),
+      },
+    };
+  } catch (error) {
+    console.error('Translation loading error:', error);
+    // Return minimal props to prevent build failure
+    return {
+      props: {},
+    };
+  }
 }
