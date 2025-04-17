@@ -13,44 +13,81 @@ async function handler(req, res) {
   }
 
   try {
+    console.log('Save vehicle request body:', req.body);
     const { year, make, model, mileage, reliability_data } = req.body;
     
     // Validate required fields
-    if (!year || !make || !model || !mileage) {
+    if (!year || !make || !model) {
       return res.status(400).json({ error: 'Missing required vehicle information' });
     }
     
     // Get user ID from the authenticated request
     const userId = req.user.id;
+    console.log('User ID:', userId);
+
+    // Get table column information to debug
+    const columnsResult = await query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'saved_vehicles'
+    `);
     
-    // Check if this vehicle is already saved by the user
-    const existingResult = await query(
-      'SELECT id FROM saved_vehicles WHERE user_id = $1 AND year = $2 AND make = $3 AND model = $4 AND mileage = $5',
-      [userId, year, make, model, mileage]
-    );
+    const columns = columnsResult.rows.map(row => row.column_name);
+    console.log('Available columns in saved_vehicles table:', columns);
     
-    if (existingResult.rows.length > 0) {
-      // If it exists, update the existing record
-      const savedVehicleId = existingResult.rows[0].id;
-      
-      await query(
-        'UPDATE saved_vehicles SET reliability_data = $1, saved_at = NOW() WHERE id = $2',
-        [JSON.stringify(reliability_data), savedVehicleId]
-      );
-      
-      return res.status(200).json({ 
-        message: 'Vehicle updated successfully',
-        id: savedVehicleId
-      });
+    // Check if mileage column exists
+    const hasMileageColumn = columns.includes('mileage');
+    console.log('Has mileage column:', hasMileageColumn);
+
+    // If the mileage column doesn't exist, try to add it
+    if (!hasMileageColumn) {
+      try {
+        console.log('Attempting to add mileage column...');
+        await query(`
+          ALTER TABLE saved_vehicles 
+          ADD COLUMN mileage INTEGER NOT NULL DEFAULT 0
+        `);
+        console.log('Mileage column added successfully');
+      } catch (alterError) {
+        console.error('Error adding mileage column:', alterError);
+        // Continue with the operation even if column addition fails
+      }
+    }
+
+    // Create a query that works regardless of column case (PostgreSQL is case-sensitive in quoted identifiers)
+    let insertQuery;
+    let insertParams;
+    
+    // Assuming the issue might be case sensitivity in column names
+    if (hasMileageColumn) {
+      // Normal case where mileage column exists
+      insertQuery = `
+        INSERT INTO saved_vehicles (user_id, year, make, model, mileage, reliability_data, saved_at)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW())
+        RETURNING id
+      `;
+      insertParams = [userId, year, make, model, mileage || 0, JSON.stringify(reliability_data)];
+    } else {
+      // Fallback - try with column names exactly as they appear in the database
+      insertQuery = `
+        INSERT INTO saved_vehicles (user_id, year, make, model, reliability_data, saved_at)
+        VALUES ($1, $2, $3, $4, $5, NOW())
+        RETURNING id
+      `;
+      insertParams = [userId, year, make, model, JSON.stringify(reliability_data)];
     }
     
-    // If it doesn't exist, insert a new record
-    const result = await query(
-      'INSERT INTO saved_vehicles (user_id, year, make, model, mileage, reliability_data, saved_at) VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING id',
-      [userId, year, make, model, mileage, JSON.stringify(reliability_data)]
-    );
+    console.log('Executing query:', insertQuery);
+    console.log('With params:', insertParams);
+    
+    const result = await query(insertQuery, insertParams);
+    
+    if (!result || !result.rows || result.rows.length === 0) {
+      throw new Error('Failed to insert record - no ID returned');
+    }
     
     const savedVehicleId = result.rows[0].id;
+    console.log('Saved vehicle with ID:', savedVehicleId);
     
     return res.status(201).json({
       message: 'Vehicle saved successfully',
@@ -58,7 +95,10 @@ async function handler(req, res) {
     });
   } catch (error) {
     console.error('Error saving vehicle:', error);
-    return res.status(500).json({ error: 'Failed to save vehicle' });
+    return res.status(500).json({ 
+      error: 'Failed to save vehicle',
+      details: error.message
+    });
   }
 }
 
