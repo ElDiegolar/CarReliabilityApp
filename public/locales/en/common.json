@@ -24,49 +24,6 @@
       "description": "Subscribe for in-depth reports, recall information, and detailed reliability insights."
     }
   },
-  "pricing": {
-    "title": "Choose Your Plan",
-    "description": "Access the vehicle reliability data you need with our flexible subscription plans",
-    "free": {
-      "title": "Free",
-      "period": "forever",
-      "features": [
-        "Basic reliability scores",
-        "Engine & transmission data",
-        "Limited vehicle searches",
-        "Basic analysis"
-      ],
-      "cta": "Try Now"
-    },
-    "premium": {
-      "title": "Premium",
-      "period": "per month",
-      "badge": "Most Popular",
-      "features": [
-        "Comprehensive reliability scores",
-        "All vehicle systems data",
-        "Common issues with repair costs",
-        "10 saved search history",
-        "Detailed AI analysis",
-        "Priority support"
-      ],
-      "cta": "Subscribe Now"
-    },
-    "professional": {
-      "title": "Professional",
-      "period": "per month",
-      "features": [
-        "Everything in Premium",
-        "Unlimited search history",
-        "Batch vehicle analysis",
-        "Market value analysis",
-        "Dealership integration",
-        "API access",
-        "24/7 priority support"
-      ],
-      "cta": "Get Professional"
-    }
-  },
   "howItWorks": {
     "title": "How It Works",
     "steps": [
@@ -428,3 +385,4 @@
       ]
     }
   }
+}

@@ -4,7 +4,7 @@ import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Layout from '../components/Layout';
-import TranslationDebugger from '../components/TranslationDebugger';
+import TranslationDebugger from '../components/TranslationsDebugger';
 
 export default function TestI18n() {
   const { t, i18n } = useTranslation('common');

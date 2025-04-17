@@ -11,13 +11,17 @@ export default function TranslationDebugger() {
     return null;
   }
 
+  const allLocales = Array.isArray(i18n.options.supportedLngs)
+    ? i18n.options.supportedLngs
+    : i18n.languages;
+
   return (
     <div className="translation-debugger">
       <h3>Translation Debugger</h3>
       <div className="debug-info">
         <div><strong>Current Locale:</strong> {router.locale}</div>
         <div><strong>Default Locale:</strong> {i18n.options.defaultLocale}</div>
-        <div><strong>All Locales:</strong> {i18n.options.supportedLngs?.join(', ') || 'Not available'}</div>
+        <div><strong>All Locales:</strong> {allLocales?.join(', ') || 'Not available'}</div>
         <div><strong>i18n Initialized:</strong> {i18n.isInitialized ? 'Yes' : 'No'}</div>
         <div><strong>Translation Test (hero.title):</strong> {t('hero.title')}</div>
         <div><strong>Translation Test with Fallback:</strong> {t('test.key', 'Fallback works if this shows')}</div>
