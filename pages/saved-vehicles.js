@@ -152,7 +152,7 @@ export default function SavedVehicles() {
                   </div>
                   <div className="actions-col">
                     <Link 
-                      href={`/search?year=${vehicle.year}&make=${vehicle.make}&model=${vehicle.model}&mileage=${vehicle.mileage || 0}`}
+                      href={`/search?year=${vehicle.year}&make=${vehicle.make}&model=${vehicle.model}&mileage=${vehicle.mileage || 0}&fromSaved=true&savedId=${vehicle.id}`}
                       className="action-button view"
                     >
                       {t('savedVehicles.view')}

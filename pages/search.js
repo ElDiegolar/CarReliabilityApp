@@ -1,4 +1,4 @@
-// pages/search.js - Car search page with translations and SaveSearchButton
+// pages/search.js - Car search page with translations
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -27,6 +27,9 @@ export default function Search() {
   const [isPremium, setIsPremium] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // Check if we're coming from saved vehicles page and need to load a specific saved vehicle
+  const { fromSaved, savedId } = router.query;
+  
   // Set form data from query parameters if they exist
   useEffect(() => {
     if (queryYear || queryMake || queryModel || queryMileage) {
@@ -37,15 +40,48 @@ export default function Search() {
         mileage: queryMileage || ''
       });
       
-      // Auto-submit if all required parameters are present
-      if (queryYear && queryMake && queryModel && queryMileage) {
+      // If we're coming from saved vehicles page and have all necessary info
+      if (fromSaved === 'true' && savedId && user) {
+        const loadSavedVehicle = async () => {
+          try {
+            const token = getToken();
+            const response = await fetch(`/api/saved-vehicles/get-one?id=${savedId}`, {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.savedVehicle?.reliability_data) {
+                // Set the results directly from saved data
+                setResults(data.savedVehicle.reliability_data);
+                setLoading(false);
+                return; // Skip the auto-submit since we already have results
+              }
+            }
+          } catch (err) {
+            console.error('Error loading saved vehicle data:', err);
+            // Continue with normal auto-submit if loading saved data fails
+          }
+          
+          // Normal auto-submit if not coming from saved vehicles or loading saved data failed
+          if (queryYear && queryMake && queryModel && queryMileage) {
+            await handleSubmit(null, true);
+          }
+        };
+        
+        loadSavedVehicle();
+      } 
+      // Normal auto-submit if not coming from saved vehicles
+      else if (queryYear && queryMake && queryModel && queryMileage) {
         const autoSubmitForm = async () => {
           await handleSubmit(null, true);
         };
         autoSubmitForm();
       }
     }
-  }, [queryYear, queryMake, queryModel, queryMileage]);
+  }, [queryYear, queryMake, queryModel, queryMileage, fromSaved, savedId, user, getToken]);
 
   useEffect(() => {
     const checkSubscription = async () => {
@@ -124,7 +160,8 @@ export default function Search() {
             year: formData.year,
             make: formData.make,
             model: formData.model,
-            mileage: formData.mileage
+            mileage: formData.mileage,
+            ...(savedId ? { savedId, fromSaved: 'true' } : {})  // Preserve savedId in URL if it exists
           }
         }, undefined, { shallow: true });
       }
@@ -225,7 +262,8 @@ export default function Search() {
           {user && (
             <SaveSearchButton 
               vehicleData={results} 
-              searchParams={formData} 
+              searchParams={formData}
+              savedId={router.query.savedId}
             />
           )}
 
@@ -323,7 +361,7 @@ export default function Search() {
           margin-bottom: 2rem;
         }
 
-        .premium-badge {
+      .premium-badge {
           display: inline-block;
           background-color: #0070f3;
           color: white;

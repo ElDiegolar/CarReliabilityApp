@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function SaveSearchButton({ vehicleData, searchParams }) {
+export default function SaveSearchButton({ vehicleData, searchParams, savedId }) {
   const { t } = useTranslation('common');
   const { isAuthenticated, getToken } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(!!savedId); // If savedId exists, it's already saved
   const [error, setError] = useState('');
+  const [currentSavedId, setCurrentSavedId] = useState(savedId);
 
   // Handle save search
   const handleSave = async () => {
@@ -36,6 +37,8 @@ export default function SaveSearchButton({ vehicleData, searchParams }) {
           model: searchParams.model,
           mileage: searchParams.mileage,
           reliability_data: vehicleData,
+          // If we already have a saved ID, include it for update
+          saved_id: currentSavedId
         })
       });
 
@@ -43,11 +46,21 @@ export default function SaveSearchButton({ vehicleData, searchParams }) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to save search');
       }
+      
+      const data = await response.json();
+      
+      // Store the saved vehicle ID
+      if (data.id) {
+        setCurrentSavedId(data.id);
+      }
 
       setIsSaved(true);
       setTimeout(() => {
-        setIsSaved(false);
-      }, 3000); // Reset saved state after 3 seconds
+        // Don't reset isSaved status if we have a saved ID - it remains saved
+        if (!currentSavedId) {
+          setIsSaved(false);
+        }
+      }, 3000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -67,10 +80,11 @@ export default function SaveSearchButton({ vehicleData, searchParams }) {
           : isSaved 
             ? t('search.saved')
             : t('search.saveSearch')}
+        {isSaved && <span className="saved-icon">✓</span>}
       </button>
       
       {error && <div className="save-error">{error}</div>}
-
+      
       <style jsx>{`
         .save-search-button {
           margin: 1rem 0;
@@ -102,6 +116,11 @@ export default function SaveSearchButton({ vehicleData, searchParams }) {
         .save-button:disabled {
           opacity: 0.7;
           cursor: not-allowed;
+        }
+        
+        .saved-icon {
+          margin-left: 0.5rem;
+          font-weight: bold;
         }
         
         .save-error {
