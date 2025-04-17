@@ -1,6 +1,6 @@
 // pages/api/user/searches.js
-import { withAuth } from '../../../lib/auth';
-import { query } from '../../../lib/database';
+import { withAuth } from '../../lib/auth';
+import { query } from '../../lib/database';
 
 export const config = {
   runtime: 'nodejs',
