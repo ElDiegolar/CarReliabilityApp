@@ -101,6 +101,7 @@ export default function Layout({ children, title }) {
                   <ul>
                     <li><Link href="/terms">{t('footer.terms')}</Link></li>
                     <li><Link href="/privacy">{t('footer.privacy')}</Link></li>
+                    <li><a href="mailto:contact@carreliability.com">{t('footer.contact')}</a></li>
                   </ul>
                 </div>
               </div>

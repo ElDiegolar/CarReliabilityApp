@@ -354,38 +354,77 @@
     "premiumPrompt": "Upgrade to premium for detailed information",
     "generateFailed": "Failed to generate PDF. Please try again."
   },
-  "dates": {
-    "today": "Today",
-    "yesterday": "Yesterday",
-    "daysAgo": "{count} days ago",
-    "dateFormat": "MM/DD/YYYY",
-    "monthNames": [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December"
-    ],
-    "monthNamesShort": [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec"
-    ]
+  "pricing": {
+    "title": "Choose Your Plan",
+    "description": "Access the vehicle reliability data you need with our flexible subscription plans",
+    "per": "per",
+    "subscribeNow": "Subscribe Now",
+    "processing": "Processing...",
+    "premium": {
+      "title": "Premium",
+      "period": "month",
+      "badge": "Most Popular",
+      "features": [
+        "Comprehensive reliability scores",
+        "All vehicle systems data",
+        "Common issues with repair costs",
+        "Priority support",
+        "Limited search history"
+      ]
+    },
+    "professional": {
+      "title": "Professional",
+      "period": "month",
+      "features": [
+        "Everything in Premium",
+        "Batch vehicle analysis",
+        "Comparison tools",
+        "Market value analysis",
+        "Dealership integration",
+        "Unlimited search history",
+        "API access",
+        "24/7 priority support"
+      ]
+    },
+    "legal": {
+      "termsTitle": "Terms of Service",
+      "privacyTitle": "Privacy Policy",
+      "lastUpdated": "Last Updated",
+      "viewTerms": "View our Terms of Service",
+      "viewPrivacy": "View our Privacy Policy"
+    },
+    "dates": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{count} days ago",
+      "dateFormat": "MM/DD/YYYY",
+      "monthNames": [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ],
+      "monthNamesShort": [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ]
+    }
   }
-}
