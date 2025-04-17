@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
     // Add a page to the PDF
-    const page = pdfDoc.addPage([612, 792]); // Letter size
+    let page = pdfDoc.addPage([612, 792]); // Letter size - use let instead of const
     const { width, height } = page.getSize();
     
     // Set some initial variables for positioning
@@ -218,8 +218,7 @@ export default async function handler(req, res) {
         
         // If we're running out of space, add a new page
         if (currentY < 150) {
-          const newPage = pdfDoc.addPage([612, 792]);
-          page = newPage;
+          page = pdfDoc.addPage([612, 792]);
           currentY = height - 50;
         }
       }
@@ -275,8 +274,7 @@ export default async function handler(req, res) {
       
       // If we're running out of space, add a new page
       if (currentY < 100) {
-        const newPage = pdfDoc.addPage([612, 792]);
-        page = newPage;
+        page = pdfDoc.addPage([612, 792]);
         currentY = height - 50;
       }
     }
