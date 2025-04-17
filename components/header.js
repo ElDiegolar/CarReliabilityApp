@@ -189,7 +189,23 @@ export default function Header() {
     transition: all 0.3s ease;
     border-bottom: 1px solid #f0f0f0;
   }
-
+    .user-menu-item + .user-menu-item {
+  border-top: 1px solid #f0f0f0;
+}
+.user-menu-item {
+  display: block; /* <-- ensures items stack vertically */
+  padding: 0.75rem 1rem;
+  color: #444;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  text-align: left;
+  width: 100%;
+  font-size: 0.95rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap; /* prevents wrapping if the text is long */
+}
   .header.scrolled {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
