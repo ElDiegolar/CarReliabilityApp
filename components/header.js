@@ -12,6 +12,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -39,6 +40,7 @@ export default function Header() {
     const handleRouteChange = () => {
       setIsMenuOpen(false);
       setLanguageOpen(false);
+      setUserMenuOpen(false);
     };
 
     router.events.on('routeChangeComplete', handleRouteChange);
@@ -58,6 +60,10 @@ export default function Header() {
 
   const toggleLanguage = () => {
     setLanguageOpen(!languageOpen);
+  };
+
+  const toggleUserMenu = () => {
+    setUserMenuOpen(!userMenuOpen);
   };
 
   return (
@@ -109,10 +115,29 @@ export default function Header() {
               </Link>
             </li>
             {isAuthenticated ? (
-              <li className="profile-item">
-                <Link href="/profile" className="profile-link">
-                  {t('nav.profile')}
-                </Link>
+              <li className="user-dropdown">
+                <button 
+                  className="user-button"
+                  onClick={toggleUserMenu}
+                >
+                  <span className="user-icon">👤</span>
+                  <span className="user-email">{user?.email?.split('@')[0]}</span>
+                  <span className="dropdown-arrow">▼</span>
+                </button>
+                <div className={`user-menu ${userMenuOpen ? 'show' : ''}`}>
+                  <Link href="/profile" className="user-menu-item">
+                    {t('nav.profile')}
+                  </Link>
+                  <Link href="/search-history" className="user-menu-item">
+                    {t('nav.history')}
+                  </Link>
+                  <Link href="/saved-vehicles" className="user-menu-item">
+                    {t('savedVehicles.title')}
+                  </Link>
+                  <button onClick={handleLogout} className="user-menu-item logout">
+                    {t('nav.logout')}
+                  </button>
+                </div>
               </li>
             ) : (
               <li className="auth-item">
@@ -127,31 +152,28 @@ export default function Header() {
             )}
             <li className="language-selector">
               <div className="language-dropdown">
-              <button onClick={toggleLanguage} className="language-button">
-  {/* <span className="flag">
-    {languages.find(lang => lang.code === router.locale)?.flag}
-  </span> */}
-  {getCurrentLanguageName()}
-  <span className="dropdown-arrow">▼</span>
-</button>
+                <button onClick={toggleLanguage} className="language-button">
+                  {getCurrentLanguageName()}
+                  <span className="dropdown-arrow">▼</span>
+                </button>
                 <div className={`language-options ${languageOpen ? 'show' : ''}`}>
                 {languages.map((language) => (
                   <Link 
                     key={language.code} 
-    href={router.asPath} 
-    locale={language.code} 
-    legacyBehavior 
-    passHref
+                    href={router.asPath} 
+                    locale={language.code} 
+                    legacyBehavior 
+                    passHref
                   >
                     <a 
-      className={router.locale === language.code ? 'active' : ''} 
-      onClick={() => setLanguageOpen(false)}
-    >
-      <span className="flag">{language.flag}</span> 
+                      className={router.locale === language.code ? 'active' : ''} 
+                      onClick={() => setLanguageOpen(false)}
+                    >
+                      <span className="flag">{language.flag}</span> 
+                      {language.name}
                     </a>
                   </Link>
                 ))}
-
                 </div>
               </div>
             </li>
@@ -246,19 +268,19 @@ export default function Header() {
 
         .nav-links {
           display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  align-items: center;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          align-items: center;
         }
 
         .nav-links li {
-          margin: 0 1.2rem; /* ✨ More space between buttons on desktop */
+          margin: 0 1.2rem;
         }
 
         .nav-links a {
-        min-width: 100px; /* 👈 ensure consistent button size */
-  text-align: center;
+          min-width: 100px;
+          text-align: center;
           color: #444;
           text-decoration: none;
           font-weight: 500;
@@ -305,22 +327,90 @@ export default function Header() {
           text-decoration: underline;
         }
 
-        .profile-link {
-          color: #0070f3;
-          font-weight: 500;
-          text-decoration: none;
-          transition: all 0.2s;
+        .user-dropdown {
+          position: relative;
+        }
+
+        .user-button {
+          display: flex;
+          align-items: center;
+          background: none;
+          border: none;
           padding: 0.5rem 1rem;
+          cursor: pointer;
+          color: #444;
+          font-weight: 500;
+          font-size: 0.95rem;
           border-radius: 4px;
+          transition: all 0.2s;
         }
 
-        .profile-link:hover {
-          background-color: rgba(0, 112, 243, 0.08);
+        .user-button:hover {
+          background-color: rgba(0, 112, 243, 0.04);
         }
 
-        .auth-divider {
-          color: #999;
-          margin: 0 0.35rem;
+        .user-icon {
+          margin-right: 0.5rem;
+          font-size: 1.1rem;
+        }
+
+        .user-email {
+          max-width: 150px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .dropdown-arrow {
+          margin-left: 0.5rem;
+          font-size: 0.7rem;
+          transition: transform 0.2s;
+        }
+
+        .user-menu {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          background: white;
+          border-radius: 4px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+          width: 180px;
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(10px);
+          transition: all 0.3s ease;
+          z-index: 10;
+          border: 1px solid #eee;
+          margin-top: 0.5rem;
+        }
+
+        .user-menu.show {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+
+        .user-menu-item {
+          display: block;
+          padding: 0.75rem 1rem;
+          color: #444;
+          text-decoration: none;
+          transition: background-color 0.2s;
+          text-align: left;
+          width: 100%;
+          font-size: 0.95rem;
+          border: none;
+          background: none;
+          cursor: pointer;
+        }
+
+        .user-menu-item:hover {
+          background-color: #f5f5f5;
+        }
+
+        .user-menu-item.logout {
+          border-top: 1px solid #eee;
+          color: #e53e3e;
         }
 
         .language-selector {
@@ -354,11 +444,13 @@ export default function Header() {
           margin-left: auto;
           color: #666;
         }
-          .language-options a .flag {
-  margin-right: 0.5rem;
-  font-size: 1.1rem;
-  vertical-align: middle;
-}   
+          
+        .language-options a .flag {
+          margin-right: 0.5rem;
+          font-size: 1.1rem;
+          vertical-align: middle;
+        }
+        
         .language-options {
           position: absolute;
           top: 100%;
@@ -376,12 +468,9 @@ export default function Header() {
           z-index: 10;
           border: 1px solid #eee;
           margin-top: 0.5rem;
-
-          /* 👇 ADD THIS */
           display: flex;
           flex-direction: column;
         }
-
 
         .language-options.show {
           opacity: 1;
@@ -390,7 +479,6 @@ export default function Header() {
         }
 
         .language-options a {
-        
           display: block;
           padding: 0.65rem 1rem;
           color: #444;
@@ -409,8 +497,111 @@ export default function Header() {
         }
 
         @media (max-width: 768px) {
+          .menu-toggle {
+            display: block;
+          }
+          
+          .nav {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            background: white;
+            height: 0;
+            overflow: hidden;
+            transition: height 0.3s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+          }
+          
+          .nav.open {
+            height: auto;
+            max-height: calc(100vh - 64px);
+            overflow-y: auto;
+          }
+          
+          .nav-links {
+            flex-direction: column;
+            padding: 1rem 0;
+          }
+          
           .nav-links li {
-            margin: 0.6rem 0; /* 👈 This mobile spacing is untouched */
+            margin: 0.6rem 0;
+            width: 100%;
+          }
+          
+          .nav-links a {
+            width: 100%;
+            display: block;
+            text-align: center;
+          }
+          
+          .auth-item {
+            flex-direction: column;
+            width: 100%;
+          }
+          
+          .auth-link {
+            width: 100%;
+            text-align: center;
+            padding: 0.75rem 0;
+          }
+          
+          .auth-divider {
+            display: none;
+          }
+          
+          .user-dropdown {
+            width: 100%;
+          }
+          
+          .user-button {
+            width: 100%;
+            justify-content: center;
+          }
+          
+          .user-menu {
+            position: static;
+            width: 100%;
+            box-shadow: none;
+            border: none;
+            margin-top: 0;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+          }
+          
+          .user-menu.show {
+            max-height: 500px;
+          }
+          
+          .language-selector {
+            width: 100%;
+            margin-top: 0.6rem;
+          }
+          
+          .language-dropdown {
+            width: 100%;
+          }
+          
+          .language-button {
+            width: 100%;
+            justify-content: center;
+          }
+          
+          .language-options {
+            position: static;
+            width: 100%;
+            box-shadow: none;
+            border: none;
+            margin-top: 0;
+            max-height: 0;
+            overflow: hidden;
+          }
+          
+          .language-options.show {
+            max-height: 500px;
           }
         }
       `}</style>

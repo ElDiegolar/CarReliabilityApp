@@ -104,6 +104,28 @@
     "invalidEmail": "Please enter a valid email address",
     "passwordTooShort": "Password must be at least 6 characters"
   },
+  "savedVehicles": {
+    "title": "Saved Vehicles",
+    "saving": "Saving...",
+    "saved": "Saved!",
+    "saveSearch": "Save Vehicle",
+    "loading": "Loading saved vehicles...",
+    "noVehicles": "You haven't saved any vehicles yet",
+    "authRequired": "You need to be logged in to view your saved vehicles",
+    "loadFailed": "Failed to load saved vehicles",
+    "vehicle": "Vehicle",
+    "mileage": "Mileage",
+    "saved": "Saved On",
+    "score": "Reliability",
+    "actions": "Actions",
+    "view": "View",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "miles": "miles",
+    "invalidDate": "Invalid date",
+    "limitedPlan": "Your plan allows you to save up to {{limit}} vehicles",
+    "upgradeForMore": "Upgrade for more saved vehicles"
+  },
   "search": {
     "title": "Search Vehicle Reliability",
     "premiumUser": "Premium User",
@@ -135,7 +157,12 @@
     "searchError": "Failed to fetch reliability data",
     "requiredFields": "Year, make, model, and mileage are required",
     "noResults": "No results found for this vehicle",
-    "loadingMessage": "Searching for reliability..."
+    "loadingMessage": "Searching for reliability...",
+    "viewSearchHistory": "View Search History",
+    "viewSavedVehicles": "View Saved Vehicles",
+    "saveSearch": "Save This Vehicle",
+    "saved": "Vehicle Saved!",
+    "saving": "Saving Vehicle..."
   },
   "profile": {
     "title": "Your Profile",

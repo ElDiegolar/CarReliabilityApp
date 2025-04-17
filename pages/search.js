@@ -1,4 +1,4 @@
-// pages/search.js - Car search page with translations
+// pages/search.js - Car search page with translations and SaveSearchButton
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -6,6 +6,7 @@ import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
+import SaveSearchButton from '../components/SaveSearchButton';
 
 export default function Search() {
   const { t } = useTranslation('common');
@@ -220,6 +221,14 @@ export default function Search() {
             </div>
           </div>
 
+          {/* Add SaveSearchButton component */}
+          {user && (
+            <SaveSearchButton 
+              vehicleData={results} 
+              searchParams={formData} 
+            />
+          )}
+
           <div className="categories">
             <h3>{t('search.categoryScores')}</h3>
             <div className="category-grid">
@@ -293,6 +302,9 @@ export default function Search() {
             <div className="search-actions">
               <Link href="/search-history" className="view-history-button">
                 {t('search.viewSearchHistory')}
+              </Link>
+              <Link href="/saved-vehicles" className="view-saved-button">
+                {t('search.viewSavedVehicles')}
               </Link>
             </div>
           )}
@@ -513,10 +525,12 @@ export default function Search() {
         
         .search-actions {
           margin-top: 2rem;
-          text-align: center;
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
         }
         
-        .view-history-button {
+        .view-history-button, .view-saved-button {
           display: inline-block;
           padding: 0.75rem 1.5rem;
           background-color: #f5f5f5;
@@ -527,7 +541,7 @@ export default function Search() {
           transition: background-color 0.2s;
         }
         
-        .view-history-button:hover {
+        .view-history-button:hover, .view-saved-button:hover {
           background-color: #e5f1ff;
         }
       `}</style>
