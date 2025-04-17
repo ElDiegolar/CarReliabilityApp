@@ -1,6 +1,6 @@
 // pages/api/user/searches.js
-import { withAuth } from '../../lib/auth';
-import { query } from '../../lib/database';
+import { withAuth } from '../../../lib/auth';
+import { query } from '../../../lib/database';
 
 export const config = {
   runtime: 'nodejs',
@@ -12,7 +12,7 @@ async function handler(req, res) {
   }
 
   try {
-    // First, get table structure to find the timestamp column
+    // First, get table structure to find the timestamp column and check for results column
     const tableStructureResult = await query(`
       SELECT column_name
       FROM information_schema.columns
@@ -49,9 +49,14 @@ async function handler(req, res) {
     // Determine search limit based on subscription
     let limitClause = isProfessional ? 'LIMIT 1000' : 'LIMIT 10';
 
+    // Select columns explicitly, including results if it exists
+    const selectColumns = columns.includes('results') 
+      ? 'id, user_id, year, make, model, mileage, ' + timestampColumn + ', results'
+      : 'id, user_id, year, make, model, mileage, ' + timestampColumn;
+
     // Get search history with correct column for ordering
     const searchesQuery = `
-      SELECT * FROM searches 
+      SELECT ${selectColumns} FROM searches 
       WHERE user_id = $1 
       ORDER BY ${timestampColumn} DESC
       ${limitClause}
@@ -62,10 +67,25 @@ async function handler(req, res) {
 
     // Add a timestamp property to each search for the frontend
     const processedSearches = searchesResult.rows.map(search => {
-      return {
+      const processedSearch = {
         ...search,
         timestamp: search[timestampColumn], // Add a standardized timestamp field
       };
+      
+      // Try to parse results JSON if it exists
+      if (search.results) {
+        try {
+          // If results is already a JSON object, no need to parse
+          if (typeof search.results === 'string') {
+            processedSearch.results = JSON.parse(search.results);
+          }
+        } catch (jsonError) {
+          console.error('Error parsing search results JSON:', jsonError);
+          // Keep the original string if parsing fails
+        }
+      }
+      
+      return processedSearch;
     });
 
     return res.status(200).json(processedSearches);
