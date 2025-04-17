@@ -7,40 +7,6 @@ import Layout from '../components/Layout';
 export default function Home() {
   const { t } = useTranslation('common');
 
-  // Default steps if translation fails
-  const defaultSteps = [
-    { title: 'Enter Vehicle Details', description: 'Provide the year, make, model, and mileage of the vehicle you want to research.' },
-    { title: 'Get Instant Results', description: 'Our AI analyzes data from multiple sources to provide accurate reliability information.' },
-    { title: 'Make Informed Decisions', description: 'Use the reliability data to make better decisions about buying, selling, or maintaining vehicles.' }
-  ];
-
-  // Safely get steps from translation or use default
-  const getSteps = () => {
-    try {
-      const steps = t('howItWorks.steps', { returnObjects: true });
-      return Array.isArray(steps) ? steps : defaultSteps;
-    } catch (e) {
-      console.error("Error getting steps:", e);
-      return defaultSteps;
-    }
-  };
-
-  // Safely get features from translation with fallbacks
-  const getFeaturesArray = (path, fallback) => {
-    try {
-      const features = t(path, { returnObjects: true });
-      return Array.isArray(features) ? features : fallback;
-    } catch (e) {
-      console.error(`Error getting features for ${path}:`, e);
-      return fallback;
-    }
-  };
-
-  // Fallback feature arrays
-  const freeFallback = ['Basic reliability scores', 'Engine & transmission data', 'Limited vehicle searches', 'Basic analysis'];
-  const premiumFallback = ['Comprehensive reliability scores', 'All vehicle systems data', 'Common issues with repair costs', 'Priority support', 'Limited search history'];
-  const professionalFallback = ['Everything in Premium', 'Unlimited search history', 'Batch vehicle analysis', 'API access', '24/7 priority support'];
-
   return (
     <Layout>
       <div className="hero">
@@ -83,7 +49,7 @@ export default function Home() {
       <div className="how-it-works">
         <h2>{t('howItWorks.title')}</h2>
         <div className="steps">
-          {getSteps().map((step, index) => (
+          {t('howItWorks.steps', { returnObjects: true }).map((step, index) => (
             <div className="step" key={index}>
               <div className="step-number">{index + 1}</div>
               <h3>{step.title}</h3>
@@ -105,7 +71,7 @@ export default function Home() {
               <div className="price-period">{t('pricing.free.period')}</div>
             </div>
             <ul className="pricing-features">
-              {getFeaturesArray('pricing.free.features', freeFallback).map((feature, index) => (
+              {t('pricing.free.features', { returnObjects: true }).map((feature, index) => (
                 <li key={index}>{feature}</li>
               ))}
             </ul>
@@ -124,7 +90,7 @@ export default function Home() {
               <div className="price-period">{t('pricing.premium.period')}</div>
             </div>
             <ul className="pricing-features">
-              {getFeaturesArray('pricing.premium.features', premiumFallback).map((feature, index) => (
+              {t('pricing.premium.features', { returnObjects: true }).map((feature, index) => (
                 <li key={index}>{feature}</li>
               ))}
             </ul>
@@ -142,7 +108,7 @@ export default function Home() {
               <div className="price-period">{t('pricing.professional.period')}</div>
             </div>
             <ul className="pricing-features">
-              {getFeaturesArray('pricing.professional.features', professionalFallback).map((feature, index) => (
+              {t('pricing.professional.features', { returnObjects: true }).map((feature, index) => (
                 <li key={index}>{feature}</li>
               ))}
             </ul>
@@ -154,6 +120,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+
 
       <style jsx>{`
         .hero {
@@ -446,7 +413,6 @@ export default function Home() {
           .pricing-grid {
             grid-template-columns: 1fr;
             max-width: 400px;
-            margin: 0 auto;
           }
           
           .pricing-card.popular {
