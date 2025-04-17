@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import Layout from '../components/Layout';
-
+import TranslationDebugger from '../components/TranslationDebugger';
 export default function Home() {
   const { t } = useTranslation('common');
 
@@ -169,6 +169,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+        <TranslationDebugger />
       </div>
 
 
