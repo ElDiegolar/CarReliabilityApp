@@ -115,6 +115,7 @@ export default function Header() {
               </Link>
             </li>
             {isAuthenticated ? (
+              
               <li className="user-dropdown">
                 <button 
                   className="user-button"
@@ -125,19 +126,21 @@ export default function Header() {
                   <span className="dropdown-arrow">▼</span>
                 </button>
                 <div className={`user-menu ${userMenuOpen ? 'show' : ''}`}>
-                  <Link href="/profile" className="user-menu-item">
-                    {t('nav.profile')}
-                  </Link>
-                  <Link href="/search-history" className="user-menu-item">
-                    {t('nav.history')}
-                  </Link>
-                  <Link href="/saved-vehicles" className="user-menu-item">
-                    {t('savedVehicles.title')}
-                  </Link>
-                  <button onClick={handleLogout} className="user-menu-item logout">
-                    {t('nav.logout')}
-                  </button>
-                </div>
+  <Link href="/profile" legacyBehavior>
+    <a className="user-menu-item">{t('nav.profile')}</a>
+  </Link>
+  <Link href="/search-history" legacyBehavior>
+    <a className="user-menu-item">{t('nav.history')}</a>
+  </Link>
+  <Link href="/saved-vehicles" legacyBehavior>
+    <a className="user-menu-item">{t('savedVehicles.title')}</a>
+  </Link>
+  <button onClick={handleLogout} className="user-menu-item logout">
+    {t('nav.logout')}
+  </button>
+</div>
+
+               
               </li>
             ) : (
               <li className="auth-item">
