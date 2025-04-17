@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import SaveSearchButton from '../components/SaveSearchButton';
+import DownloadPdfButton from '../components/DownloadPdfButton';
 
 export default function Search() {
   const { t } = useTranslation('common');
@@ -258,14 +259,22 @@ export default function Search() {
             </div>
           </div>
 
-          {/* Add SaveSearchButton component */}
-          {user && (
-            <SaveSearchButton 
+          <div className="action-buttons">
+            {/* Add SaveSearchButton component */}
+            {user && (
+              <SaveSearchButton 
+                vehicleData={results} 
+                searchParams={formData}
+                savedId={router.query.savedId}
+              />
+            )}
+            
+            {/* Add DownloadPdfButton component */}
+            <DownloadPdfButton 
               vehicleData={results} 
               searchParams={formData}
-              savedId={router.query.savedId}
             />
-          )}
+          </div>
 
           <div className="categories">
             <h3>{t('search.categoryScores')}</h3>
@@ -361,7 +370,7 @@ export default function Search() {
           margin-bottom: 2rem;
         }
 
-      .premium-badge {
+        .premium-badge {
           display: inline-block;
           background-color: #0070f3;
           color: white;
@@ -482,6 +491,13 @@ export default function Search() {
         .score-max {
           font-size: 1.5rem;
           color: #666;
+        }
+        
+        .action-buttons {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 2rem;
+          justify-content: center;
         }
 
         .categories {

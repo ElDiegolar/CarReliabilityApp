@@ -337,6 +337,23 @@
     "confirm": "Confirm",
     "error": "Error"
   },
+  "report": {
+    "downloadPdf": "Download PDF Report",
+    "generating": "Generating PDF...",
+    "pdfTitle": "Vehicle Reliability Report",
+    "generatedOn": "Generated on",
+    "overallScore": "Overall Score",
+    "categoryScores": "Category Scores",
+    "commonIssues": "Common Issues",
+    "analysis": "Reliability Analysis",
+    "costToFix": "Cost to Fix",
+    "occurrence": "Occurrence",
+    "typicalMileage": "Typical Mileage",
+    "disclaimer": "Disclaimer: This report is based on aggregated data and may not represent your specific vehicle. Always consult a qualified mechanic.",
+    "poweredBy": "Powered by CarReliability.com",
+    "premiumPrompt": "Upgrade to premium for detailed information",
+    "generateFailed": "Failed to generate PDF. Please try again."
+  },
   "dates": {
     "today": "Today",
     "yesterday": "Yesterday",
