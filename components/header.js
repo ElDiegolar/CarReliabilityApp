@@ -125,19 +125,19 @@ export default function Header() {
                   <span className="dropdown-arrow">▼</span>
                 </button>
                 <div className={`user-menu ${userMenuOpen ? 'show' : ''}`}>
-                  <Link href="/profile" className="user-menu-item">
-                    {t('nav.profile')}
-                  </Link>
-                  <Link href="/search-history" className="user-menu-item">
-                    {t('nav.history')}
-                  </Link>
-                  <Link href="/saved-vehicles" className="user-menu-item">
-                    {t('savedVehicles.title')}
-                  </Link>
-                  <button onClick={handleLogout} className="user-menu-item logout">
-                    {t('nav.logout')}
-                  </button>
-                </div>
+  <Link href="/profile" legacyBehavior>
+    <a className="user-menu-item">{t('nav.profile')}</a>
+  </Link>
+  <Link href="/search-history" legacyBehavior>
+    <a className="user-menu-item">{t('nav.history')}</a>
+  </Link>
+  <Link href="/saved-vehicles" legacyBehavior>
+    <a className="user-menu-item">{t('savedVehicles.title')}</a>
+  </Link>
+  <button onClick={handleLogout} className="user-menu-item logout">
+    {t('nav.logout')}
+  </button>
+</div>
               </li>
             ) : (
               <li className="auth-item">
@@ -195,6 +195,11 @@ export default function Header() {
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
+        .user-menu-item {
+  display: block !important;
+  width: 100%;
+}
+  
         .container {
           display: flex;
           align-items: center;
