@@ -61,19 +61,6 @@ export default async function handler(req, res) {
         isPremium = true;
       }
     }
-    
-    // Log the search
-    if (user_id) {
-      try {
-        await query(`
-          INSERT INTO searches (user_id, year, make, model, mileage) 
-          VALUES ($1, $2, $3, $4, $5)
-        `, [user_id, year, make, model, mileage]);
-      } catch (searchError) {
-        console.error('Error logging search:', searchError);
-        // Continue even if search logging fails
-      }
-    }
 
     // Construct prompt for ChatGPT
     const prompt = `
@@ -121,6 +108,8 @@ export default async function handler(req, res) {
       Please ensure the JSON is valid and follows the exact key structure above and the return language in the following country code ${locale} translations.
     `;
 
+    let reliabilityData = null;
+
     try {
       const completion = await openai.createChatCompletion({
         model: "gpt-4o",
@@ -133,8 +122,6 @@ export default async function handler(req, res) {
 
       // Extract and parse the response
       const responseText = completion.data.choices[0].message.content.trim();
-      
-      let reliabilityData;
       
       try {
         // Extract JSON if it's wrapped in code blocks
@@ -174,14 +161,12 @@ export default async function handler(req, res) {
           rawResponse: responseText
         });
       }
-
-      res.json(reliabilityData);
     } catch (openaiError) {
       console.error('OpenAI API Error:', openaiError.message);
       
       // Fallback to mock data if OpenAI API fails
       console.log('Using fallback data');
-      const reliabilityData = {
+      reliabilityData = {
         overallScore: Math.floor(Math.random() * 30) + 70,
         categories: {
           engine: Math.floor(Math.random() * 30) + 70,
@@ -210,9 +195,44 @@ export default async function handler(req, res) {
           : "Upgrade to premium for full analysis",
         isPremium: isPremium
       };
-
-      return res.json(reliabilityData);
     }
+    
+    // Log the search with results
+    if (user_id && reliabilityData) {
+      try {
+        // Check if the searches table has the results column
+        const tableInfo = await query(`
+          SELECT column_name
+          FROM information_schema.columns
+          WHERE table_name = 'searches'
+            AND column_name = 'results'
+        `);
+        
+        if (tableInfo.rows.length > 0) {
+          // Store search with results if the column exists
+          const resultsJson = JSON.stringify(reliabilityData);
+          
+          console.log('Logging search with results for user:', user_id);
+          await query(`
+            INSERT INTO searches (user_id, year, make, model, mileage, results) 
+            VALUES ($1, $2, $3, $4, $5, $6)
+          `, [user_id, year, make, model, mileage, resultsJson]);
+        } else {
+          // Fall back to the original behavior if the column doesn't exist
+          console.log('Results column not found, logging search without results');
+          await query(`
+            INSERT INTO searches (user_id, year, make, model, mileage) 
+            VALUES ($1, $2, $3, $4, $5)
+          `, [user_id, year, make, model, mileage]);
+        }
+      } catch (searchError) {
+        console.error('Error logging search:', searchError);
+        // Continue even if search logging fails
+      }
+    }
+
+    // Return the data to the client
+    res.json(reliabilityData);
   } catch (error) {
     console.error('General API Error:', error);
     res.status(500).json({ 

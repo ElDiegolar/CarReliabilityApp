@@ -1,4 +1,4 @@
-// pages/search.js - Car search page with translations and reset functionality
+// pages/search.js - Car search page with translations
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -11,6 +11,7 @@ export default function Search() {
   const { t } = useTranslation('common');
   const { user, getToken } = useAuth();
   const router = useRouter();
+  const { year: queryYear, make: queryMake, model: queryModel, mileage: queryMileage } = router.query;
 
   const [formData, setFormData] = useState({
     year: '',
@@ -24,6 +25,26 @@ export default function Search() {
   const [subscription, setSubscription] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Set form data from query parameters if they exist
+  useEffect(() => {
+    if (queryYear || queryMake || queryModel || queryMileage) {
+      setFormData({
+        year: queryYear || '',
+        make: queryMake || '',
+        model: queryModel || '',
+        mileage: queryMileage || ''
+      });
+      
+      // Auto-submit if all required parameters are present
+      if (queryYear && queryMake && queryModel && queryMileage) {
+        const autoSubmitForm = async () => {
+          await handleSubmit(null, true);
+        };
+        autoSubmitForm();
+      }
+    }
+  }, [queryYear, queryMake, queryModel, queryMileage]);
 
   useEffect(() => {
     const checkSubscription = async () => {
@@ -58,8 +79,8 @@ export default function Search() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e, isAutoSubmit = false) => {
+    if (e) e.preventDefault();
     setLoading(true);
     setSubmitted(true);
     setError('');
@@ -93,23 +114,24 @@ export default function Search() {
 
       const data = await response.json();
       setResults(data);
+      
+      // Update URL with search parameters for easy sharing/bookmarking
+      if (!isAutoSubmit) {
+        router.push({
+          pathname: router.pathname,
+          query: {
+            year: formData.year,
+            make: formData.make,
+            model: formData.model,
+            mileage: formData.mileage
+          }
+        }, undefined, { shallow: true });
+      }
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
-  };
-
-  // Added reset functionality to allow users to search again without refreshing
-  const handleReset = () => {
-    setResults(null);
-    setSubmitted(false);
-    setFormData({
-      year: '',
-      make: '',
-      model: '',
-      mileage: ''
-    });
   };
 
   return (
@@ -122,80 +144,73 @@ export default function Search() {
         </div>
       )}
 
-      {!submitted && (
-        <form onSubmit={handleSubmit} className="search-form">
-          <div className="form-group">
-            <label htmlFor="year">{t('search.year')}</label>
-            <input
-              type="number"
-              id="year"
-              name="year"
-              value={formData.year}
-              onChange={handleChange}
-              min="1980"
-              max="2025"
-              required
-              placeholder="e.g. 2018"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="search-form">
+        <div className="form-group">
+          <label htmlFor="year">{t('search.year')}</label>
+          <input
+            type="number"
+            id="year"
+            name="year"
+            value={formData.year}
+            onChange={handleChange}
+            min="1980"
+            max="2025"
+            required
+            placeholder="e.g. 2018"
+          />
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="make">{t('search.make')}</label>
-            <input
-              type="text"
-              id="make"
-              name="make"
-              value={formData.make}
-              onChange={handleChange}
-              required
-              placeholder="e.g. Toyota"
-            />
-          </div>
+        <div className="form-group">
+          <label htmlFor="make">{t('search.make')}</label>
+          <input
+            type="text"
+            id="make"
+            name="make"
+            value={formData.make}
+            onChange={handleChange}
+            required
+            placeholder="e.g. Toyota"
+          />
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="model">{t('search.model')}</label>
-            <input
-              type="text"
-              id="model"
-              name="model"
-              value={formData.model}
-              onChange={handleChange}
-              required
-              placeholder="e.g. Camry"
-            />
-          </div>
+        <div className="form-group">
+          <label htmlFor="model">{t('search.model')}</label>
+          <input
+            type="text"
+            id="model"
+            name="model"
+            value={formData.model}
+            onChange={handleChange}
+            required
+            placeholder="e.g. Camry"
+          />
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="mileage">{t('search.mileage')}</label>
-            <input
-              type="number"
-              id="mileage"
-              name="mileage"
-              value={formData.mileage}
-              onChange={handleChange}
-              min="0"
-              max="500000"
-              required
-              placeholder="e.g. 50000"
-            />
-          </div>
+        <div className="form-group">
+          <label htmlFor="mileage">{t('search.mileage')}</label>
+          <input
+            type="number"
+            id="mileage"
+            name="mileage"
+            value={formData.mileage}
+            onChange={handleChange}
+            min="0"
+            max="500000"
+            required
+            placeholder="e.g. 50000"
+          />
+        </div>
 
-          <button type="submit" disabled={loading}>
-            {loading ? <span className="spinner" /> : t('search.searchButton')}
-          </button>
-        </form>
-      )}
+        <button type="submit" disabled={loading}>
+          {loading ? <span className="spinner" /> : t('search.searchButton')}
+        </button>
+      </form>
 
       {error && <p className="error">{error}</p>}
 
       {results && (
         <div className="results">
-          <div className="results-header">
-            <h2>{t('search.resultsFor')} {formData.year} {formData.make} {formData.model}</h2>
-            <button onClick={handleReset} className="reset-button">
-              {t('search.newSearch', 'New Search')}
-            </button>
-          </div>
+          <h2>{t('search.resultsFor')} {formData.year} {formData.make} {formData.model}</h2>
 
           <div className="score-card">
             <h3>{t('search.overallScore')}</h3>
@@ -262,9 +277,9 @@ export default function Search() {
 
           <div className="analysis">
             <h3>{t('search.analysis')}</h3>
-            {results.isPremium ? (
-              <p>{results.aiAnalysis}</p>
-            ) : (
+            <p>{results.aiAnalysis}</p>
+
+            {!results.isPremium && (
               <div className="upgrade-prompt">
                 <p>{t('search.upgradePrompt')}</p>
                 <Link href="/pricing" className="upgrade-button">
@@ -273,6 +288,14 @@ export default function Search() {
               </div>
             )}
           </div>
+          
+          {user && (
+            <div className="search-actions">
+              <Link href="/search-history" className="view-history-button">
+                {t('search.viewSearchHistory')}
+              </Link>
+            </div>
+          )}
         </div>
       )}
 
@@ -343,17 +366,6 @@ export default function Search() {
           cursor: not-allowed;
         }
 
-        .reset-button {
-          background-color: #f3f4f6;
-          color: #374151;
-          font-size: 0.9rem;
-          padding: 0.5rem 1rem;
-        }
-        
-        .reset-button:hover {
-          background-color: #e5e7eb;
-        }
-
         .spinner {
           width: 20px;
           height: 20px;
@@ -401,13 +413,6 @@ export default function Search() {
 
         .results {
           margin-top: 2rem;
-        }
-        
-        .results-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 2rem;
         }
 
         .score-card {
@@ -506,16 +511,24 @@ export default function Search() {
           background-color: #0060df;
         }
         
-        @media (max-width: 768px) {
-          .results-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-          }
-          
-          .category-grid {
-            grid-template-columns: 1fr;
-          }
+        .search-actions {
+          margin-top: 2rem;
+          text-align: center;
+        }
+        
+        .view-history-button {
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background-color: #f5f5f5;
+          color: #0070f3;
+          border-radius: 4px;
+          font-weight: 500;
+          text-decoration: none;
+          transition: background-color 0.2s;
+        }
+        
+        .view-history-button:hover {
+          background-color: #e5f1ff;
         }
       `}</style>
     </Layout>
