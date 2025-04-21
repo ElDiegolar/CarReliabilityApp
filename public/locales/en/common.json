@@ -346,6 +346,8 @@
       "cta": "Go Professional"
     },
     "free": {
+      "title": "Free",
+      "period": "month",
       "cta": "Start Free Trial"
     },
     "legal": {

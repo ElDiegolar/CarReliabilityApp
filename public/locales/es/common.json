@@ -346,6 +346,8 @@
       "cta": "Obtener Profesional"
     },
     "free": {
+      "title": "Gratuito",
+      "period": "mes",
       "cta": "Comenzar prueba gratuita"
     },
     "legal": {

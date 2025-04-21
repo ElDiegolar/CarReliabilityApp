@@ -346,6 +346,8 @@
       "cta": "Passer à Professionnel"
     },
     "free": {
+      "title": "Gratuit",
+      "period": "mois",
       "cta": "Commencer l'essai gratuit"
     },
     "legal": {

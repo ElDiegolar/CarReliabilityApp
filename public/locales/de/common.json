@@ -346,6 +346,8 @@
       "cta": "Professional aktivieren"
     },
     "free": {
+      "title": "Kostenlos",
+      "period": "Monat",
       "cta": "Kostenlose Testversion starten"
     },
     "legal": {
