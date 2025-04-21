@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Obtenez des informations fiables sur votre véhicule",
-    "description": "Données détaillées sur la fiabilité des véhicules, problèmes courants et analyses d'experts.",
+    "description": "Données détaillées sur la fiabilité des véhicules, problèmes courants et analyse d'experts.",
     "search": "Rechercher un véhicule",
     "signup": "S'inscrire pour Premium"
   },
@@ -9,62 +9,19 @@
     "title": "Nos fonctionnalités",
     "reliabilityScores": {
       "title": "Scores de fiabilité",
-      "description": "Obtenez des scores de fiabilité complets pour les moteurs, les transmissions, les systèmes électriques et plus encore."
+      "description": "Obtenez des scores complets sur la fiabilité des moteurs, transmissions, systèmes électriques et plus encore."
     },
     "commonIssues": {
       "title": "Problèmes courants",
-      "description": "Découvrez les problèmes courants, les coûts de réparation estimés et quand ils se produisent généralement."
+      "description": "Informez-vous sur les problèmes fréquents, les coûts de réparation estimés et leur fréquence d'apparition."
     },
     "expertAnalysis": {
       "title": "Analyse d'experts",
-      "description": "Accédez à une analyse détaillée alimentée par l'IA de la fiabilité de chaque véhicule par rapport à des modèles similaires."
+      "description": "Accédez à une analyse détaillée basée sur l'IA de la fiabilité de chaque véhicule par rapport à des modèles similaires."
     },
     "premiumData": {
       "title": "Données Premium",
-      "description": "Abonnez-vous pour des rapports détaillés, des informations sur les rappels et des aperçus détaillés de la fiabilité."
-    }
-  },
-  "pricing": {
-    "title": "Choisissez votre forfait",
-    "description": "Accédez aux données de fiabilité des véhicules dont vous avez besoin avec nos forfaits d'abonnement flexibles",
-    "free": {
-      "title": "Gratuit",
-      "period": "pour toujours",
-      "features": [
-        "Scores de fiabilité de base",
-        "Données du moteur et de la transmission",
-        "Recherches de véhicules limitées",
-        "Analyse de base"
-      ],
-      "cta": "Essayer maintenant"
-    },
-    "premium": {
-      "title": "Premium",
-      "period": "par mois",
-      "badge": "Le plus populaire",
-      "features": [
-        "Scores de fiabilité complets",
-        "Données de tous les systèmes du véhicule",
-        "Problèmes courants avec coûts de réparation",
-        "Historique de 10 recherches sauvegardées",
-        "Analyse détaillée par IA",
-        "Support prioritaire"
-      ],
-      "cta": "S'abonner maintenant"
-    },
-    "professional": {
-      "title": "Professionnel",
-      "period": "par mois",
-      "features": [
-        "Tout ce qui est inclus dans Premium",
-        "Historique de recherche illimité",
-        "Analyse de véhicules par lot",
-        "Analyse de la valeur marchande",
-        "Intégration avec les concessionnaires",
-        "Accès API",
-        "Support prioritaire 24/7"
-      ],
-      "cta": "Obtenir Professionnel"
+      "description": "Abonnez-vous pour des rapports détaillés, informations sur les rappels et aperçus complets de fiabilité."
     }
   },
   "howItWorks": {
@@ -76,7 +33,7 @@
       },
       {
         "title": "Obtenez des résultats instantanés",
-        "description": "Notre IA analyse les données de plusieurs sources pour fournir des informations précises sur la fiabilité."
+        "description": "Notre IA analyse les données de multiples sources pour fournir des informations précises sur la fiabilité."
       },
       {
         "title": "Prenez des décisions éclairées",
@@ -89,32 +46,56 @@
     "register": "S'inscrire",
     "createAccount": "Créer un compte",
     "loggingIn": "Connexion en cours...",
-    "creatingAccount": "Création du compte en cours...",
-    "email": "Email",
+    "creatingAccount": "Création du compte...",
+    "email": "E-mail",
     "password": "Mot de passe",
     "confirmPassword": "Confirmer le mot de passe",
     "noAccount": "Vous n'avez pas de compte ?",
     "haveAccount": "Vous avez déjà un compte ?",
     "redirectNotice": "Vous serez redirigé après",
     "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
-    "authFailed": "L'authentification a échoué",
-    "emailRequired": "Email requis",
-    "passwordRequired": "Mot de passe requis",
-    "confirmPasswordRequired": "Confirmation du mot de passe requise",
-    "invalidEmail": "Veuillez entrer une adresse email valide",
+    "authFailed": "Échec de l'authentification",
+    "emailRequired": "L'e-mail est requis",
+    "passwordRequired": "Le mot de passe est requis",
+    "confirmPasswordRequired": "La confirmation du mot de passe est requise",
+    "invalidEmail": "Veuillez saisir une adresse e-mail valide",
     "passwordTooShort": "Le mot de passe doit comporter au moins 6 caractères"
   },
+  "savedVehicles": {
+    "title": "Véhicules enregistrés",
+    "saving": "Enregistrement...",
+    "saved": "Enregistré !",
+    "saveSearch": "Enregistrer le véhicule",
+    "loading": "Chargement des véhicules enregistrés...",
+    "noVehicles": "Vous n'avez pas encore enregistré de véhicules",
+    "authRequired": "Vous devez être connecté pour voir vos véhicules enregistrés",
+    "loadFailed": "Échec du chargement des véhicules enregistrés",
+    "vehicle": "Véhicule",
+    "mileage": "Kilométrage",
+    "saved": "Enregistré le",
+    "score": "Fiabilité",
+    "actions": "Actions",
+    "view": "Voir",
+    "delete": "Supprimer",
+    "deleting": "Suppression...",
+    "miles": "kilomètres",
+    "invalidDate": "Date invalide",
+    "limitedPlan": "Votre forfait vous permet d'enregistrer jusqu'à {{limit}} véhicules",
+    "upgradeForMore": "Passez à l'offre supérieure pour plus de véhicules enregistrés"
+  },
   "search": {
-    "title": "Rechercher la fiabilité des véhicules",
+    "title": "Rechercher la fiabilité d'un véhicule",
     "premiumUser": "Utilisateur Premium",
     "year": "Année",
     "make": "Marque",
     "model": "Modèle",
+    "miles": "Kilomètres",
     "mileage": "Kilométrage",
+    "modifySearch": "Modifier la recherche",
     "searchButton": "Rechercher",
     "searching": "Recherche en cours...",
     "resultsFor": "Résultats pour",
-    "overallScore": "Score de fiabilité global",
+    "overallScore": "Score global de fiabilité",
     "categoryScores": "Scores par catégorie",
     "engine": "Moteur",
     "transmission": "Transmission",
@@ -122,7 +103,7 @@
     "brakes": "Freins",
     "suspension": "Suspension",
     "fuelSystem": "Système de carburant",
-    "upgradeFull": "Passez à Premium pour des analyses complètes par catégorie",
+    "upgradeFull": "Passez à Premium pour les analyses complètes par catégorie",
     "commonIssues": "Problèmes courants",
     "costToFix": "Coût de réparation",
     "occurrence": "Occurrence",
@@ -133,13 +114,18 @@
     "searchError": "Échec de la récupération des données de fiabilité",
     "requiredFields": "L'année, la marque, le modèle et le kilométrage sont requis",
     "noResults": "Aucun résultat trouvé pour ce véhicule",
-    "loadingMessage": "Recherche de fiabilité en cours..."
+    "loadingMessage": "Recherche de fiabilité...",
+    "viewSearchHistory": "Voir l'historique de recherche",
+    "viewSavedVehicles": "Voir les véhicules enregistrés",
+    "saveSearch": "Enregistrer ce véhicule",
+    "saved": "Véhicule enregistré !",
+    "saving": "Enregistrement du véhicule..."
   },
   "profile": {
     "title": "Votre profil",
     "loading": "Chargement du profil...",
     "accountInfo": "Informations du compte",
-    "email": "Email",
+    "email": "E-mail",
     "memberSince": "Membre depuis",
     "subscription": "Abonnement",
     "plan": "Forfait",
@@ -153,14 +139,14 @@
     "accountSettings": "Paramètres du compte",
     "changePassword": "Changer le mot de passe",
     "deleteAccount": "Supprimer le compte",
-    "loadError": "Échec du chargement des données du profil",
+    "loadError": "Échec du chargement des données de profil",
     "statusActive": "Actif",
     "statusInactive": "Inactif",
     "statusExpired": "Expiré",
     "statusPastDue": "En retard",
     "statusCancelled": "Annulé",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée.",
-    "passwordChanged": "Mot de passe changé avec succès",
+    "passwordChanged": "Mot de passe modifié avec succès",
     "freePlan": "Gratuit",
     "premiumPlan": "Premium",
     "professionalPlan": "Professionnel",
@@ -175,41 +161,44 @@
     "passwordTooShort": "Le mot de passe doit comporter au moins 8 caractères",
     "loginRequired": "Vous devez être connecté pour changer votre mot de passe",
     "changeFailed": "Échec du changement de mot de passe",
-    "changing": "Changement en cours...",
+    "changing": "Modification en cours...",
     "changePassword": "Changer le mot de passe"
   },
   "deleteModal": {
     "title": "Supprimer le compte",
-    "warningPermanent": "Cette action ne peut pas être annulée. Toutes vos données, y compris l'historique des recherches et les informations d'abonnement, seront définitivement supprimées.",
+    "warningPermanent": "Cette action ne peut pas être annulée. Toutes vos données, y compris l'historique de recherche et les informations d'abonnement, seront définitivement supprimées.",
     "subscriptionWarning": "Si vous avez un abonnement actif, vous devrez l'annuler séparément via votre fournisseur de paiement.",
-    "typeDeleteToConfirm": "Tapez DELETE pour confirmer",
+    "typeDeleteToConfirm": "Tapez SUPPRIMER pour confirmer",
     "loginRequired": "Vous devez être connecté pour supprimer votre compte",
     "deleteFailed": "Échec de la suppression du compte",
     "deleting": "Suppression en cours...",
     "deleteAccount": "Supprimer mon compte"
   },
   "searchHistory": {
-    "title": "Votre historique de recherche",
-    "loading": "Chargement de l'historique de recherche...",
-    "authRequired": "Authentification requise",
+    "title": "Historique de recherche",
+    "noSearches": "Vous n'avez pas encore recherché de véhicules",
+    "loading": "Chargement de votre historique de recherche...",
     "loadFailed": "Échec du chargement de l'historique de recherche",
-    "unknownDate": "Date inconnue",
-    "invalidDate": "Date invalide",
-    "limitedPlan": "Votre forfait actuel permet jusqu'à {{limit}} recherches récentes.",
-    "upgradeProfessional": "Passez à Professionnel pour un historique de recherche illimité",
-    "noSearches": "Vous n'avez pas encore recherché de véhicules.",
+    "authRequired": "Vous devez être connecté pour voir votre historique de recherche",
+    "limitedPlan": "Votre forfait vous permet de voir jusqu'à {{limit}} recherches récentes",
+    "upgradeProfessional": "Passez à l'offre Professionnelle pour un historique illimité",
     "searchNow": "Rechercher maintenant",
     "vehicle": "Véhicule",
+    "score": "Score",
     "mileage": "Kilométrage",
     "date": "Date",
     "actions": "Actions",
     "miles": "kilomètres",
-    "searchAgain": "Rechercher à nouveau"
+    "unknownDate": "Date inconnue",
+    "invalidDate": "Date invalide",
+    "searchAgain": "Rechercher à nouveau",
+    "viewResults": "Voir les résultats",
+    "hideResults": "Masquer les résultats"
   },
   "history": {
     "title": "Votre historique de recherche",
     "limitNote": "Votre forfait actuel permet jusqu'à {limit} recherches récentes.",
-    "upgradeLink": "Passez à Professionnel pour un historique de recherche illimité",
+    "upgradeLink": "Passez à l'offre Professionnelle pour un historique de recherche illimité",
     "loading": "Chargement de l'historique de recherche...",
     "noSearches": "Vous n'avez pas encore recherché de véhicules.",
     "searchNow": "Rechercher maintenant",
@@ -236,20 +225,20 @@
     },
     "cancel": {
       "title": "Paiement annulé",
-      "message": "Votre paiement a été annulé et aucun montant ne vous a été facturé. Si vous avez des questions ou des préoccupations, veuillez contacter notre équipe de support.",
+      "message": "Votre paiement a été annulé et aucun montant ne vous a été facturé. Si vous avez des questions ou des préoccupations, veuillez contacter notre équipe d'assistance.",
       "viewPlans": "Voir les forfaits",
       "continueSearching": "Continuer à rechercher",
       "needHelp": "Besoin d'aide ?",
-      "supportMessage": "Si vous avez rencontré des problèmes lors du processus de paiement, notre équipe de support est disponible pour vous aider.",
-      "contactSupport": "Contacter le support"
+      "supportMessage": "Si vous avez rencontré des problèmes lors du processus de paiement, notre équipe d'assistance est disponible pour vous aider.",
+      "contactSupport": "Contacter l'assistance"
     },
     "failure": {
       "title": "Échec de la vérification du paiement",
-      "contactPrompt": "Veuillez contacter notre équipe de support pour obtenir de l'aide.",
+      "contactPrompt": "Veuillez contacter notre équipe d'assistance pour obtenir de l'aide.",
       "goToProfile": "Aller au profil"
     },
     "checkout": {
-      "title": "Finaliser votre abonnement",
+      "title": "Compléter votre abonnement",
       "processing": "Traitement de votre demande...",
       "redirecting": "Redirection vers le paiement sécurisé...",
       "cardInfo": "Informations de carte",
@@ -270,24 +259,24 @@
     "history": "Historique",
     "profile": "Profil",
     "login": "Connexion",
-    "register": "S'inscrire",
+    "register": "Inscription",
     "logout": "Déconnexion",
     "language": "Langue"
   },
   "footer": {
-    "copyright": "© 2025 Car Reliability. Tous droits réservés.",
+    "copyright": "© 2025 Verida. Tous droits réservés.",
     "privacy": "Politique de confidentialité",
     "terms": "Conditions d'utilisation",
-    "contact": "Nous contacter"
+    "contact": "Contact"
   },
   "errors": {
     "generic": "Une erreur s'est produite. Veuillez réessayer.",
     "authRequired": "Authentification requise",
     "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
     "connectionError": "Erreur de connexion. Veuillez vérifier votre connexion internet.",
-    "serverError": "Erreur de serveur. Veuillez réessayer plus tard.",
+    "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
     "permissionDenied": "Permission refusée. Vous n'avez pas accès à cette ressource.",
-    "notFound": "Ressource introuvable."
+    "notFound": "Ressource non trouvée."
   },
   "notifications": {
     "success": "Succès !",
@@ -296,7 +285,7 @@
     "info": "Information",
     "loginSuccess": "Connexion réussie !",
     "logoutSuccess": "Vous avez été déconnecté avec succès.",
-    "registerSuccess": "Inscription réussie ! Bienvenue chez Car Reliability."
+    "registerSuccess": "Inscription réussie ! Bienvenue sur Verida."
   },
   "common": {
     "warning": "Avertissement",
@@ -305,12 +294,100 @@
     "confirm": "Confirmer",
     "error": "Erreur"
   },
-  "dates": {
-    "today": "Aujourd'hui",
-    "yesterday": "Hier",
-    "daysAgo": "Il y a {count} jours",
-    "dateFormat": "DD/MM/YYYY",
-    "monthNames": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
-    "monthNamesShort": ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"]
+  "report": {
+    "downloadPdf": "Télécharger le rapport PDF",
+    "generating": "Génération du PDF...",
+    "pdfTitle": "Rapport de fiabilité du véhicule",
+    "generatedOn": "Généré le",
+    "overallScore": "Score global",
+    "categoryScores": "Scores par catégorie",
+    "commonIssues": "Problèmes courants",
+    "analysis": "Analyse de fiabilité",
+    "costToFix": "Coût de réparation",
+    "occurrence": "Occurrence",
+    "typicalMileage": "Kilométrage typique",
+    "disclaimer": "Avertissement : Ce rapport est basé sur des données agrégées et peut ne pas représenter votre véhicule spécifique. Consultez toujours un mécanicien qualifié.",
+    "poweredBy": "Propulsé par Verida.com",
+    "premiumPrompt": "Passez à Premium pour des informations détaillées",
+    "generateFailed": "Échec de la génération du PDF. Veuillez réessayer."
+  },
+  "pricing": {
+    "title": "Choisissez votre forfait",
+    "description": "Accédez aux données de fiabilité des véhicules dont vous avez besoin avec nos forfaits d'abonnement flexibles",
+    "per": "par",
+    "subscribeNow": "S'abonner maintenant",
+    "processing": "Traitement en cours...",
+    "premium": {
+      "title": "Premium",
+      "period": "mois",
+      "badge": "Plus populaire",
+      "features": [
+        "Scores de fiabilité complets",
+        "Données sur tous les systèmes du véhicule",
+        "Problèmes courants avec coûts de réparation",
+        "Support prioritaire",
+        "Historique de recherche limité"
+      ],
+      "cta": "Passer à Premium"
+    },
+    "professional": {
+      "title": "Professionnel",
+      "period": "mois",
+      "features": [
+        "Tout ce qui est inclus dans Premium",
+        "Analyse de véhicules par lots",
+        "Outils de comparaison",
+        "Analyse de la valeur marchande",
+        "Intégration aux concessionnaires",
+        "Historique de recherche illimité",
+        "Accès API",
+        "Support prioritaire 24/7"
+      ],
+      "cta": "Passer à Professionnel"
+    },
+    "free": {
+      "cta": "Commencer l'essai gratuit"
+    },
+    "legal": {
+      "termsTitle": "Conditions d'utilisation",
+      "privacyTitle": "Politique de confidentialité",
+      "lastUpdated": "Dernière mise à jour",
+      "viewTerms": "Consulter nos Conditions d'utilisation",
+      "viewPrivacy": "Consulter notre Politique de confidentialité"
+    },
+    "dates": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "daysAgo": "Il y a {count} jours",
+      "dateFormat": "DD/MM/YYYY",
+      "monthNames": [
+        "janvier",
+        "février",
+        "mars",
+        "avril",
+        "mai",
+        "juin",
+        "juillet",
+        "août",
+        "septembre",
+        "octobre",
+        "novembre",
+        "décembre"
+      ],
+      "monthNamesShort": [
+        "janv.",
+        "févr.",
+        "mars",
+        "avr.",
+        "mai",
+        "juin",
+        "juil.",
+        "août",
+        "sept.",
+        "oct.",
+        "nov.",
+        "déc."
+      ]
+    }
   }
 }

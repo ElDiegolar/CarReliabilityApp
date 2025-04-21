@@ -13,58 +13,15 @@
     },
     "commonIssues": {
       "title": "Problemi Komuni",
-      "description": "Tgħallem dwar problemi komuni, spejjeż ta' tiswija stmati, u meta dawn normalment iseħħu."
+      "description": "Tgħallem dwar problemi komuni, spejjeż stmati ta' tiswija, u meta normalment iseħħu."
     },
     "expertAnalysis": {
       "title": "Analiżi ta' Esperti",
-      "description": "Aċċessa analiżi dettaljata bl-intelliġenza artifiċjali dwar l-affidabbiltà ta' kull vettura mqabbla ma' mudelli simili."
+      "description": "Aċċess għal analiżi dettaljata bl-għajnuna tal-AI ta' kull affidabbiltà ta' vettura mqabbla ma' mudelli simili."
     },
     "premiumData": {
       "title": "Data Premium",
       "description": "Abbona għal rapporti dettaljati, informazzjoni dwar sejħiet lura, u għarfien dettaljat dwar l-affidabbiltà."
-    }
-  },
-  "pricing": {
-    "title": "Agħżel il-Pjan Tiegħek",
-    "description": "Aċċessa d-data ta' affidabbiltà tal-vettura li teħtieġ bil-pjanijiet ta' abbonament flessibbli tagħna",
-    "free": {
-      "title": "B'Xejn",
-      "period": "għal dejjem",
-      "features": [
-        "Punteġġi bażiċi ta' affidabbiltà",
-        "Data tal-magna u tat-trasmissjoni",
-        "Tfittxijiet limitati ta' vetturi",
-        "Analiżi bażika"
-      ],
-      "cta": "Ipprova Issa"
-    },
-    "premium": {
-      "title": "Premium",
-      "period": "kull xahar",
-      "badge": "L-Aktar Popolari",
-      "features": [
-        "Punteġġi komprensivi ta' affidabbiltà",
-        "Data tas-sistemi kollha tal-vettura",
-        "Problemi komuni b'spejjeż ta' tiswija",
-        "10 tfittxijiet salvati fl-istorja",
-        "Analiżi dettaljata bl-intelliġenza artifiċjali",
-        "Appoġġ prijoritarju"
-      ],
-      "cta": "Abbona Issa"
-    },
-    "professional": {
-      "title": "Professjonali",
-      "period": "kull xahar",
-      "features": [
-        "Kollox fil-Premium",
-        "Storja ta' tifxix mingħajr limiti",
-        "Analiżi ta' vetturi f'daqqa",
-        "Analiżi tal-valur tas-suq",
-        "Integrazzjoni ma' negozjanti",
-        "Aċċess għall-API",
-        "Appoġġ prijoritarju 24/7"
-      ],
-      "cta": "Ikseb Professjonali"
     }
   },
   "howItWorks": {
@@ -76,11 +33,11 @@
       },
       {
         "title": "Ikseb Riżultati Istantanji",
-        "description": "L-intelliġenza artifiċjali tagħna tanalizza data minn sorsi multipli biex tipprovdi informazzjoni preċiża dwar l-affidabbiltà."
+        "description": "L-AI tagħna tanalizza data minn diversi sorsi biex tipprovdi informazzjoni preċiża dwar l-affidabbiltà."
       },
       {
         "title": "Ħu Deċiżjonijiet Infurmati",
-        "description": "Uża d-data tal-affidabbiltà biex tieħu deċiżjonijiet aħjar dwar ix-xiri, il-bejgħ, jew il-manutenzjoni ta' vetturi."
+        "description": "Uża d-data dwar l-affidabbiltà biex tieħu deċiżjonijiet aħjar dwar ix-xiri, il-bejgħ, jew il-manutenzjoni tal-vetturi."
       }
     ]
   },
@@ -95,14 +52,36 @@
     "confirmPassword": "Ikkonferma l-Password",
     "noAccount": "M'għandekx kont?",
     "haveAccount": "Diġà għandek kont?",
-    "redirectNotice": "Se tiġi dirett lura wara",
+    "redirectNotice": "Se tiġi ridirezzjonat lura wara",
     "passwordsDoNotMatch": "Il-passwords ma jaqblux",
     "authFailed": "L-awtentikazzjoni falliet",
-    "emailRequired": "Email meħtieġ",
-    "passwordRequired": "Password meħtieġa",
-    "confirmPasswordRequired": "Konferma tal-password meħtieġa",
+    "emailRequired": "Email hija meħtieġa",
+    "passwordRequired": "Password hija meħtieġa",
+    "confirmPasswordRequired": "Konferma tal-password hija meħtieġa",
     "invalidEmail": "Jekk jogħġbok daħħal indirizz email validu",
-    "passwordTooShort": "Il-password trid tkun tal-inqas 6 karattri"
+    "passwordTooShort": "Il-password trid tkun mill-inqas 6 karattri"
+  },
+  "savedVehicles": {
+    "title": "Vetturi Salvati",
+    "saving": "Qed issalva...",
+    "saved": "Salvat!",
+    "saveSearch": "Salva Vettura",
+    "loading": "Qed jillowdja vetturi salvati...",
+    "noVehicles": "Għadek ma salvajt l-ebda vettura",
+    "authRequired": "Trid tkun illoggjat biex tara l-vetturi salvati tiegħek",
+    "loadFailed": "Naqas mit-tgħabija tal-vetturi salvati",
+    "vehicle": "Vettura",
+    "mileage": "Kilometraġġ",
+    "saved": "Salvat Fuq",
+    "score": "Affidabbiltà",
+    "actions": "Azzjonijiet",
+    "view": "Ara",
+    "delete": "Ħassar",
+    "deleting": "Qed tħassar...",
+    "miles": "kilometri",
+    "invalidDate": "Data invalida",
+    "limitedPlan": "Il-pjan tiegħek jippermettilek tissejvja sa {{limit}} vetturi",
+    "upgradeForMore": "Aġġorna għal aktar vetturi salvati"
   },
   "search": {
     "title": "Fittex Affidabbiltà tal-Vettura",
@@ -110,37 +89,44 @@
     "year": "Sena",
     "make": "Marka",
     "model": "Mudell",
+    "miles": "Kilometri",
     "mileage": "Kilometraġġ",
+    "modifySearch": "Immodifika t-Tfittxija",
     "searchButton": "Fittex",
     "searching": "Qed ifittex...",
     "resultsFor": "Riżultati għal",
-    "overallScore": "Punteġġ ta' Affidabbiltà Ġenerali",
-    "categoryScores": "Punteġġi skont il-Kategorija",
+    "overallScore": "Punteġġ Ġenerali ta' Affidabbiltà",
+    "categoryScores": "Punteġġi tal-Kategorija",
     "engine": "Magna",
     "transmission": "Trasmissjoni",
     "electrical": "Sistema Elettrika",
     "brakes": "Brejkijiet",
     "suspension": "Sospensjoni",
     "fuelSystem": "Sistema tal-Fjuwil",
-    "upgradeFull": "Aġġorna għal premium għal analiżi sħiħa skont il-kategorija",
+    "upgradeFull": "Aġġorna għal premium għal analiżi sħiħa tal-kategoriji",
     "commonIssues": "Problemi Komuni",
-    "costToFix": "Spiża għat-Tiswija",
+    "costToFix": "Spiża biex Tissewwa",
     "occurrence": "Okkorrenza",
     "typicalMileage": "Kilometraġġ Tipiku",
     "analysis": "Analiżi",
-    "upgradePrompt": "Aġġorna għal premium għal analiżi sħiħa bl-intelliġenza artifiċjali u rapporti dettaljati.",
-    "goPremium": "Ikseb Premium",
-    "searchError": "Ma rnexxiex jikseb data dwar l-affidabbiltà",
-    "requiredFields": "Sena, marka, mudell, u kilometraġġ huma meħtieġa",
+    "upgradePrompt": "Aġġorna għal premium għal analiżi sħiħa tal-AI u rapporti dettaljati.",
+    "goPremium": "Mur Premium",
+    "searchError": "Naqas milli jġib data dwar l-affidabbiltà",
+    "requiredFields": "Is-sena, il-marka, il-mudell, u l-kilometraġġ huma meħtieġa",
     "noResults": "Ma nstabux riżultati għal din il-vettura",
-    "loadingMessage": "Qed ifittex l-affidabbiltà..."
+    "loadingMessage": "Qed ifittex l-affidabbiltà...",
+    "viewSearchHistory": "Ara l-Istorja tat-Tfittxija",
+    "viewSavedVehicles": "Ara l-Vetturi Salvati",
+    "saveSearch": "Salva Din il-Vettura",
+    "saved": "Vettura Salvata!",
+    "saving": "Qed Issalva l-Vettura..."
   },
   "profile": {
     "title": "Il-Profil Tiegħek",
-    "loading": "Qed jitgħabba l-profil...",
+    "loading": "Qed jillowdja l-profil...",
     "accountInfo": "Informazzjoni tal-Kont",
     "email": "Email",
-    "memberSince": "Membru minn",
+    "memberSince": "Membru Minn",
     "subscription": "Abbonament",
     "plan": "Pjan",
     "status": "Status",
@@ -153,15 +139,15 @@
     "accountSettings": "Settings tal-Kont",
     "changePassword": "Ibdel il-Password",
     "deleteAccount": "Ħassar il-Kont",
-    "loadError": "Ma rnexxiex jitgħabba d-data tal-profil",
+    "loadError": "Naqas mit-tgħabija tad-data tal-profil",
     "statusActive": "Attiv",
     "statusInactive": "Inattiv",
     "statusExpired": "Skadut",
-    "statusPastDue": "Skadut u dovut",
+    "statusPastDue": "Skadut",
     "statusCancelled": "Ikkanċellat",
-    "deleteConfirm": "Żgur li trid tħassar il-kont tiegħek? Din l-azzjoni ma tistax tiġi mreġġa' lura.",
+    "deleteConfirm": "Żgur li trid tħassar il-kont tiegħek? Din l-azzjoni ma tistax tiġi mħassra.",
     "passwordChanged": "Il-password inbidlet b'suċċess",
-    "freePlan": "B'Xejn",
+    "freePlan": "Bla Ħlas",
     "premiumPlan": "Premium",
     "professionalPlan": "Professjonali",
     "member": "MEMBRU"
@@ -170,56 +156,59 @@
     "title": "Ibdel il-Password",
     "currentPassword": "Password Kurrenti",
     "newPassword": "Password Ġdida",
-    "confirmNewPassword": "Ikkonferma l-Password Ġdida",
-    "passwordsDoNotMatch": "Il-passwords ġodda ma jaqblux",
-    "passwordTooShort": "Il-password trid tkun tal-inqas 8 karattri",
-    "loginRequired": "Trid tidħol biex tbiddel il-password tiegħek",
-    "changeFailed": "Il-bidla tal-password falliet",
-    "changing": "Qed jinbidel...",
+    "confirmNewPassword": "Ikkonferma l-Password il-Ġdida",
+    "passwordsDoNotMatch": "Il-passwords il-ġodda ma jaqblux",
+    "passwordTooShort": "Il-password trid tkun mill-inqas 8 karattri",
+    "loginRequired": "Trid tkun illoggjat biex tibdel il-password tiegħek",
+    "changeFailed": "Naqas mill-bidla tal-password",
+    "changing": "Qed jibdel...",
     "changePassword": "Ibdel il-Password"
   },
   "deleteModal": {
     "title": "Ħassar il-Kont",
-    "warningPermanent": "Din l-azzjoni ma tistax tiġi mreġġa' lura. Id-data kollha tiegħek, inkluż l-istorja tat-tfittxija u l-informazzjoni tal-abbonament, se titħassar b'mod permanenti.",
-    "subscriptionWarning": "Jekk għandek abbonament attiv, trid tikkanċellah separatament permezz tal-fornitur tal-ħlas tiegħek.",
-    "typeDeleteToConfirm": "Ikteb DELETE biex tikkonferma",
-    "loginRequired": "Trid tidħol biex tħassar il-kont tiegħek",
-    "deleteFailed": "It-tħassir tal-kont falla",
-    "deleting": "Qed jitħassar...",
+    "warningPermanent": "Din l-azzjoni ma tistax tiġi mħassra. Id-data kollha tiegħek, inkluż l-istorja tat-tfittxija u l-informazzjoni tal-abbonament, se titħassar b'mod permanenti.",
+    "subscriptionWarning": "Jekk għandek abbonament attiv, ikollok bżonn tikkanċellah separatament permezz tal-fornitur tal-ħlas tiegħek.",
+    "typeDeleteToConfirm": "Ittajpja ĦASSAR biex tikkonferma",
+    "loginRequired": "Trid tkun illoggjat biex tħassar il-kont tiegħek",
+    "deleteFailed": "Naqas mit-tħassir tal-kont",
+    "deleting": "Qed iħassar...",
     "deleteAccount": "Ħassar il-Kont Tiegħi"
   },
   "searchHistory": {
-    "title": "L-Istorja tat-Tfittxija Tiegħek",
-    "loading": "Qed titgħabba l-istorja tat-tfittxija...",
-    "authRequired": "Awtentikazzjoni meħtieġa",
-    "loadFailed": "Ma rnexxiex jitgħabba l-istorja tat-tfittxija",
-    "unknownDate": "Data mhux magħrufa",
-    "invalidDate": "Data mhux valida",
-    "limitedPlan": "Il-pjan attwali tiegħek jippermetti sa {{limit}} tfittxijiet riċenti.",
-    "upgradeProfessional": "Aġġorna għal Professjonali għal storja tat-tfittxija mingħajr limiti",
-    "noSearches": "Għadek ma fittextx vetturi.",
+    "title": "Istorja tat-Tfittxija",
+    "noSearches": "Għadek ma fittextx għal ebda vettura",
+    "loading": "Qed jillowdja l-istorja tat-tfittxija tiegħek...",
+    "loadFailed": "Naqas mit-tgħabija tal-istorja tat-tfittxija",
+    "authRequired": "Għandek bżonn tkun illoggjat biex tara l-istorja tat-tfittxija tiegħek",
+    "limitedPlan": "Il-pjan tiegħek jippermettilek tara sa {{limit}} tfittxijiet riċenti",
+    "upgradeProfessional": "Aġġorna għal Professjonali għal storja illimitata",
     "searchNow": "Fittex Issa",
     "vehicle": "Vettura",
+    "score": "Punteġġ",
     "mileage": "Kilometraġġ",
     "date": "Data",
     "actions": "Azzjonijiet",
     "miles": "kilometri",
-    "searchAgain": "Erġa' Fittex"
+    "unknownDate": "Data mhux magħrufa",
+    "invalidDate": "Data invalida",
+    "searchAgain": "Fittex Mill-Ġdid",
+    "viewResults": "Ara r-Riżultati",
+    "hideResults": "Aħbi r-Riżultati"
   },
   "history": {
     "title": "L-Istorja tat-Tfittxija Tiegħek",
-    "limitNote": "Il-pjan attwali tiegħek jippermetti sa {limit} tfittxijiet riċenti.",
-    "upgradeLink": "Aġġorna għal Professjonali għal storja tat-tfittxija mingħajr limiti",
-    "loading": "Qed titgħabba l-istorja tat-tfittxija...",
-    "noSearches": "Għadek ma fittextx vetturi.",
+    "limitNote": "Il-pjan kurrenti tiegħek jippermetti sa {limit} tfittxijiet riċenti.",
+    "upgradeLink": "Aġġorna għal Professjonali għal storja tat-tfittxija illimitata",
+    "loading": "Qed jillowdja l-istorja tat-tfittxija...",
+    "noSearches": "Għadek ma fittextx għal ebda vettura.",
     "searchNow": "Fittex Issa",
     "vehicle": "Vettura",
     "mileage": "Kilometraġġ",
     "date": "Data",
     "actions": "Azzjonijiet",
-    "searchAgain": "Erġa' Fittex",
+    "searchAgain": "Fittex Mill-Ġdid",
     "miles": "kilometri",
-    "loadError": "Ma rnexxiex jitgħabba l-istorja tat-tfittxija",
+    "loadError": "Naqas mit-tgħabija tal-istorja tat-tfittxija",
     "clearHistory": "Ħassar l-Istorja",
     "clearConfirm": "Żgur li trid tħassar l-istorja tat-tfittxija tiegħek?",
     "clearSuccess": "L-istorja tat-tfittxija tħassret b'suċċess"
@@ -227,44 +216,44 @@
   "payment": {
     "success": {
       "title": "Ħlas b'Suċċess!",
-      "verifying": "Qed tiġi verifikata l-ħlas tiegħek...",
-      "thankYou": "Grazzi tal-abbonament tiegħek. Issa għandek aċċess premium għall-karatteristiċi kollha.",
-      "accessToken": "It-token ta' aċċess premium tiegħek:",
-      "tokenTip": "Tista' tuża dan it-token biex taċċessa karatteristiċi premium minn apparati oħra.",
+      "verifying": "Qed jivverifika l-ħlas tiegħek...",
+      "thankYou": "Grazzi għall-abbonament tiegħek. Issa għandek aċċess premium għall-karatteristiċi kollha.",
+      "accessToken": "It-token tal-aċċess premium tiegħek:",
+      "tokenTip": "Tista' tuża dan it-token biex taċċessa l-karatteristiċi premium minn apparati oħra.",
       "viewProfile": "Ara l-Profil",
-      "startSearching": "Ibda Tfittex"
+      "startSearching": "Ibda Fittex"
     },
     "cancel": {
       "title": "Ħlas Ikkanċellat",
       "message": "Il-ħlas tiegħek ġie kkanċellat u ma ġejtx iċċarġjat. Jekk għandek xi mistoqsijiet jew tħassib, jekk jogħġbok ikkuntattja lit-tim ta' appoġġ tagħna.",
       "viewPlans": "Ara l-Pjanijiet",
-      "continueSearching": "Kompli Tfittex",
-      "needHelp": "Għandek Bżonn Għajnuna?",
-      "supportMessage": "Jekk iltqajt ma' xi problemi waqt il-proċess tal-ħlas, it-tim ta' appoġġ tagħna huwa disponibbli biex jgħinek.",
+      "continueSearching": "Kompli Fittex",
+      "needHelp": "Bżonn Għajnuna?",
+      "supportMessage": "Jekk iltqajt ma' xi problemi matul il-proċess tal-ħlas, it-tim ta' appoġġ tagħna huwa disponibbli biex jgħinek.",
       "contactSupport": "Ikkuntattja l-Appoġġ"
     },
     "failure": {
-      "title": "Verifikazzjoni tal-Ħlas Falliet",
-      "contactPrompt": "Jekk jogħġbok ikkuntattja lit-tim ta' appoġġ tagħna għall-assistenza.",
+      "title": "Il-Verifika tal-Ħlas Falliet",
+      "contactPrompt": "Jekk jogħġbok ikkuntattja lit-tim ta' appoġġ tagħna għal għajnuna.",
       "goToProfile": "Mur għall-Profil"
     },
     "checkout": {
-      "title": "Lesti l-Abbonament Tiegħek",
-      "processing": "Qed tiġi pproċessata t-talba tiegħek...",
-      "redirecting": "Qed tiġi ridirezzjonat għall-ħlas sigur...",
+      "title": "Ikkompletha l-Abbonament Tiegħek",
+      "processing": "Qed jipproċessa t-talba tiegħek...",
+      "redirecting": "Qed jirridirigi għall-ħlas sigur...",
       "cardInfo": "Informazzjoni tal-Karta",
       "cardNumber": "Numru tal-Karta",
       "expiryDate": "Data ta' Skadenza",
       "cvc": "CVC",
       "nameOnCard": "Isem fuq il-Karta",
-      "billingAddress": "Indirizz tal-Fatturar",
+      "billingAddress": "Indirizz tal-Kont",
       "subscribe": "Abbona Issa",
       "securePayment": "Ħlas Sigur",
-      "termsAgreement": "Billi tabbona, inti taqbel mat-Termini ta' Servizz u l-Politika ta' Privatezza tagħna."
+      "termsAgreement": "Bl-abbonament, qed taqbel mat-Termini tas-Servizz u l-Politika tal-Privatezza tagħna."
     }
   },
   "nav": {
-    "home": "Paġna Ewlenija",
+    "home": "Dar",
     "search": "Fittex",
     "pricing": "Prezzijiet",
     "history": "Storja",
@@ -275,19 +264,19 @@
     "language": "Lingwa"
   },
   "footer": {
-    "copyright": "© 2025 Car Reliability. Id-drittijiet kollha riservati.",
-    "privacy": "Politika ta' Privatezza",
-    "terms": "Termini ta' Servizz",
-    "contact": "Ikkuntattjana"
+    "copyright": "© 2025 Verida. Id-drittijiet kollha riservati.",
+    "privacy": "Politika tal-Privatezza",
+    "terms": "Termini tas-Servizz",
+    "contact": "Kuntatt"
   },
   "errors": {
-    "generic": "Seħħet żball. Jekk jogħġbok erġa' pprova.",
+    "generic": "Seħħ żball. Jekk jogħġbok erġa' pprova.",
     "authRequired": "Awtentikazzjoni meħtieġa",
-    "sessionExpired": "Is-sessjoni tiegħek skadiet. Jekk jogħġbok idħol mill-ġdid.",
-    "connectionError": "Żball fil-konnessjoni. Jekk jogħġbok iċċekkja l-konnessjoni tal-internet tiegħek.",
-    "serverError": "Żball fis-server. Jekk jogħġbok erġa' pprova aktar tard.",
+    "sessionExpired": "Is-sessjoni tiegħek skadiet. Jekk jogħġbok erġa' idħol.",
+    "connectionError": "Żball ta' konnessjoni. Jekk jogħġbok iċċekkja l-konnessjoni tal-internet tiegħek.",
+    "serverError": "Żball tas-server. Jekk jogħġbok erġa' pprova aktar tard.",
     "permissionDenied": "Permess miċħud. M'għandekx aċċess għal din ir-riżorsa.",
-    "notFound": "Riżorsa mhux misjuba."
+    "notFound": "Riżorsa mhix misjuba."
   },
   "notifications": {
     "success": "Suċċess!",
@@ -296,21 +285,109 @@
     "info": "Informazzjoni",
     "loginSuccess": "Dħul b'suċċess!",
     "logoutSuccess": "Ħriġt b'suċċess.",
-    "registerSuccess": "Reġistrazzjoni b'suċċess! Merħba f'Car Reliability."
+    "registerSuccess": "Reġistrazzjoni b'suċċess! Merħba f'Verida."
   },
   "common": {
     "warning": "Twissija",
     "cancel": "Ikkanċella",
-    "save": "Issejvja",
+    "save": "Salva",
     "confirm": "Ikkonferma",
     "error": "Żball"
   },
-  "dates": {
-    "today": "Illum",
-    "yesterday": "Ilbieraħ",
-    "daysAgo": "{count} ġurnata ilu",
-    "dateFormat": "DD/MM/YYYY",
-    "monthNames": ["Jannar", "Frar", "Marzu", "April", "Mejju", "Ġunju", "Lulju", "Awwissu", "Settembru", "Ottubru", "Novembru", "Diċembru"],
-    "monthNamesShort": ["Jan", "Fra", "Mar", "Apr", "Mej", "Ġun", "Lul", "Aww", "Set", "Ott", "Nov", "Diċ"]
+  "report": {
+    "downloadPdf": "Niżżel Rapport PDF",
+    "generating": "Qed jiġġenera PDF...",
+    "pdfTitle": "Rapport tal-Affidabbiltà tal-Vettura",
+    "generatedOn": "Iġġenerat fi",
+    "overallScore": "Punteġġ Ġenerali",
+    "categoryScores": "Punteġġi tal-Kategorija",
+    "commonIssues": "Problemi Komuni",
+    "analysis": "Analiżi tal-Affidabbiltà",
+    "costToFix": "Spiża biex Tissewwa",
+    "occurrence": "Okkorrenza",
+    "typicalMileage": "Kilometraġġ Tipiku",
+    "disclaimer": "Disclaimer: Dan ir-rapport huwa bbażat fuq data aggregata u jista' ma jirrappreżentax il-vettura speċifika tiegħek. Dejjem ikkonsulta mekkaniku kwalifikat.",
+    "poweredBy": "Powered by Verida.com",
+    "premiumPrompt": "Aġġorna għal premium għal informazzjoni dettaljata",
+    "generateFailed": "Naqas milli jiġġenera PDF. Jekk jogħġbok erġa' pprova."
+  },
+  "pricing": {
+    "title": "Agħżel il-Pjan Tiegħek",
+    "description": "Aċċessa d-data dwar l-affidabbiltà tal-vettura li għandek bżonn bil-pjanijiet flessibbli ta' abbonament tagħna",
+    "per": "kull",
+    "subscribeNow": "Abbona Issa",
+    "processing": "Qed jipproċessa...",
+    "premium": {
+      "title": "Premium",
+      "period": "xahar",
+      "badge": "L-Aktar Popolari",
+      "features": [
+        "Punteġġi komprensivi ta' affidabbiltà",
+        "Data dwar is-sistemi kollha tal-vetturi",
+        "Problemi komuni bi spejjeż ta' tiswija",
+        "Appoġġ prijoritarju",
+        "Storja tat-tfittxija limitata"
+      ],
+      "cta": "Mur Premium"
+    },
+    "professional": {
+      "title": "Professjonali",
+      "period": "xahar",
+      "features": [
+        "Kollox fil-Premium",
+        "Analiżi tal-vettura f'daqqa",
+        "Għodod ta' tqabbil",
+        "Analiżi tal-valur tas-suq",
+        "Integrazzjoni mad-distributuri",
+        "Storja tat-tfittxija illimitata",
+        "Aċċess għall-API",
+        "Appoġġ prijoritarju 24/7"
+      ],
+      "cta": "Mur Professjonali"
+    },
+    "free": {
+      "cta": "Ibda Prova Bla Ħlas"
+    },
+    "legal": {
+      "termsTitle": "Termini tas-Servizz",
+      "privacyTitle": "Politika tal-Privatezza",
+      "lastUpdated": "L-Aħħar Aġġornament",
+      "viewTerms": "Ara t-Termini tas-Servizz tagħna",
+      "viewPrivacy": "Ara l-Politika tal-Privatezza tagħna"
+    },
+    "dates": {
+      "today": "Illum",
+      "yesterday": "Il-bieraħ",
+      "daysAgo": "{count} ġranet ilu",
+      "dateFormat": "DD/MM/YYYY",
+      "monthNames": [
+        "Jannar",
+        "Frar",
+        "Marzu",
+        "April",
+        "Mejju",
+        "Ġunju",
+        "Lulju",
+        "Awwissu",
+        "Settembru",
+        "Ottubru",
+        "Novembru",
+        "Diċembru"
+      ],
+      "monthNamesShort": [
+        "Jan",
+        "Fra",
+        "Mar",
+        "Apr",
+        "Mej",
+        "Ġun",
+        "Lul",
+        "Aww",
+        "Set",
+        "Ott",
+        "Nov",
+        "Diċ"
+      ]
+    }
   }
 }

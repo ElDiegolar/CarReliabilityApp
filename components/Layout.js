@@ -72,7 +72,7 @@ export default function Layout({ children, title }) {
             <div className="footer-content">
               <div className="footer-logo">
                 <Link href="/">
-                  <span className="logo-text">Car<span className="highlight">Reliability</span></span>
+                  <span className="logo-text">Veri<span className="highlight">da</span></span>
                 </Link>
                 <p className="footer-tagline">
                   {t('hero.description')}
@@ -112,7 +112,7 @@ export default function Layout({ children, title }) {
           <div className="copyright-container">
             <div className="container">
               <p className="copyright">
-                {t('footer.copyright', '© 2025 CarReliability. All rights reserved.')}
+                {t('footer.copyright', '© 2025 Verida. All rights reserved.')}
               </p>
             </div>
           </div>

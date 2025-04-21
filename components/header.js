@@ -82,7 +82,7 @@ export default function Header() {
                   e.target.style.display = 'none';
                 }}
               />
-              <span className="logo-text">Car<span className="highlight">Reliability</span></span>
+              {/* <span className="logo-text">Car<span className="highlight">Reliability</span></span> */}
             </div>
           </Link>
         </div>
@@ -199,7 +199,7 @@ export default function Header() {
   display: block !important;
   width: 100%;
 }
-  
+
         .container {
           display: flex;
           align-items: center;
@@ -223,7 +223,7 @@ export default function Header() {
 
         .logo-image {
           margin-right: 0.5rem;
-          width: 64px;
+          width: 128px;
           height: auto;
         }
 

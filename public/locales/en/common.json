@@ -264,7 +264,7 @@
     "language": "Language"
   },
   "footer": {
-    "copyright": "© 2025 Car Reliability. All rights reserved.",
+    "copyright": "© 2025 Verida. All rights reserved.",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "contact": "Contact Us"
@@ -327,7 +327,8 @@
         "Common issues with repair costs",
         "Priority support",
         "Limited search history"
-      ]
+      ],
+      "cta": "Go Premium"
     },
     "professional": {
       "title": "Professional",
@@ -341,7 +342,11 @@
         "Unlimited search history",
         "API access",
         "24/7 priority support"
-      ]
+      ],
+      "cta": "Go Professional"
+    },
+    "free": {
+      "cta": "Start Free Trial"
     },
     "legal": {
       "termsTitle": "Terms of Service",
