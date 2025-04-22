@@ -12,6 +12,7 @@ import CarTimeline from '../components/CarTimeline';
 
 export default function Search() {
   const { t } = useTranslation('common');
+  
   const { user, getToken } = useAuth();
   const router = useRouter();
   const { year: queryYear, make: queryMake, model: queryModel, mileage: queryMileage } = router.query;
