@@ -403,5 +403,12 @@
     "redesign": "Redesign",
     "refresh": "Refresh",
     "majorChange": "Major Changes"
+  },
+  "button": {
+    "generating": "Generating...",
+    "downloadPdf": "Download PDF"
+  },
+  "savedVehicle": {
+    "saveVehicle": "Save Vehicle"
   }
 }
