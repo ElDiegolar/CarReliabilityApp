@@ -10,7 +10,9 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function handler(req, res) {
- 
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   const { year, make, model } = req.query;
 
