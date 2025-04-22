@@ -1,4 +1,4 @@
-// pages/search.js - Car search page with translations
+// pages/search.js - Update to display timeline from saved car details
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -29,6 +29,8 @@ export default function Search() {
   const [subscription, setSubscription] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [timelineData, setTimelineData] = useState([]);  // Add state for timeline data
+  const [savedTimelineData, setSavedTimelineData] = useState(null);  // Add state for saved timeline data
 
   // Check if we're coming from saved vehicles page and need to load a specific saved vehicle
   const { fromSaved, savedId } = router.query;
@@ -59,6 +61,12 @@ export default function Search() {
               if (data.savedVehicle?.reliability_data) {
                 // Set the results directly from saved data
                 setResults(data.savedVehicle.reliability_data);
+                
+                // Set timeline data if it exists in the saved vehicle
+                if (data.savedVehicle.timeline_data) {
+                  setSavedTimelineData(data.savedVehicle.timeline_data);
+                }
+                
                 setLoading(false);
                 return; // Skip the auto-submit since we already have results
               }
@@ -155,6 +163,9 @@ export default function Search() {
       const data = await response.json();
       setResults(data);
       
+      // Clear saved timeline data when doing a new search
+      setSavedTimelineData(null);
+      
       // Update URL with search parameters for easy sharing/bookmarking
       if (!isAutoSubmit) {
         router.push({
@@ -173,6 +184,11 @@ export default function Search() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle when timeline data is loaded from the CarTimeline component
+  const handleTimelineLoaded = (data) => {
+    setTimelineData(data);
   };
 
   return (
@@ -267,6 +283,7 @@ export default function Search() {
               <SaveSearchButton 
                 vehicleData={results} 
                 searchParams={formData}
+                timelineData={savedTimelineData || timelineData}  // Use saved or fresh timeline data
                 savedId={router.query.savedId}
               />
             )}
@@ -275,6 +292,7 @@ export default function Search() {
             <DownloadPdfButton 
               vehicleData={results} 
               searchParams={formData}
+              timelineData={savedTimelineData || timelineData}  // Use saved or fresh timeline data
             />
           </div>
 
@@ -346,17 +364,54 @@ export default function Search() {
               </div>
             )}
           </div>
-            {results && results.isPremium && (
-    <div className="timeline-section">
-      <h2>{t('timeline.sectionTitle')}</h2>
-      <CarTimeline 
-        year={formData.year}
-        make={formData.make}
-        model={formData.model}
-        isPremium={results.isPremium}
-      />
-    </div>
-  )}
+            
+          {results && results.isPremium && (
+            <div className="timeline-section">
+              <h2>{t('timeline.sectionTitle')}</h2>
+              
+              {/* If we have saved timeline data, display it directly */}
+              {savedTimelineData ? (
+                <div className="car-timeline">
+                  <h3>{t('timeline.title')}</h3>
+                  <div className="timeline-container">
+                    {savedTimelineData.map((event, index) => (
+                      <div key={index} className="timeline-event">
+                        <div className="timeline-year">{event.year}</div>
+                        <div className="timeline-content">
+                          <h4>{event.title}</h4>
+                          <p>{event.description}</p>
+                          {event.imageUrl && (
+                            <div className="timeline-image">
+                              <img src={event.imageUrl} alt={event.title} />
+                            </div>
+                          )}
+                          {event.engineeringChanges && event.engineeringChanges.length > 0 && (
+                            <div className="engineering-changes">
+                              <h5>{t('timeline.engineeringChanges')}</h5>
+                              <ul>
+                                {event.engineeringChanges.map((change, idx) => (
+                                  <li key={idx}>{change}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                /* Otherwise fetch the timeline data */
+                <CarTimeline 
+                  year={formData.year}
+                  make={formData.make}
+                  model={formData.model}
+                  isPremium={results.isPremium}
+                  onTimelineLoaded={handleTimelineLoaded}
+                />
+              )}
+            </div>
+          )}
           
           {user && (
             <div className="search-actions">
@@ -610,6 +665,79 @@ export default function Search() {
         
         .view-history-button:hover, .view-saved-button:hover {
           background-color: #e5f1ff;
+        }
+
+        /* Timeline styles (duplicated here for saved timeline display) */
+        .car-timeline {
+          margin: 2rem 0;
+        }
+        
+        .timeline-container {
+          position: relative;
+          padding-left: 2rem;
+          margin-left: 1rem;
+          border-left: 2px solid #0070f3;
+        }
+        
+        .timeline-event {
+          position: relative;
+          margin-bottom: 2rem;
+          padding-bottom: 1rem;
+        }
+        
+        .timeline-event:last-child {
+          margin-bottom: 0;
+        }
+        
+        .timeline-year {
+          position: absolute;
+          left: -3.5rem;
+          background-color: #0070f3;
+          color: white;
+          padding: 0.5rem;
+          border-radius: 4px;
+          font-weight: bold;
+        }
+        
+        .timeline-content {
+          background-color: #f5f5f5;
+          padding: 1.5rem;
+          border-radius: 8px;
+          margin-left: 1rem;
+        }
+        
+        .timeline-content h4 {
+          margin-top: 0;
+          margin-bottom: 0.75rem;
+          color: #0070f3;
+        }
+        
+        .timeline-image {
+          margin: 1rem 0;
+          text-align: center;
+        }
+        
+        .timeline-image img {
+          max-width: 100%;
+          border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .engineering-changes {
+          margin-top: 1rem;
+          background-color: #e5f1ff;
+          padding: 1rem;
+          border-radius: 4px;
+        }
+        
+        .engineering-changes h5 {
+          margin-top: 0;
+          margin-bottom: 0.75rem;
+        }
+        
+        .engineering-changes ul {
+          margin: 0;
+          padding-left: 1.5rem;
         }
       `}</style>
     </Layout>

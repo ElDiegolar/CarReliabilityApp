@@ -1,4 +1,4 @@
-// pages/api/generate-pdf.js
+// Modified version of pages/api/generate-pdf.js that includes timeline data
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { query } from '../../lib/database';
 
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { year, make, model, mileage, reliability_data } = req.body;
+    const { year, make, model, mileage, reliability_data, timeline_data } = req.body;
     
     // Validate required fields
     if (!year || !make || !model || !mileage || !reliability_data) {
@@ -278,6 +278,160 @@ export default async function handler(req, res) {
         currentY = height - 50;
       }
     }
+
+    // Add timeline section if premium and timeline data exists
+    if (reliability_data.isPremium && timeline_data && timeline_data.length > 0) {
+      // Add a new page for the timeline
+      page = pdfDoc.addPage([612, 792]);
+      currentY = height - 50;
+      
+      // Timeline header
+      page.drawText(`Design History & Engineering Timeline`, {
+        x: margin,
+        y: currentY,
+        size: headerSize,
+        font: helveticaBoldFont,
+        color: rgb(0, 0.3, 0.7),
+      });
+      
+      currentY -= lineHeight * 2;
+      
+      page.drawText(`${year} ${make} ${model} Evolution Timeline`, {
+        x: margin,
+        y: currentY,
+        size: subheaderSize,
+        font: helveticaBoldFont,
+      });
+      
+      currentY -= lineHeight * 2;
+      
+      // Draw timeline events
+      for (const event of timeline_data) {
+        // Check if we need a new page
+        if (currentY < 150) {
+          page = pdfDoc.addPage([612, 792]);
+          currentY = height - 50;
+        }
+        
+        // Year bubble
+        const bubbleSize = 30;
+        const bubbleX = margin;
+        const bubbleY = currentY - (bubbleSize / 2);
+        
+        // Draw year bubble
+        page.drawCircle({
+          x: bubbleX + (bubbleSize / 2),
+          y: bubbleY,
+          size: bubbleSize / 2,
+          color: rgb(0, 0.3, 0.7),
+        });
+        
+        // Year text in bubble
+        page.drawText(event.year.toString(), {
+          x: bubbleX + (event.year.toString().length === 4 ? 8 : 12),
+          y: bubbleY - 4,
+          size: 10,
+          font: helveticaBoldFont,
+          color: rgb(1, 1, 1),
+        });
+        
+        // Event title
+        page.drawText(event.title, {
+          x: margin + bubbleSize + 10,
+          y: currentY,
+          size: subheaderSize,
+          font: helveticaBoldFont,
+        });
+        
+        currentY -= lineHeight * 1.5;
+        
+        // Event description - wrap text
+        const descriptionLines = splitTextToLines(
+          event.description,
+          width - 2 * margin - bubbleSize - 10,
+          textSize,
+          helveticaFont
+        );
+        
+        for (const line of descriptionLines) {
+          page.drawText(line, {
+            x: margin + bubbleSize + 10,
+            y: currentY,
+            size: textSize,
+            font: helveticaFont,
+          });
+          
+          currentY -= lineHeight;
+        }
+        
+        // Engineering changes if they exist
+        if (event.engineeringChanges && event.engineeringChanges.length > 0) {
+          currentY -= lineHeight / 2;
+          
+          page.drawText(`Engineering Changes:`, {
+            x: margin + bubbleSize + 10,
+            y: currentY,
+            size: textSize,
+            font: helveticaBoldFont,
+          });
+          
+          currentY -= lineHeight;
+          
+          for (const change of event.engineeringChanges) {
+            page.drawText(`• ${change}`, {
+              x: margin + bubbleSize + 20,
+              y: currentY,
+              size: textSize,
+              font: helveticaFont,
+            });
+            
+            currentY -= lineHeight;
+          }
+        }
+        
+        // Add spacing between timeline events
+        currentY -= lineHeight;
+      }
+    } else if (reliability_data.isPremium && (!timeline_data || timeline_data.length === 0)) {
+      // If premium but no timeline data
+      currentY -= lineHeight * 2;
+      
+      page.drawText(`Design History & Engineering Timeline`, {
+        x: margin,
+        y: currentY,
+        size: subheaderSize,
+        font: helveticaBoldFont,
+      });
+      
+      currentY -= lineHeight * 1.5;
+      
+      page.drawText(`No timeline data available for this vehicle model.`, {
+        x: margin,
+        y: currentY,
+        size: textSize,
+        font: helveticaFont,
+      });
+    } else if (!reliability_data.isPremium) {
+      // For free users, mention timeline is a premium feature
+      currentY -= lineHeight * 2;
+      
+      page.drawText(`Design History & Engineering Timeline`, {
+        x: margin,
+        y: currentY,
+        size: subheaderSize,
+        font: helveticaBoldFont,
+      });
+      
+      currentY -= lineHeight * 1.5;
+      
+      page.drawText(`Upgrade to premium to access the complete design history and engineering timeline.`, {
+        x: margin,
+        y: currentY,
+        size: textSize,
+        font: helveticaFont,
+        color: rgb(0.5, 0.5, 0.5),
+      });
+    }
     
     // Add disclaimer at the bottom of the first page
     page.drawText('Disclaimer: This report is based on aggregated data and may not represent your specific vehicle. Always consult a qualified mechanic.', {
@@ -289,7 +443,7 @@ export default async function handler(req, res) {
     });
     
     // Add footer with powered by info
-    page.drawText('Powered by CarReliability.com', {
+    page.drawText('Powered by Verida.com', {
       x: margin,
       y: 30,
       size: 10,
