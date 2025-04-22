@@ -16,13 +16,11 @@ export default function CarTimeline({ year, make, model, isPremium }) {
       
       try {
         const response = await fetch(`/api/car-timeline?year=${year}&make=${make}&model=${model}`, {
-            method: 'POST',
+            method: 'GET',
             headers: {
-              'Content-Type': 'application/json',
               ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
-            },
-            body: JSON.stringify(requestBody),
-          });
+            }
+        });
         
         if (!response.ok) {
           throw new Error('Failed to fetch timeline data');
