@@ -1,5 +1,5 @@
-// pages/api/users/index.js - Admin users API route for Edge Functions
-import { withAuthEdge } from '../../../lib/auth'; // Adjusted to Edge-compatible auth handler
+// pages/api/users/index.js - Admin users API route for Edge Functionsed
+import { withAuth } from '../../../lib/auth'; // Adjusted to Edge-compatible auth handler
 import { queryEdge } from '../../../lib/database'; // Adjusted for Edge-compatible database access
 
 export const config = {
@@ -50,4 +50,4 @@ async function handler(req) {
 }
 
 // Wrap handler with Edge-compatible authentication middleware
-export default withAuthEdge(handler);
+export default withAuth(handler);
