@@ -10,11 +10,11 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function handler(req, res) {
-  if (req.method !== 'GET') {
+  if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { year, make, model } = req.query;
+  const { year, make, model } = req.body;
 
   if (!year || !make || !model) {
     return res.status(400).json({ error: 'Year, make, and model are required' });
@@ -32,7 +32,7 @@ async function handler(req, res) {
       AND (us.current_period_end IS NULL OR us.current_period_end > $3)
       AND (sp.name = 'premium' OR sp.name = 'professional')
     `, [req.user.id, 'active', now]);
-    
+
     if (subscriptionResult.rows.length === 0) {
       return res.status(403).json({ error: 'Premium subscription required' });
     }
@@ -55,7 +55,7 @@ async function handler(req, res) {
       2. Key design changes
       3. Engineering modifications that could affect reliability
       4. Notable features or innovations
-      
+
       Format the response as a JSON array with objects containing:
       {
         "year": "YYYY",
@@ -64,7 +64,7 @@ async function handler(req, res) {
         "engineeringChanges": ["list of specific engineering changes"],
         "imageUrl": null
       }
-      
+
       Start from the first generation up to the ${year} model. Include at least 3-5 major milestones.
       Return ONLY the JSON array with no additional text.
     `;
@@ -78,19 +78,16 @@ async function handler(req, res) {
       temperature: 0.2,
     });
 
-    // Extract and parse the response
     const responseText = completion.data.choices[0].message.content.trim();
     let timelineData = [];
-    
+
     try {
-      // Extract JSON if it's wrapped in code blocks
-      const jsonMatch = responseText.match(/```json\n([\s\S]*)\n```/) || 
+      const jsonMatch = responseText.match(/```json\n([\s\S]*)\n```/) ||
                         responseText.match(/```\n([\s\S]*)\n```/) ||
                         [null, responseText];
 
       timelineData = JSON.parse(jsonMatch[1]);
-      
-      // Cache the timeline data
+
       await query(`
         INSERT INTO car_timelines (year, make, model, timeline_data) 
         VALUES ($1, $2, $3, $4)
@@ -99,7 +96,7 @@ async function handler(req, res) {
       `, [year, make, model, JSON.stringify(timelineData)]);
     } catch (parseError) {
       console.error("Error parsing JSON response:", parseError);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Failed to parse timeline data',
         rawResponse: responseText
       });
@@ -108,7 +105,7 @@ async function handler(req, res) {
     return res.json({ timeline: timelineData });
   } catch (error) {
     console.error('Car timeline API error:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Failed to retrieve timeline data',
       message: error.message
     });
