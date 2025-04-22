@@ -1,4 +1,4 @@
-// pages/search.js - Update to display timeline from saved car details
+// pages/search.js - Car search page with translations
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -29,8 +29,8 @@ export default function Search() {
   const [subscription, setSubscription] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [timelineData, setTimelineData] = useState([]);  // Add state for timeline data
-  const [savedTimelineData, setSavedTimelineData] = useState(null);  // Add state for saved timeline data
+  const [timelineData, setTimelineData] = useState([]);
+  const [savedTimelineData, setSavedTimelineData] = useState(null);
 
   // Check if we're coming from saved vehicles page and need to load a specific saved vehicle
   const { fromSaved, savedId } = router.query;
@@ -65,6 +65,8 @@ export default function Search() {
                 // Set timeline data if it exists in the saved vehicle
                 if (data.savedVehicle.timeline_data) {
                   setSavedTimelineData(data.savedVehicle.timeline_data);
+                  setTimelineData(data.savedVehicle.timeline_data);
+                  console.log('Loaded timeline from saved vehicle:', data.savedVehicle.timeline_data.length);
                 }
                 
                 setLoading(false);
@@ -132,6 +134,12 @@ export default function Search() {
     setLoading(true);
     setSubmitted(true);
     setError('');
+    
+    // Clear any existing timeline data when doing a new search
+    if (!isAutoSubmit) {
+      setTimelineData([]);
+      setSavedTimelineData(null);
+    }
 
     try {
       const requestBody = {
@@ -163,9 +171,6 @@ export default function Search() {
       const data = await response.json();
       setResults(data);
       
-      // Clear saved timeline data when doing a new search
-      setSavedTimelineData(null);
-      
       // Update URL with search parameters for easy sharing/bookmarking
       if (!isAutoSubmit) {
         router.push({
@@ -186,8 +191,9 @@ export default function Search() {
     }
   };
 
-  // Handle when timeline data is loaded from the CarTimeline component
+  // Handle timeline data loading
   const handleTimelineLoaded = (data) => {
+    console.log('Timeline data loaded:', data.length);
     setTimelineData(data);
   };
 
@@ -283,7 +289,7 @@ export default function Search() {
               <SaveSearchButton 
                 vehicleData={results} 
                 searchParams={formData}
-                timelineData={savedTimelineData || timelineData}  // Use saved or fresh timeline data
+                timelineData={savedTimelineData || timelineData}
                 savedId={router.query.savedId}
               />
             )}
@@ -292,7 +298,7 @@ export default function Search() {
             <DownloadPdfButton 
               vehicleData={results} 
               searchParams={formData}
-              timelineData={savedTimelineData || timelineData}  // Use saved or fresh timeline data
+              timelineData={savedTimelineData || timelineData}
             />
           </div>
 

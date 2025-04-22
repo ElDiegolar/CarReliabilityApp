@@ -27,7 +27,7 @@ export default function SaveSearchButton({ vehicleData, searchParams, timelineDa
         model: searchParams.model,
         mileage: searchParams.mileage,
         reliability_data: vehicleData,
-        timeline_data: timelineData || null  // Include timeline data if available
+        timeline_data: timelineData || [] // Include timeline data if available
       };
       
       // If we have a savedId, update the existing saved vehicle
