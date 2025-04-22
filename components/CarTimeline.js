@@ -1,6 +1,8 @@
 // components/CarTimeline.js - Timeline component for car design history
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'next-i18next';
+import { useAuth } from '../contexts/AuthContext';
+  const {  getToken } = useAuth();
 
 export default function CarTimeline({ year, make, model, isPremium }) {
   const { t } = useTranslation('common');
@@ -13,7 +15,14 @@ export default function CarTimeline({ year, make, model, isPremium }) {
       if (!isPremium) return;
       
       try {
-        const response = await fetch(`/api/car-timeline?year=${year}&make=${make}&model=${model}`);
+        const response = await fetch(`/api/car-timeline?year=${year}&make=${make}&model=${model}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
+            },
+            body: JSON.stringify(requestBody),
+          });
         
         if (!response.ok) {
           throw new Error('Failed to fetch timeline data');

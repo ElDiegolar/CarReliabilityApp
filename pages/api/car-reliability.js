@@ -212,7 +212,6 @@ export default async function handler(req, res) {
           // Store search with results if the column exists
           const resultsJson = JSON.stringify(reliabilityData);
           
-          console.log('Logging search with results for user:', user_id);
           await query(`
             INSERT INTO searches (user_id, year, make, model, mileage, results) 
             VALUES ($1, $2, $3, $4, $5, $6)
