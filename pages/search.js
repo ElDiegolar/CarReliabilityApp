@@ -8,6 +8,7 @@ import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import SaveSearchButton from '../components/SaveSearchButton';
 import DownloadPdfButton from '../components/DownloadPdfButton';
+import CarTimeline from '../components/CarTimeline';
 
 export default function Search() {
   const { t } = useTranslation('common');
@@ -344,6 +345,17 @@ export default function Search() {
               </div>
             )}
           </div>
+            {results && results.isPremium && (
+    <div className="timeline-section">
+      <h2>{t('timeline.sectionTitle')}</h2>
+      <CarTimeline 
+        year={formData.year}
+        make={formData.make}
+        model={formData.model}
+        isPremium={results.isPremium}
+      />
+    </div>
+  )}
           
           {user && (
             <div className="search-actions">

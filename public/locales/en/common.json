@@ -391,5 +391,17 @@
         "Dec"
       ]
     }
+  },
+  "timeline": {
+    "sectionTitle": "Design History & Engineering Timeline",
+    "title": "Model Evolution Timeline",
+    "loading": "Loading timeline data...",
+    "noData": "No timeline data available for this vehicle",
+    "upgradePrompt": "Upgrade to premium to see this vehicle's design and engineering timeline",
+    "engineeringChanges": "Engineering Changes",
+    "generationIntro": "Generation Introduction",
+    "redesign": "Redesign",
+    "refresh": "Refresh",
+    "majorChange": "Major Changes"
   }
 }

@@ -391,5 +391,17 @@
         "dic"
       ]
     }
+  },
+  "timeline": {
+    "sectionTitle": "Historial de Diseño y Cronología de Ingeniería",
+    "title": "Cronología de Evolución del Modelo",
+    "loading": "Cargando datos de cronología...",
+    "noData": "No hay datos de cronología disponibles para este vehículo",
+    "upgradePrompt": "Actualice a premium para ver la cronología de diseño e ingeniería de este vehículo",
+    "engineeringChanges": "Cambios de Ingeniería",
+    "generationIntro": "Introducción de Generación",
+    "redesign": "Rediseño",
+    "refresh": "Actualización",
+    "majorChange": "Cambios Importantes"
   }
 }

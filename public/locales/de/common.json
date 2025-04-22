@@ -391,5 +391,17 @@
         "Dez"
       ]
     }
+  },
+  "timeline": {
+    "sectionTitle": "Design-Geschichte & Technik-Zeitleiste",
+    "title": "Modell-Entwicklung Zeitleiste",
+    "loading": "Zeitleistendaten werden geladen...",
+    "noData": "Keine Zeitleistendaten für dieses Fahrzeug verfügbar",
+    "upgradePrompt": "Upgraden Sie auf Premium, um die Design- und Technik-Zeitleiste dieses Fahrzeugs zu sehen",
+    "engineeringChanges": "Technische Änderungen",
+    "generationIntro": "Generationseinführung",
+    "redesign": "Neugestaltung",
+    "refresh": "Überarbeitung",
+    "majorChange": "Große Änderungen"
   }
 }

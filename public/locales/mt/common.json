@@ -391,5 +391,17 @@
         "Diċ"
       ]
     }
+  },
+  "timeline": {
+    "sectionTitle": "Storja tad-Disinn u Kronoloġija tal-Inġinerija",
+    "title": "Kronoloġija tal-Evoluzzjoni tal-Mudell",
+    "loading": "Qed jillowdja d-data tal-kronoloġija...",
+    "noData": "M'hemm l-ebda data kronoloġika disponibbli għal dan il-vettura",
+    "upgradePrompt": "Aġġorna għal premium biex tara l-kronoloġija tad-disinn u l-inġinerija ta' dan il-vettura",
+    "engineeringChanges": "Bidliet fl-Inġinerija",
+    "generationIntro": "Introduzzjoni tal-Ġenerazzjoni",
+    "redesign": "Ridisinn",
+    "refresh": "Tiġdid",
+    "majorChange": "Bidliet Importanti"
   }
 }

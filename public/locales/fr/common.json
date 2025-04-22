@@ -391,5 +391,17 @@
         "déc."
       ]
     }
+  },
+  "timeline": {
+    "sectionTitle": "Historique du Design et Chronologie Technique",
+    "title": "Chronologie de l'Évolution du Modèle",
+    "loading": "Chargement des données chronologiques...",
+    "noData": "Aucune donnée chronologique disponible pour ce véhicule",
+    "upgradePrompt": "Passez à la version premium pour voir la chronologie du design et de l'ingénierie de ce véhicule",
+    "engineeringChanges": "Modifications Techniques",
+    "generationIntro": "Introduction de Génération",
+    "redesign": "Refonte",
+    "refresh": "Actualisation",
+    "majorChange": "Changements Majeurs"
   }
 }
