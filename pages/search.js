@@ -982,3 +982,11 @@ export default function Search() {
     color: #444;
   }
 `}</style>  </Layout>)};
+
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  };
+}
