@@ -78,7 +78,7 @@ export default function Search() {
             // Continue with normal auto-submit if loading saved data fails
           }
           
-          // Normal auto-submit if not coming from saved vehicles or loading saved data failed
+          // If we reached here, loading the saved vehicle failed, so do a normal search instead
           if (queryYear && queryMake && queryModel && queryMileage) {
             await handleSubmit(null, true);
           }
@@ -94,7 +94,62 @@ export default function Search() {
         autoSubmitForm();
       }
     }
-  }, [queryYear, queryMake, queryModel, queryMileage, fromSaved, savedId, user, getToken]);
+  }, [queryYear, queryMake, queryModel, queryMileage]);
+
+  // Fix: Make sure to trigger new search when savedId changes (coming back from save page)
+  useEffect(() => {
+    if (savedId && fromSaved === 'true' && user) {
+      const loadSavedOrSearch = async () => {
+        try {
+          setLoading(true);
+          const token = getToken();
+          const response = await fetch(`/api/saved-vehicles/get-one?id=${savedId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.savedVehicle?.reliability_data) {
+              // Set the results directly from saved data
+              setResults(data.savedVehicle.reliability_data);
+              
+              // Set timeline data if it exists in the saved vehicle
+              if (data.savedVehicle.timeline_data) {
+                setSavedTimelineData(data.savedVehicle.timeline_data);
+                setTimelineData(data.savedVehicle.timeline_data);
+              } else {
+                setSavedTimelineData(null);
+                setTimelineData([]);
+              }
+              
+              setLoading(false);
+              return;
+            }
+          }
+          
+          // If loading the saved vehicle failed, do a new search
+          if (queryYear && queryMake && queryModel && queryMileage) {
+            await handleSubmit(null, true);
+          } else {
+            setLoading(false);
+            setError('Could not load saved vehicle data');
+          }
+        } catch (err) {
+          console.error('Error loading saved vehicle data:', err);
+          if (queryYear && queryMake && queryModel && queryMileage) {
+            await handleSubmit(null, true);
+          } else {
+            setLoading(false);
+            setError('Error loading saved vehicle: ' + err.message);
+          }
+        }
+      };
+      
+      loadSavedOrSearch();
+    }
+  }, [savedId, fromSaved]);
 
   useEffect(() => {
     const checkSubscription = async () => {
@@ -179,8 +234,7 @@ export default function Search() {
             year: formData.year,
             make: formData.make,
             model: formData.model,
-            mileage: formData.mileage,
-            ...(savedId ? { savedId, fromSaved: 'true' } : {})  // Preserve savedId in URL if it exists
+            mileage: formData.mileage
           }
         }, undefined, { shallow: true });
       }
@@ -199,561 +253,732 @@ export default function Search() {
 
   return (
     <Layout title={t('search.title')}>
-      <h1>{t('search.title')}</h1>
+      <div className="search-container">
+        <h1 className="search-title">{t('search.title')}</h1>
 
-      {isPremium && (
-        <div className="premium-badge">
-          <span>{t('search.premiumUser')}</span>
-        </div>
-      )}
+        {isPremium && (
+          <div className="premium-badge">
+            <span>{t('search.premiumUser')}</span>
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit} className="search-form">
-        <div className="form-group">
-          <label htmlFor="year">{t('search.year')}</label>
-          <input
-            type="number"
-            id="year"
-            name="year"
-            value={formData.year}
-            onChange={handleChange}
-            min="1980"
-            max="2025"
-            required
-            placeholder="e.g. 2018"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="search-form">
+          <div className="search-form-fields">
+            <div className="form-group">
+              <label htmlFor="year">{t('search.year')}</label>
+              <input
+                type="number"
+                id="year"
+                name="year"
+                value={formData.year}
+                onChange={handleChange}
+                min="1980"
+                max="2025"
+                required
+                placeholder="e.g. 2018"
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="make">{t('search.make')}</label>
-          <input
-            type="text"
-            id="make"
-            name="make"
-            value={formData.make}
-            onChange={handleChange}
-            required
-            placeholder="e.g. Toyota"
-          />
-        </div>
+            <div className="form-group">
+              <label htmlFor="make">{t('search.make')}</label>
+              <input
+                type="text"
+                id="make"
+                name="make"
+                value={formData.make}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Toyota"
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="model">{t('search.model')}</label>
-          <input
-            type="text"
-            id="model"
-            name="model"
-            value={formData.model}
-            onChange={handleChange}
-            required
-            placeholder="e.g. Camry"
-          />
-        </div>
+            <div className="form-group">
+              <label htmlFor="model">{t('search.model')}</label>
+              <input
+                type="text"
+                id="model"
+                name="model"
+                value={formData.model}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Camry"
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="mileage">{t('search.mileage')}</label>
-          <input
-            type="number"
-            id="mileage"
-            name="mileage"
-            value={formData.mileage}
-            onChange={handleChange}
-            min="0"
-            max="500000"
-            required
-            placeholder="e.g. 50000"
-          />
-        </div>
-
-        <button type="submit" disabled={loading}>
-          {loading ? <span className="spinner" /> : t('search.searchButton')}
-        </button>
-      </form>
-
-      {error && <p className="error">{error}</p>}
-
-      {results && (
-        <div className="results">
-          <h2>{t('search.resultsFor')} {formData.year} {formData.make} {formData.model}</h2>
-
-          <div className="score-card">
-            <h3>{t('search.overallScore')}</h3>
-            <div className="score">
-              <span className="score-value">{results.overallScore}</span>
-              <span className="score-max">/100</span>
+            <div className="form-group">
+              <label htmlFor="mileage">{t('search.mileage')}</label>
+              <input
+                type="number"
+                id="mileage"
+                name="mileage"
+                value={formData.mileage}
+                onChange={handleChange}
+                min="0"
+                max="500000"
+                required
+                placeholder="e.g. 50000"
+              />
             </div>
           </div>
 
-          <div className="action-buttons">
-            {/* Add SaveSearchButton component */}
-            {user && (
-              <SaveSearchButton 
+          <button type="submit" disabled={loading} className="search-button">
+            {loading ? <span className="spinner" /> : t('search.searchButton')}
+          </button>
+        </form>
+
+        {error && <p className="error">{error}</p>}
+
+        {results && (
+          <div className="results">
+            <h2 className="results-title">{t('search.resultsFor')} {formData.year} {formData.make} {formData.model}</h2>
+
+            <div className="score-card">
+              <h3>{t('search.overallScore')}</h3>
+              <div className="score">
+                <span className="score-value">{results.overallScore}</span>
+                <span className="score-max">/100</span>
+              </div>
+            </div>
+
+            <div className="action-buttons">
+              {/* Add SaveSearchButton component */}
+              {user && (
+                <SaveSearchButton 
+                  vehicleData={results} 
+                  searchParams={formData}
+                  timelineData={savedTimelineData || timelineData}
+                  savedId={router.query.savedId}
+                />
+              )}
+              
+              {/* Add DownloadPdfButton component */}
+              <DownloadPdfButton 
                 vehicleData={results} 
                 searchParams={formData}
                 timelineData={savedTimelineData || timelineData}
-                savedId={router.query.savedId}
               />
+            </div>
+
+            <div className="categories">
+              <h3>{t('search.categoryScores')}</h3>
+              <div className="category-grid">
+                <div className="category">
+                  <h4>{t('search.engine')}</h4>
+                  <div className="category-score">{results.categories.engine}/100</div>
+                </div>
+                <div className="category">
+                  <h4>{t('search.transmission')}</h4>
+                  <div className="category-score">{results.categories.transmission}/100</div>
+                </div>
+
+                {results.isPremium ? (
+                  <>
+                    <div className="category">
+                      <h4>{t('search.electrical')}</h4>
+                      <div className="category-score">{results.categories.electricalSystem}/100</div>
+                    </div>
+                    <div className="category">
+                      <h4>{t('search.brakes')}</h4>
+                      <div className="category-score">{results.categories.brakes}/100</div>
+                    </div>
+                    <div className="category">
+                      <h4>{t('search.suspension')}</h4>
+                      <div className="category-score">{results.categories.suspension}/100</div>
+                    </div>
+                    <div className="category">
+                      <h4>{t('search.fuelSystem')}</h4>
+                      <div className="category-score">{results.categories.fuelSystem}/100</div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="premium-prompt">
+                    <p>{t('search.upgradeFull')}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {results.isPremium && results.commonIssues && results.commonIssues.length > 0 && (
+              <div className="common-issues">
+                <h3>{t('search.commonIssues')}</h3>
+                <ul>
+                  {results.commonIssues.map((issue, index) => (
+                    <li key={index}>
+                      <strong>{issue.description}</strong>
+                      <div>{t('search.costToFix')}: {issue.costToFix}</div>
+                      <div>{t('search.occurrence')}: {issue.occurrence}</div>
+                      <div>{t('search.typicalMileage')}: {issue.mileage}</div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
-            
-            {/* Add DownloadPdfButton component */}
-            <DownloadPdfButton 
-              vehicleData={results} 
-              searchParams={formData}
-              timelineData={savedTimelineData || timelineData}
-            />
-          </div>
 
-          <div className="categories">
-            <h3>{t('search.categoryScores')}</h3>
-            <div className="category-grid">
-              <div className="category">
-                <h4>{t('search.engine')}</h4>
-                <div className="category-score">{results.categories.engine}/100</div>
-              </div>
-              <div className="category">
-                <h4>{t('search.transmission')}</h4>
-                <div className="category-score">{results.categories.transmission}/100</div>
-              </div>
+            <div className="analysis">
+              <h3>{t('search.analysis')}</h3>
+              <p>{results.aiAnalysis}</p>
 
-              {results.isPremium ? (
-                <>
-                  <div className="category">
-                    <h4>{t('search.electrical')}</h4>
-                    <div className="category-score">{results.categories.electricalSystem}/100</div>
-                  </div>
-                  <div className="category">
-                    <h4>{t('search.brakes')}</h4>
-                    <div className="category-score">{results.categories.brakes}/100</div>
-                  </div>
-                  <div className="category">
-                    <h4>{t('search.suspension')}</h4>
-                    <div className="category-score">{results.categories.suspension}/100</div>
-                  </div>
-                  <div className="category">
-                    <h4>{t('search.fuelSystem')}</h4>
-                    <div className="category-score">{results.categories.fuelSystem}/100</div>
-                  </div>
-                </>
-              ) : (
-                <div className="premium-prompt">
-                  <p>{t('search.upgradeFull')}</p>
+              {!results.isPremium && (
+                <div className="upgrade-prompt">
+                  <p>{t('search.upgradePrompt')}</p>
+                  <Link href="/pricing" className="upgrade-button">
+                    {t('search.goPremium')}
+                  </Link>
                 </div>
               )}
             </div>
-          </div>
-
-          {results.isPremium && results.commonIssues && results.commonIssues.length > 0 && (
-            <div className="common-issues">
-              <h3>{t('search.commonIssues')}</h3>
-              <ul>
-                {results.commonIssues.map((issue, index) => (
-                  <li key={index}>
-                    <strong>{issue.description}</strong>
-                    <div>{t('search.costToFix')}: {issue.costToFix}</div>
-                    <div>{t('search.occurrence')}: {issue.occurrence}</div>
-                    <div>{t('search.typicalMileage')}: {issue.mileage}</div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="analysis">
-            <h3>{t('search.analysis')}</h3>
-            <p>{results.aiAnalysis}</p>
-
-            {!results.isPremium && (
-              <div className="upgrade-prompt">
-                <p>{t('search.upgradePrompt')}</p>
-                <Link href="/pricing" className="upgrade-button">
-                  {t('search.goPremium')}
+              
+            {results && results.isPremium && (
+              <div className="timeline-section">
+                <h2>{t('timeline.sectionTitle', 'Vehicle Timeline')}</h2>
+                
+                {/* If we have saved timeline data, display it directly */}
+                {savedTimelineData ? (
+                  <div className="car-timeline">
+                    <h3>{t('timeline.title', 'Model History Timeline')}</h3>
+                    <div className="timeline-container">
+                      {savedTimelineData.map((event, index) => (
+                        <div key={index} className="timeline-event">
+                          <div className="timeline-year">{event.year}</div>
+                          <div className="timeline-content">
+                            <h4>{event.title}</h4>
+                            <p>{event.description}</p>
+                            {event.imageUrl && (
+                              <div className="timeline-image">
+                                <img src={event.imageUrl} alt={event.title} />
+                              </div>
+                            )}
+                            {event.engineeringChanges && event.engineeringChanges.length > 0 && (
+                              <div className="engineering-changes">
+                                <h5>{t('timeline.engineeringChanges', 'Engineering Changes')}</h5>
+                                <ul>
+                                  {event.engineeringChanges.map((change, idx) => (
+                                    <li key={idx}>{change}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  /* Otherwise fetch the timeline data */
+                  <CarTimeline 
+                    year={formData.year}
+                    make={formData.make}
+                    model={formData.model}
+                    isPremium={results.isPremium}
+                    onTimelineLoaded={handleTimelineLoaded}
+                  />
+                )}
+              </div>
+            )}
+            
+            {user && (
+              <div className="search-actions">
+                <Link href="/search-history" className="action-button">
+                  {t('search.viewSearchHistory')}
+                </Link>
+                <Link href="/saved-vehicles" className="action-button">
+                  {t('search.viewSavedVehicles', 'View Saved Vehicles')}
                 </Link>
               </div>
             )}
           </div>
-            
-          {results && results.isPremium && (
-            <div className="timeline-section">
-              <h2>{t('timeline.sectionTitle')}</h2>
-              
-              {/* If we have saved timeline data, display it directly */}
-              {savedTimelineData ? (
-                <div className="car-timeline">
-                  <h3>{t('timeline.title')}</h3>
-                  <div className="timeline-container">
-                    {savedTimelineData.map((event, index) => (
-                      <div key={index} className="timeline-event">
-                        <div className="timeline-year">{event.year}</div>
-                        <div className="timeline-content">
-                          <h4>{event.title}</h4>
-                          <p>{event.description}</p>
-                          {event.imageUrl && (
-                            <div className="timeline-image">
-                              <img src={event.imageUrl} alt={event.title} />
-                            </div>
-                          )}
-                          {event.engineeringChanges && event.engineeringChanges.length > 0 && (
-                            <div className="engineering-changes">
-                              <h5>{t('timeline.engineeringChanges')}</h5>
-                              <ul>
-                                {event.engineeringChanges.map((change, idx) => (
-                                  <li key={idx}>{change}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                /* Otherwise fetch the timeline data */
-                <CarTimeline 
-                  year={formData.year}
-                  make={formData.make}
-                  model={formData.model}
-                  isPremium={results.isPremium}
-                  onTimelineLoaded={handleTimelineLoaded}
-                />
-              )}
-            </div>
-          )}
-          
-          {user && (
-            <div className="search-actions">
-              <Link href="/search-history" className="view-history-button">
-                {t('search.viewSearchHistory')}
-              </Link>
-              <Link href="/saved-vehicles" className="view-saved-button">
-                {t('search.viewSavedVehicles')}
-              </Link>
-            </div>
-          )}
-        </div>
-      )}
+        )}
 
-      {loading && (
-        <div className="loading-overlay">
-          <div className="loading-spinner" />
-          <span>{t('search.loadingMessage') || 'Loading...'}</span>
-        </div>
-      )}
-
+        {loading && (
+          <div className="loading-overlay">
+            <div className="loading-spinner" />
+            <span>{t('search.loadingMessage') || 'Loading...'}</span>
+          </div>
+        )}
+      </div>
       <style jsx>{`
-        h1 {
-          margin-bottom: 2rem;
-        }
+  .search-container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
 
-        .premium-badge {
-          display: inline-block;
-          background-color: #0070f3;
-          color: white;
-          padding: 0.5rem 1rem;
-          border-radius: 4px;
-          margin-bottom: 1.5rem;
-          font-weight: bold;
-        }
+  .search-title {
+    margin-bottom: 2rem;
+    color: #333;
+    font-size: 2rem;
+    text-align: center;
+  }
 
-        .search-form {
-          display: flex;
-          flex-direction: column;
-          max-width: 500px;
-          margin-bottom: 2rem;
-        }
+  .premium-badge {
+    display: inline-block;
+    background-color: #0070f3;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 2px 10px rgba(0, 112, 243, 0.15);
+  }
 
-        .form-group {
-          margin-bottom: 1rem;
-        }
+  .search-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .search-form:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
 
-        label {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-weight: bold;
-        }
+  .search-form-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
 
-        input {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 1rem;
-        }
+  @media (max-width: 768px) {
+    .search-form-fields {
+      grid-template-columns: 1fr;
+    }
+  }
 
-        button {
-          padding: 0.75rem 1.5rem;
-          background-color: #0070f3;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          font-size: 1rem;
-          cursor: pointer;
-          transition: background-color 0.2s;
-        }
+  .form-group {
+    margin-bottom: 0;
+  }
 
-        button:hover {
-          background-color: #0060df;
-        }
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #444;
+    font-size: 0.95rem;
+  }
 
-        button:disabled {
-          background-color: #ccc;
-          cursor: not-allowed;
-        }
+  input {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #f8fafc;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: #0070f3;
+    box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.15);
+    background: white;
+  }
 
-        .spinner {
-          width: 20px;
-          height: 20px;
-          border: 3px solid #fff;
-          border-top: 3px solid #0070f3;
-          border-radius: 50%;
-          animation: spin 0.6s linear infinite;
-          display: inline-block;
-        }
+  .search-button {
+    padding: 1rem 2rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    align-self: center;
+    margin-top: 1rem;
+    box-shadow: 0 4px 14px rgba(0, 112, 243, 0.25);
+    width: 100%;
+    max-width: 300px;
+  }
 
-        .loading-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          background-color: rgba(255, 255, 255, 0.85);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 9999;
-          flex-direction: column;
-        }
+  .search-button:hover {
+    background-color: #0060df;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 112, 243, 0.35);
+  }
 
-        .loading-spinner {
-          width: 50px;
-          height: 50px;
-          border: 6px solid #ccc;
-          border-top: 6px solid #0070f3;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin-bottom: 1rem;
-        }
+  .search-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
 
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+  }
 
-        .error {
-          color: red;
-          margin-bottom: 1rem;
-        }
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    flex-direction: column;
+    backdrop-filter: blur(3px);
+  }
 
-        .results {
-          margin-top: 2rem;
-        }
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 6px solid rgba(0, 112, 243, 0.1);
+    border-top: 6px solid #0070f3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
 
-        .score-card {
-          background-color: #f5f5f5;
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-bottom: 2rem;
-          text-align: center;
-        }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 
-        .score {
-          font-size: 3rem;
-          font-weight: bold;
-          color: #0070f3;
-        }
+  .error {
+    color: #e53e3e;
+    background-color: #fff5f5;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #e53e3e;
+  }
 
-        .score-max {
-          font-size: 1.5rem;
-          color: #666;
-        }
-        
-        .action-buttons {
-          display: flex;
-          gap: 1rem;
-          margin-bottom: 2rem;
-          justify-content: center;
-        }
+  .results {
+    margin-top: 3rem;
+  }
+  
+  .results-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.75rem;
+    color: #333;
+  }
 
-        .categories {
-          margin-bottom: 2rem;
-        }
+  .score-card {
+    background: linear-gradient(135deg, #0070f3, #00a5fa);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: white;
+    box-shadow: 0 8px 20px rgba(0, 112, 243, 0.2);
+  }
+  
+  .score-card h3 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    opacity: 0.9;
+  }
 
-        .category-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: 1rem;
-        }
+  .score {
+    font-size: 3.5rem;
+    font-weight: bold;
+    line-height: 1;
+  }
 
-        .category {
-          background-color: #f9f9f9;
-          padding: 1rem;
-          border-radius: 4px;
-          text-align: center;
-        }
+  .score-value {
+    position: relative;
+  }
 
-        .category h4 {
-          margin-top: 0;
-          margin-bottom: 0.5rem;
-        }
+  .score-max {
+    font-size: 1.5rem;
+    opacity: 0.7;
+    margin-left: 0.25rem;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 
-        .category-score {
-          font-size: 1.25rem;
-          font-weight: bold;
-          color: #0070f3;
-        }
+  .categories {
+    margin-bottom: 2.5rem;
+  }
+  
+  .categories h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
 
-        .premium-prompt, .upgrade-prompt {
-          background-color: #fffbea;
-          padding: 1rem;
-          border-radius: 4px;
-          text-align: center;
-          grid-column: 1 / -1;
-        }
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
 
-        .common-issues {
-          margin-bottom: 2rem;
-        }
+  .category {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #f0f0f0;
+  }
+  
+  .category:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
 
-        .common-issues ul {
-          list-style-type: none;
-          padding: 0;
-        }
+  .category h4 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    color: #444;
+  }
 
-        .common-issues li {
-          background-color: #f9f9f9;
-          padding: 1rem;
-          border-radius: 4px;
-          margin-bottom: 1rem;
-        }
+  .category-score {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0070f3;
+  }
 
-        .analysis {
-          background-color: #f9f9f9;
-          padding: 1.5rem;
-          border-radius: 8px;
-        }
+  .premium-prompt, .upgrade-prompt {
+    background-color: #fffbea;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    grid-column: 1 / -1;
+    border-left: 4px solid #f6ad55;
+  }
 
-        .upgrade-prompt {
-          margin-top: 1rem;
-        }
+  .common-issues {
+    margin-bottom: 2.5rem;
+  }
+  
+  .common-issues h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
 
-        .upgrade-button {
-          display: inline-block;
-          padding: 0.75rem 1.5rem;
-          background-color: #0070f3;
-          color: white;
-          border-radius: 4px;
-          font-weight: 500;
-          margin-top: 0.5rem;
-          text-decoration: none;
-        }
+  .common-issues ul {
+    list-style-type: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
 
-        .upgrade-button:hover {
-          background-color: #0060df;
-        }
-        
-        .search-actions {
-          margin-top: 2rem;
-          display: flex;
-          gap: 1rem;
-          justify-content: center;
-        }
-        
-        .view-history-button, .view-saved-button {
-          display: inline-block;
-          padding: 0.75rem 1.5rem;
-          background-color: #f5f5f5;
-          color: #0070f3;
-          border-radius: 4px;
-          font-weight: 500;
-          text-decoration: none;
-          transition: background-color 0.2s;
-        }
-        
-        .view-history-button:hover, .view-saved-button:hover {
-          background-color: #e5f1ff;
-        }
+  .common-issues li {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.2s;
+  }
+  
+  .common-issues li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .common-issues li strong {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: #0070f3;
+    font-size: 1.1rem;
+  }
+  
+  .common-issues li div {
+    margin-bottom: 0.5rem;
+    color: #555;
+  }
 
-        /* Timeline styles (duplicated here for saved timeline display) */
-        .car-timeline {
-          margin: 2rem 0;
-        }
-        
-        .timeline-container {
-          position: relative;
-          padding-left: 2rem;
-          margin-left: 1rem;
-          border-left: 2px solid #0070f3;
-        }
-        
-        .timeline-event {
-          position: relative;
-          margin-bottom: 2rem;
-          padding-bottom: 1rem;
-        }
-        
-        .timeline-event:last-child {
-          margin-bottom: 0;
-        }
-        
-        .timeline-year {
-          position: absolute;
-          left: -3.5rem;
-          background-color: #0070f3;
-          color: white;
-          padding: 0.5rem;
-          border-radius: 4px;
-          font-weight: bold;
-        }
-        
-        .timeline-content {
-          background-color: #f5f5f5;
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-left: 1rem;
-        }
-        
-        .timeline-content h4 {
-          margin-top: 0;
-          margin-bottom: 0.75rem;
-          color: #0070f3;
-        }
-        
-        .timeline-image {
-          margin: 1rem 0;
-          text-align: center;
-        }
-        
-        .timeline-image img {
-          max-width: 100%;
-          border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .engineering-changes {
-          margin-top: 1rem;
-          background-color: #e5f1ff;
-          padding: 1rem;
-          border-radius: 4px;
-        }
-        
-        .engineering-changes h5 {
-          margin-top: 0;
-          margin-bottom: 0.75rem;
-        }
-        
-        .engineering-changes ul {
-          margin: 0;
-          padding-left: 1.5rem;
-        }
-      `}</style>
-    </Layout>
-  );
-}
+  .analysis {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+  }
+  
+  .analysis h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+    text-align: center;
+    font-size: 1.5rem;
+  }
+  
+  .analysis p {
+    line-height: 1.6;
+    color: #444;
+  }
 
-export async function getServerSideProps({ locale }) {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale, ['common'])),
-    },
-  };
-}
+  .upgrade-prompt {
+    margin-top: 2rem;
+    background-color: #e6f7ff;
+    border-left: 4px solid #0070f3;
+  }
+
+  .upgrade-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #0070f3;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 1rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(0, 112, 243, 0.25);
+  }
+
+  .upgrade-button:hover {
+    background-color: #0060df;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 112, 243, 0.35);
+  }
+  
+  .search-actions {
+    margin-top: 2.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .action-button {
+    display: inline-block;
+    padding: 0.875rem 1.5rem;
+    background-color: #f8fafc;
+    color: #0070f3;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .action-button:hover {
+    background-color: #e5f1ff;
+    border-color: #0070f3;
+    transform: translateY(-2px);
+  }
+
+  /* Timeline styles (duplicated here for saved timeline display) */
+  .timeline-section {
+    margin: 3rem 0;
+  }
+  
+  .car-timeline {
+    margin: 2rem 0;
+  }
+  
+  .timeline-container {
+    position: relative;
+    padding-left: 2rem;
+    margin-left: 1rem;
+    border-left: 2px solid #0070f3;
+  }
+  
+  .timeline-event {
+    position: relative;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+  }
+  
+  .timeline-event:last-child {
+    margin-bottom: 0;
+  }
+  
+  .timeline-year {
+    position: absolute;
+    left: -3.5rem;
+    background-color: #0070f3;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 112, 243, 0.2);
+  }
+  
+  .timeline-content {
+    background-color: white;
+    padding: 1.75rem;
+    border-radius: 12px;
+    margin-left: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .timeline-event:hover .timeline-content {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .timeline-content h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #0070f3;
+    font-size: 1.2rem;
+  }
+  
+  .timeline-content p {
+    color: #444;
+    line-height: 1.6;
+  }
+  
+  .timeline-image {
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+  
+  .timeline-image img {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .timeline-image img:hover {
+    transform: scale(1.02);
+  }
+  
+  .engineering-changes {
+    margin-top: 1.5rem;
+    background-color: #f0f7ff;
+    padding: 1.25rem;
+    border-radius: 8px;
+    border-left: 4px solid #0070f3;
+  }
+  
+  .engineering-changes h5 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #0070f3;
+    font-size: 1.1rem;
+  }
+  
+  .engineering-changes ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #444;
+  }
+`}</style>  </Layout>)};
