@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { year, make, model, mileage, reliability_data, timeline_data } = req.body;
+    const { year, make, model, mileage, reliability_data, timeline_data, imageUrl } = req.body;
     
     // Validate required fields
     if (!year || !make || !model || !mileage || !reliability_data) {
@@ -32,6 +32,28 @@ export default async function handler(req, res) {
     
     // Add a page to the PDF
     let page = pdfDoc.addPage([612, 792]); // Letter size - use let instead of const
+const { width, height } = page.getSize();
+
+// ✅ Image rendering if imageUrl is provided
+if (imageUrl) {
+  try {
+    const imageBytes = await fetch(imageUrl).then(res => res.arrayBuffer());
+    const embeddedImage = await pdfDoc.embedJpg(imageBytes);
+    const dims = embeddedImage.scale(0.3);
+
+    page.drawImage(embeddedImage, {
+      x: 50,
+      y: height - dims.height - 90,
+      width: dims.width,
+      height: dims.height
+    });
+
+    currentY -= dims.height + 30;
+  } catch (err) {
+    console.warn("Image load failed:", err);
+  }
+}
+
     const { width, height } = page.getSize();
     
     // Set some initial variables for positioning

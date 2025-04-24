@@ -231,6 +231,8 @@ export default async function handler(req, res) {
     }
 
     // Return the data to the client
+    
+    reliabilityData.imageUrl = `https://source.unsplash.com/featured/?${make},${model}`;
     res.json(reliabilityData);
   } catch (error) {
     console.error('General API Error:', error);

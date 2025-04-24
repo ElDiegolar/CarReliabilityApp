@@ -1,4 +1,3 @@
-// pages/search.js - Car search page with collapsible modern search area
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -9,7 +8,6 @@ import { useAuth } from '../contexts/AuthContext';
 import SaveSearchButton from '../components/SaveSearchButton';
 import DownloadPdfButton from '../components/DownloadPdfButton';
 import CarTimeline from '../components/CarTimeline';
-import JSXStyle from 'styled-jsx/style';
 
 export default function Search() {
   const { t } = useTranslation('common');
@@ -59,7 +57,6 @@ export default function Search() {
               const data = await response.json();
               if (data.savedVehicle?.reliability_data) {
                 setResults(data.savedVehicle.reliability_data);
-
                 if (data.savedVehicle.timeline_data) {
                   setSavedTimelineData(data.savedVehicle.timeline_data);
                   setTimelineData(data.savedVehicle.timeline_data);
@@ -124,27 +121,19 @@ export default function Search() {
     }
   }, [results, queryYear, queryMake, queryModel, queryMileage, loading, fromSaved]);
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
-  // Add a reset search function to completely clear saved data
   const resetSearch = () => {
     setResults(null);
     setTimelineData([]);
     setSavedTimelineData(null);
     setShowSearchForm(true);
-    
-    // Clear URL parameters
-    router.replace({
-      pathname: router.pathname
-    }, undefined, { shallow: true });
-    
-    // Reset form
+    router.replace({ pathname: router.pathname }, undefined, { shallow: true });
+
     setFormData({
       year: '',
       make: '',
@@ -160,12 +149,9 @@ export default function Search() {
     setError('');
 
     if (!isAutoSubmit) {
-      // Clear previous results when new manual search is submitted
-      setResults(null); 
+      setResults(null);
       setTimelineData([]);
       setSavedTimelineData(null);
-      
-      // Clear the URL of any saved vehicle parameters before starting a new search
       router.push({
         pathname: router.pathname,
         query: {
@@ -173,7 +159,6 @@ export default function Search() {
           make: formData.make,
           model: formData.model,
           mileage: formData.mileage
-          // Note: explicitly NOT including savedId and fromSaved here
         }
       }, undefined, { shallow: true });
     }
@@ -202,10 +187,7 @@ export default function Search() {
       setResults(data);
       setShowSearchForm(false);
 
-      // Don't re-add savedId and fromSaved to the URL - this is the key fix
-      // The original code was adding these back, causing the issue
       if (!isAutoSubmit) {
-        // Keep the URL clean with just the new search parameters
         router.push({
           pathname: router.pathname,
           query: {
@@ -213,7 +195,6 @@ export default function Search() {
             make: formData.make,
             model: formData.model,
             mileage: formData.mileage
-            // No longer adding back savedId and fromSaved
           }
         }, undefined, { shallow: true });
       }
@@ -238,258 +219,18 @@ export default function Search() {
         </div>
       )}
 
-      <div className={`search-form-wrapper ${showSearchForm ? 'expanded' : 'collapsed'}`}>
-        <div className="search-toggle-header" onClick={() => setShowSearchForm(!showSearchForm)}>
-          <h2>{t('search.searchSection')}</h2>
-          <span className="toggle-icon">{showSearchForm ? '−' : '+'}</span>
-        </div>
-
-        <div className={`search-form-body ${showSearchForm ? 'show' : ''}`}>
-          <form onSubmit={handleSubmit} className="search-form">
-            <div className="form-group">
-              <label htmlFor="year">{t('search.year')}</label>
-              <input
-                type="number"
-                id="year"
-                name="year"
-                value={formData.year}
-                onChange={handleChange}
-                min="1980"
-                max="2025"
-                required
-                placeholder="e.g. 2018"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="make">{t('search.make')}</label>
-              <input
-                type="text"
-                id="make"
-                name="make"
-                value={formData.make}
-                onChange={handleChange}
-                required
-                placeholder="e.g. Toyota"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="model">{t('search.model')}</label>
-              <input
-                type="text"
-                id="model"
-                name="model"
-                value={formData.model}
-                onChange={handleChange}
-                required
-                placeholder="e.g. Camry"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="mileage">{t('search.mileage')}</label>
-              <input
-                type="number"
-                id="mileage"
-                name="mileage"
-                value={formData.mileage}
-                onChange={handleChange}
-                min="0"
-                max="500000"
-                required
-                placeholder="e.g. 50000"
-              />
-            </div>
-
-            <div className="form-actions">
-              {/* Add a reset button when viewing saved vehicle */}
-              {/* {fromSaved === 'true' && (
-                <button 
-                  type="button" 
-                  onClick={resetSearch}
-                  className="reset-button"
-                >
-                  {t('search.newSearch') || 'New Search'}
-                </button>
-              )} */}
-              <button type="submit" disabled={loading} className="search-button">
-                {loading ? <span className="spinner" /> : t('search.searchButton')}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      {error && <p className="error">{error}</p>}
-
-      {results && (
-        <div className="results">
-          <h2>{t('search.resultsFor')} {formData.year} {formData.make} {formData.model}</h2>
-
-          <div className="score-card">
-            <h3>{t('search.overallScore')}</h3>
-            <div className="score">
-              <span className="score-value">{results.overallScore}</span>
-              <span className="score-max">/100</span>
-            </div>
-          </div>
-
-          <div className="action-buttons">
-            {user && (
-              <SaveSearchButton 
-                vehicleData={results} 
-                searchParams={formData}
-                timelineData={savedTimelineData || timelineData}
-                savedId={router.query.savedId}
-              />
-            )}
-            
-            <DownloadPdfButton 
-              vehicleData={results} 
-              searchParams={formData}
-              timelineData={savedTimelineData || timelineData}
-            />
-          </div>
-
-          <div className="categories">
-            <h3>{t('search.categoryScores')}</h3>
-            <div className="category-grid">
-              <div className="category">
-                <h4>{t('search.engine')}</h4>
-                <div className="category-score">{results.categories.engine}/100</div>
-              </div>
-              <div className="category">
-                <h4>{t('search.transmission')}</h4>
-                <div className="category-score">{results.categories.transmission}/100</div>
-              </div>
-
-              {results.isPremium ? (
-                <>
-                  <div className="category">
-                    <h4>{t('search.electrical')}</h4>
-                    <div className="category-score">{results.categories.electricalSystem}/100</div>
-                  </div>
-                  <div className="category">
-                    <h4>{t('search.brakes')}</h4>
-                    <div className="category-score">{results.categories.brakes}/100</div>
-                  </div>
-                  <div className="category">
-                    <h4>{t('search.suspension')}</h4>
-                    <div className="category-score">{results.categories.suspension}/100</div>
-                  </div>
-                  <div className="category">
-                    <h4>{t('search.fuelSystem')}</h4>
-                    <div className="category-score">{results.categories.fuelSystem}/100</div>
-                  </div>
-                </>
-              ) : (
-                <div className="premium-prompt">
-                  <p>{t('search.upgradeFull')}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {results.isPremium && results.commonIssues?.length > 0 && (
-            <div className="common-issues">
-              <h3>{t('search.commonIssues')}</h3>
-              <ul>
-                {results.commonIssues.map((issue, index) => (
-                  <li key={index}>
-                    <strong>{issue.description}</strong>
-                    <div>{t('search.costToFix')}: {issue.costToFix}</div>
-                    <div>{t('search.occurrence')}: {issue.occurrence}</div>
-                    <div>{t('search.typicalMileage')}: {issue.mileage}</div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="analysis">
-            <h3>{t('search.analysis')}</h3>
-            <p>{results.aiAnalysis}</p>
-
-            {!results.isPremium && (
-              <div className="upgrade-prompt">
-                <p>{t('search.upgradePrompt')}</p>
-                <Link href="/pricing" className="upgrade-button">
-                  {t('search.goPremium')}
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {results.isPremium && (
-            <div className="timeline-section">
-              <h2>{t('timeline.sectionTitle')}</h2>
-
-              {savedTimelineData ? (
-                <div className="car-timeline">
-                  <h3>{t('timeline.title')}</h3>
-                  <div className="timeline-container">
-                    {savedTimelineData.map((event, index) => (
-                      <div key={index} className="timeline-event">
-                        <div className="timeline-year">{event.year}</div>
-                        <div className="timeline-content">
-                          <h4>{event.title}</h4>
-                          <p>{event.description}</p>
-                          {event.imageUrl && (
-                            <div className="timeline-image">
-                              <img src={event.imageUrl} alt={event.title} />
-                            </div>
-                          )}
-                          {event.engineeringChanges?.length > 0 && (
-                            <div className="engineering-changes">
-                              <h5>{t('timeline.engineeringChanges')}</h5>
-                              <ul>
-                                {event.engineeringChanges.map((change, idx) => (
-                                  <li key={idx}>{change}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <CarTimeline 
-                  year={formData.year}
-                  make={formData.make}
-                  model={formData.model}
-                  isPremium={results.isPremium}
-                  onTimelineLoaded={handleTimelineLoaded}
-                />
-              )}
-            </div>
-          )}
-
-          {user && (
-            <div className="search-actions">
-              <Link href="/search-history" className="view-history-button">
-                {t('search.viewSearchHistory')}
-              </Link>
-              <Link href="/saved-vehicles" className="view-saved-button">
-                {t('search.viewSavedVehicles')}
-              </Link>
-            </div>
-          )}
+      {/* Image preview */}
+      {results?.imageUrl && (
+        <div className="car-image">
+          <img
+            src={results.imageUrl}
+            alt={`${formData.make} ${formData.model}`}
+            style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: '1rem' }}
+          />
         </div>
       )}
 
-      {loading && (
-        <div className="loading-overlay">
-          <div className="loading-spinner" />
-          <span>{t('search.loadingMessage') || 'Loading...'}</span>
-        </div>
-      )}
-      
-
-
-      <style jsx>{`
+<style jsx>{`
         h1 {
           margin-bottom: 2rem;
         }
