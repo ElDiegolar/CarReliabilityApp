@@ -230,6 +230,67 @@ export default function Search() {
         </div>
       )}
 
+{results && (
+  <div className="results">
+    <div className="score-card">
+      <div className="score">{results.overallScore}</div>
+      <div className="score-max">/100</div>
+    </div>
+
+    <div className="action-buttons">
+      <SaveSearchButton vehicleData={results} searchParams={formData} />
+      <DownloadPdfButton 
+        vehicleData={results}
+        searchParams={formData}
+        timelineData={savedTimelineData || timelineData}
+        imageUrl={results.imageUrl}
+      />
+    </div>
+
+    {results.categories && (
+      <div className="categories">
+        <h2>Category Scores</h2>
+        <div className="category-grid">
+          {Object.entries(results.categories).map(([key, value]) => (
+            <div className="category" key={key}>
+              <h4>{key}</h4>
+              <div className="category-score">{value !== null ? `${value}/100` : 'N/A'}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {results.commonIssues && results.commonIssues.length > 0 && (
+      <div className="common-issues">
+        <h2>Common Issues</h2>
+        <ul>
+          {results.commonIssues.map((issue, i) => (
+            <li key={i}>
+              <strong>{issue.description}</strong><br />
+              Cost to Fix: {issue.costToFix}<br />
+              Occurrence: {issue.occurrence}<br />
+              Typical Mileage: {issue.mileage}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {results.aiAnalysis && (
+      <div className="analysis">
+        <h2>AI Analysis</h2>
+        <p>{results.aiAnalysis}</p>
+      </div>
+    )}
+
+    <CarTimeline
+      timelineData={savedTimelineData || timelineData}
+      onLoad={handleTimelineLoaded}
+    />
+  </div>
+)}
+
 <style jsx>{`
         h1 {
           margin-bottom: 2rem;
