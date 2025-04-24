@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
@@ -14,6 +14,10 @@ export default function Search() {
   const { user, getToken } = useAuth();
   const router = useRouter();
   const { year: queryYear, make: queryMake, model: queryModel, mileage: queryMileage } = router.query;
+
+  // Add refs to track API request status
+  const apiRequestInProgress = useRef(false);
+  const hasAutoSubmitted = useRef(false);
 
   const [formData, setFormData] = useState({
     year: '',
@@ -34,6 +38,14 @@ export default function Search() {
 
   const { fromSaved, savedId } = router.query;
 
+  // Reset autoSubmit tracking when query params change
+  useEffect(() => {
+    if (queryYear && queryMake && queryModel && queryMileage) {
+      // Only reset if all params are present to avoid premature resets
+      hasAutoSubmitted.current = false;
+    }
+  }, [queryYear, queryMake, queryModel, queryMileage]);
+
   useEffect(() => {
     if (queryYear || queryMake || queryModel || queryMileage) {
       setFormData({
@@ -45,6 +57,12 @@ export default function Search() {
 
       if (fromSaved === 'true' && savedId && user) {
         const loadSavedVehicle = async () => {
+          // Don't proceed if we're already loading data
+          if (apiRequestInProgress.current) {
+            console.log("API request already in progress, skipping saved vehicle load");
+            return;
+          }
+
           try {
             const token = getToken();
             const response = await fetch(`/api/saved-vehicles/get-one?id=${savedId}`, {
@@ -77,6 +95,7 @@ export default function Search() {
 
                 setLoading(false);
                 setShowSearchForm(false);
+                hasAutoSubmitted.current = true; // Mark as submitted since we loaded data
                 return;
               }
             }
@@ -84,13 +103,19 @@ export default function Search() {
             console.error('Error loading saved vehicle data:', err);
           }
 
-          if (queryYear && queryMake && queryModel && queryMileage) {
+          // If we couldn't load saved data and we have all parameters, submit the form
+          if (queryYear && queryMake && queryModel && queryMileage && !hasAutoSubmitted.current) {
+            hasAutoSubmitted.current = true;
             await handleSubmit(null, true);
           }
         };
 
         loadSavedVehicle();
-      } else if (queryYear && queryMake && queryModel && queryMileage) {
+      } else if (queryYear && queryMake && queryModel && queryMileage && !hasAutoSubmitted.current) {
+        // Only auto-submit once when all parameters are present
+        console.log("Auto-submitting form with query parameters");
+        hasAutoSubmitted.current = true;
+        
         const autoSubmitForm = async () => {
           await handleSubmit(null, true);
         };
@@ -124,6 +149,9 @@ export default function Search() {
     checkSubscription();
   }, [user, getToken]);
 
+  // Remove this useEffect to prevent duplicate API calls
+  // This functionality is now handled in the first useEffect
+  /*
   useEffect(() => {
     if (
       !results &&
@@ -133,6 +161,7 @@ export default function Search() {
       handleSubmit(null, true);
     }
   }, [results, queryYear, queryMake, queryModel, queryMileage, loading, fromSaved]);
+  */
 
   const fetchCarImage = async (year, make, model) => {
     try {
@@ -172,6 +201,7 @@ export default function Search() {
     setSavedTimelineData(null);
     setShowSearchForm(true);
     setCarImageUrl(null);
+    hasAutoSubmitted.current = false;
     router.replace('/search', undefined, { shallow: true });
 
     setFormData({
@@ -184,6 +214,15 @@ export default function Search() {
 
   const handleSubmit = async (e, isAutoSubmit = false) => {
     if (e) e.preventDefault();
+    
+    // Prevent duplicate API calls
+    if (apiRequestInProgress.current) {
+      console.log("API request already in progress, skipping duplicate submission");
+      return;
+    }
+    
+    console.log(`Handling submit (auto: ${isAutoSubmit})`);
+    apiRequestInProgress.current = true;
     setLoading(true);
     setSubmitted(true);
     setError('');
@@ -216,6 +255,7 @@ export default function Search() {
         console.log("Including premium token in request");
       }
 
+      console.log("Sending API request to car-reliability");
       const response = await fetch('/api/car-reliability', {
         method: 'POST',
         headers: {
@@ -227,34 +267,51 @@ export default function Search() {
 
       if (!response.ok) throw new Error('Failed to fetch reliability data');
 
-      const data = await response.json();
+      // Handle the JSON parsing error here if needed
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("JSON parse error:", jsonError);
+        throw new Error('Error parsing vehicle data');
+      }
       
       // Force the isPremium flag to match the user's actual subscription status
       if (isPremium && data) {
         data.isPremium = true;
       }
       
+      console.log("Received API response, setting results");
       setResults(data);
       setShowSearchForm(false);
       
       // Store the carImageUrl in the results object so it's included in saves
+      // Fetch image, but don't update state immediately to avoid chain reactions
       fetchCarImage(formData.year, formData.make, formData.model).then(imageUrl => {
-        if (imageUrl) {
-          setResults(prevResults => ({
-            ...prevResults,
-            imageUrl: imageUrl
-          }));
+        if (imageUrl && !apiRequestInProgress.current) {  // Only update if not in another request
+          setResults(prevResults => {
+            if (!prevResults) return null;
+            return {
+              ...prevResults,
+              imageUrl: imageUrl
+            };
+          });
         }
       });
     } catch (err) {
+      console.error("API request error:", err);
       setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
+      apiRequestInProgress.current = false;
+      console.log("API request completed");
     }
   };
 
   const handleTimelineLoaded = (data) => {
-    setTimelineData(data);
+    if (data && data.length > 0) {
+      setTimelineData(data);
+    }
   };
 
   return (
@@ -338,7 +395,7 @@ export default function Search() {
                   Reset
                 </button>
               )}
-              <button type="submit" className="search-button" disabled={loading}>
+              <button type="submit" className="search-button" disabled={loading || apiRequestInProgress.current}>
                 {loading ? <span className="spinner" /> : t('search.searchButton')}
               </button>
             </div>
