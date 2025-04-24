@@ -1,4 +1,4 @@
-// Modified version of pages/api/generate-pdf.js that includes timeline data
+// Modified version of pages/api/generate-pdf.js that includes timeline data and vehicle image
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { query } from '../../lib/database';
 
@@ -32,30 +32,8 @@ export default async function handler(req, res) {
     
     // Add a page to the PDF
     let page = pdfDoc.addPage([612, 792]); // Letter size - use let instead of const
-const { width, height } = page.getSize();
+    const { width, height } = page.getSize();
 
-// ✅ Image rendering if imageUrl is provided
-if (imageUrl) {
-  try {
-    const imageBytes = await fetch(imageUrl).then(res => res.arrayBuffer());
-    const embeddedImage = await pdfDoc.embedJpg(imageBytes);
-    const dims = embeddedImage.scale(0.3);
-
-    page.drawImage(embeddedImage, {
-      x: 50,
-      y: height - dims.height - 90,
-      width: dims.width,
-      height: dims.height
-    });
-
-    currentY -= dims.height + 30;
-  } catch (err) {
-    console.warn("Image load failed:", err);
-  }
-}
-
-
-    
     // Set some initial variables for positioning
     let currentY = height - 50;
     const margin = 50;
@@ -137,7 +115,47 @@ if (imageUrl) {
       font: helveticaFont,
     });
     
-    currentY -= lineHeight * 2;
+    // Add vehicle image if available
+    if (imageUrl) {
+      try {
+        // Fetch the image
+        const imageResponse = await fetch(imageUrl);
+        if (!imageResponse.ok) throw new Error('Failed to fetch image');
+        
+        const imageBytes = await imageResponse.arrayBuffer();
+        
+        // Determine image type and embed accordingly
+        let embeddedImage;
+        if (imageUrl.toLowerCase().endsWith('.jpg') || imageUrl.toLowerCase().endsWith('.jpeg') || imageUrl.includes('jpg') || imageUrl.includes('jpeg')) {
+          embeddedImage = await pdfDoc.embedJpg(imageBytes);
+        } else if (imageUrl.toLowerCase().endsWith('.png') || imageUrl.includes('png')) {
+          embeddedImage = await pdfDoc.embedPng(imageBytes);
+        } else {
+          // Default to JPG if type can't be determined
+          embeddedImage = await pdfDoc.embedJpg(imageBytes);
+        }
+        
+        // Scale the image - maintain aspect ratio but don't exceed 300px width
+        const imgWidth = Math.min(300, width - 2 * margin);
+        const scale = imgWidth / embeddedImage.width;
+        const imgHeight = embeddedImage.height * scale;
+        
+        // Draw the image
+        currentY -= 20; // Add some spacing
+        page.drawImage(embeddedImage, {
+          x: margin,
+          y: currentY - imgHeight,
+          width: imgWidth,
+          height: imgHeight,
+        });
+        
+        // Update the current Y position to be below the image
+        currentY -= imgHeight + 20;
+      } catch (err) {
+        console.warn("Image embedding failed:", err);
+        // Continue with PDF generation even if image fails
+      }
+    }
     
     // Category scores section
     page.drawText(`Category Scores`, {
