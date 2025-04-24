@@ -103,6 +103,7 @@
     "suspension": "Suspension",
     "fuelSystem": "Fuel System",
     "upgradeFull": "Upgrade to premium for full category breakdowns",
+    "searchSection": "Search",
     "commonIssues": "Common Issues",
     "costToFix": "Cost to Fix",
     "occurrence": "Occurrence",
@@ -411,7 +412,7 @@
     "generating": "Generating...",
     "downloadPdf": "Download PDF"
   },
-  "savedVehicle": {
+  "savedVehicles": {
     "saveVehicle": "Save Vehicle"
   }
 }
