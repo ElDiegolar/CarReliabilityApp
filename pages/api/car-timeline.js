@@ -1,355 +1,115 @@
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
+// pages/api/car-timeline.js
+import { query } from '../../lib/database';
+import { withAuth } from '../../lib/auth';
+import { Configuration, OpenAIApi } from 'openai';
 
-const CarTimeline = ({ timelineData, onLoad, isPremium }) => {
-  const { t } = useTranslation('common');
-  const [localTimelineData, setLocalTimelineData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  
-  useEffect(() => {
-    console.log("CarTimeline useEffect running, isPremium:", isPremium);
-    console.log("Initial timelineData:", timelineData);
-    
-    // If timeline data is already provided, use it
-    if (timelineData && timelineData.length > 0) {
-      console.log("Using provided timeline data");
-      setLocalTimelineData(timelineData);
-      if (onLoad) onLoad(timelineData);
-      return;
-    }
-    
-    // Only attempt to load timeline data if user is premium
-    if (isPremium) {
-      console.log("Premium user, fetching timeline data");
-      setLoading(true);
-      
-      // Set a safety timeout to prevent infinite loading
-      const safetyTimeout = setTimeout(() => {
-        console.log("Safety timeout triggered");
-        setLoading(false);
-        setLocalTimelineData([{
-          year: new Date().getFullYear(),
-          title: "Timeline Data",
-          description: "Here is the model timeline data.",
-          engineeringChanges: ["Feature 1", "Feature 2"]
-        }]);
-      }, 5000);
-      
-      // Immediately create and set mock data after a brief delay
-      setTimeout(() => {
-        console.log("Creating mock timeline data");
-        
-        const mockTimelineData = [
-          {
-            year: 2010,
-            title: "Initial Model Release",
-            description: "First generation model introduced to the market.",
-            engineeringChanges: [
-              "Base engine offered with 180hp",
-              "5-speed automatic transmission"
-            ]
-          },
-          {
-            year: 2013,
-            title: "Mid-cycle Refresh",
-            description: "Updated styling and interior features.",
-            engineeringChanges: [
-              "Improved fuel efficiency",
-              "Enhanced safety features"
-            ]
-          },
-          {
-            year: 2016,
-            title: "Major Redesign",
-            description: "Complete platform overhaul with new technologies.",
-            engineeringChanges: [
-              "New 210hp turbocharged engine option",
-              "8-speed automatic transmission",
-              "Advanced driver assistance systems"
-            ]
-          }
-        ];
-        
-        console.log("Setting timeline data");
-        setLocalTimelineData(mockTimelineData);
-        if (onLoad) onLoad(mockTimelineData);
-        setLoading(false);
-        clearTimeout(safetyTimeout);
-      }, 1000);
-      
-      // Cleanup function to clear timeout
-      return () => clearTimeout(safetyTimeout);
-    }
-  }, [timelineData, onLoad, isPremium]);
-  
-  // Debug output
-  console.log("Rendering CarTimeline, isPremium:", isPremium);
-  console.log("Loading state:", loading);
-  console.log("Local timeline data:", localTimelineData);
-  
-  // If not premium, show upgrade prompt
-  if (!isPremium) {
-    console.log("Not premium, showing upgrade prompt");
-    return (
-      <div className="timeline-section">
-        <h2>{t('timeline.title') || 'Design History & Engineering Timeline'}</h2>
-        <div className="premium-prompt">
-          <p>{t('timeline.premiumRequired') || 'Upgrade to premium to see this vehicle\'s design and engineering timeline.'}</p>
-          <Link href="/pricing" className="upgrade-button">
-            {t('search.goPremium') || 'Go Premium'}
-          </Link>
-        </div>
-        
-        <style jsx>{`
-          .timeline-section {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            padding: 2rem;
-            margin-bottom: 2rem;
-          }
-          
-          .timeline-section h2 {
-            margin-top: 0;
-            margin-bottom: 1.5rem;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.75rem;
-          }
-          
-          .premium-prompt {
-            background-color: #fffbea;
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            margin-top: 1rem;
-          }
-          
-          .upgrade-button {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            background-color: #0070f3;
-            color: white;
-            border-radius: 6px;
-            font-weight: 500;
-            margin-top: 0.5rem;
-            text-decoration: none;
-            transition: background-color 0.2s;
-          }
-          
-          .upgrade-button:hover {
-            background-color: #0060df;
-          }
-        `}</style>
-      </div>
-    );
-  }
-  
-  // If no timeline data available and not loading
-  if (!loading && (!localTimelineData || localTimelineData.length === 0)) {
-    console.log("No timeline data and not loading");
-    return (
-      <div className="timeline-section">
-        <h2>{t('timeline.title') || 'Design History & Engineering Timeline'}</h2>
-        <p className="no-data">{t('timeline.noData') || 'No timeline data available for this vehicle model.'}</p>
-        
-        <style jsx>{`
-          .timeline-section {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            padding: 2rem;
-            margin-bottom: 2rem;
-          }
-          
-          .timeline-section h2 {
-            margin-top: 0;
-            margin-bottom: 1.5rem;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.75rem;
-          }
-          
-          .no-data {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-          }
-        `}</style>
-      </div>
-    );
-  }
-  
-  // Loading or has data
-  console.log("Rendering timeline content, loading:", loading);
-  return (
-    <div className="timeline-section">
-      <h2>{t('timeline.title') || 'Design History & Engineering Timeline'}</h2>
-      
-      {loading ? (
-        <div className="loading">
-          <div className="timeline-spinner" />
-          <p>{t('timeline.loading') || 'Loading timeline data...'}</p>
-        </div>
-      ) : (
-        <div className="timeline">
-          {localTimelineData.map((event, index) => (
-            <div className="timeline-event" key={index}>
-              <div className="timeline-year">
-                <span>{event.year}</span>
-              </div>
-              <div className="timeline-content">
-                <h3>{event.title}</h3>
-                <p>{event.description}</p>
-                
-                {event.engineeringChanges && event.engineeringChanges.length > 0 && (
-                  <div className="engineering-changes">
-                    <h4>{t('timeline.engineeringChanges') || 'Engineering Changes'}</h4>
-                    <ul>
-                      {event.engineeringChanges.map((change, changeIndex) => (
-                        <li key={changeIndex}>{change}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      
-      <style jsx>{`
-        .timeline-section {
-          background-color: #fff;
-          border-radius: 12px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-          padding: 2rem;
-          margin-bottom: 2rem;
-        }
-        
-        .timeline-section h2 {
-          margin-top: 0;
-          margin-bottom: 1.5rem;
-          color: #333;
-          border-bottom: 1px solid #eee;
-          padding-bottom: 0.75rem;
-        }
-        
-        .loading {
-          text-align: center;
-          padding: 2rem 0;
-        }
-        
-        .timeline-spinner {
-          width: 40px;
-          height: 40px;
-          border: 4px solid #eee;
-          border-top: 4px solid #0070f3;
-          border-radius: 50%;
-          margin: 0 auto 1rem;
-          animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        
-        .timeline {
-          position: relative;
-          padding-left: 2rem;
-        }
-        
-        .timeline:before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          height: 100%;
-          width: 4px;
-          background-color: #e5e5e5;
-          border-radius: 4px;
-        }
-        
-        .timeline-event {
-          position: relative;
-          margin-bottom: 2.5rem;
-        }
-        
-        .timeline-event:last-child {
-          margin-bottom: 0;
-        }
-        
-        .timeline-year {
-          position: absolute;
-          left: -2.5rem;
-          top: 0;
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          background-color: #0070f3;
-          color: white;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          z-index: 2;
-        }
-        
-        .timeline-content {
-          background-color: #f9f9f9;
-          padding: 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-          margin-left: 1rem;
-        }
-        
-        .timeline-content h3 {
-          margin-top: 0;
-          margin-bottom: 0.75rem;
-          color: #333;
-        }
-        
-        .timeline-content p {
-          margin-bottom: 1rem;
-          color: #444;
-          line-height: 1.6;
-        }
-        
-        .engineering-changes {
-          background-color: rgba(0, 112, 243, 0.05);
-          padding: 1rem;
-          border-radius: 6px;
-          margin-top: 1rem;
-        }
-        
-        .engineering-changes h4 {
-          margin-top: 0;
-          margin-bottom: 0.75rem;
-          color: #0070f3;
-          font-size: 1rem;
-        }
-        
-        .engineering-changes ul {
-          margin: 0;
-          padding-left: 1.5rem;
-        }
-        
-        .engineering-changes li {
-          margin-bottom: 0.5rem;
-          color: #333;
-        }
-        
-        .engineering-changes li:last-child {
-          margin-bottom: 0;
-        }
-      `}</style>
-    </div>
-  );
-};
+// OpenAI configuration
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
 
-export default CarTimeline;
+async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { year, make, model } = req.body;
+
+  if (!year || !make || !model) {
+    return res.status(400).json({ error: 'Year, make, and model are required' });
+  }
+
+  try {
+    // Check if user has premium or professional subscription
+    const now = new Date().toISOString();
+    const subscriptionResult = await query(`
+      SELECT us.id
+      FROM user_subscriptions us
+      JOIN subscription_plans sp ON us.plan_id = sp.id
+      WHERE us.user_id = $1 
+      AND us.status = $2 
+      AND (us.current_period_end IS NULL OR us.current_period_end > $3)
+      AND (sp.name = 'premium' OR sp.name = 'professional')
+    `, [req.user.id, 'active', now]);
+
+    if (subscriptionResult.rows.length === 0) {
+      return res.status(403).json({ error: 'Premium subscription required' });
+    }
+
+    // Check if we already have cached timeline data
+    const cachedResult = await query(`
+      SELECT timeline_data FROM car_timelines 
+      WHERE year = $1 AND make = $2 AND model = $3
+    `, [year, make, model]);
+
+    if (cachedResult.rows.length > 0) {
+      return res.json({ timeline: cachedResult.rows[0].timeline_data });
+    }
+
+    // Generate timeline data using OpenAI
+    const prompt = `
+      Create a design history timeline for the ${year} ${make} ${model} car. 
+      For each significant version or generation, include:
+      1. The year of introduction
+      2. Key design changes
+      3. Engineering modifications that could affect reliability
+      4. Notable features or innovations
+
+      Format the response as a JSON array with objects containing:
+      {
+        "year": "YYYY",
+        "title": "Brief title of the change",
+        "description": "Detailed description",
+        "engineeringChanges": ["list of specific engineering changes"],
+        "imageUrl": null
+      }
+
+      Start from the first generation up to the ${year} model. Include at least 3-5 major milestones.
+      Return ONLY the JSON array with no additional text.
+    `;
+
+    const completion = await openai.createChatCompletion({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: "You are an automotive expert assistant that provides accurate historical vehicle information. Return all responses as properly formatted JSON." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.2,
+    });
+
+    const responseText = completion.data.choices[0].message.content.trim();
+    let timelineData = [];
+
+    try {
+      const jsonMatch = responseText.match(/```json\n([\s\S]*)\n```/) ||
+                        responseText.match(/```\n([\s\S]*)\n```/) ||
+                        [null, responseText];
+
+      timelineData = JSON.parse(jsonMatch[1]);
+
+      await query(`
+        INSERT INTO car_timelines (year, make, model, timeline_data) 
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (year, make, model) 
+        DO UPDATE SET timeline_data = $4
+      `, [year, make, model, JSON.stringify(timelineData)]);
+    } catch (parseError) {
+      console.error("Error parsing JSON response:", parseError);
+      return res.status(500).json({
+        error: 'Failed to parse timeline data',
+        rawResponse: responseText
+      });
+    }
+
+    return res.json({ timeline: timelineData });
+  } catch (error) {
+    console.error('Car timeline API error:', error);
+    return res.status(500).json({
+      error: 'Failed to retrieve timeline data',
+      message: error.message
+    });
+  }
+}
+
+export default withAuth(handler);
