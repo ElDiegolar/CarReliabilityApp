@@ -411,8 +411,5 @@
   "button": {
     "generating": "Generating...",
     "downloadPdf": "Download PDF"
-  },
-  "savedVehicles": {
-    "saveVehicle": "Save Vehicle"
   }
 }

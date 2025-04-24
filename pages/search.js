@@ -449,110 +449,390 @@ export default function Search() {
       
 
 
- <style jsx>{`
-      .search-form-wrapper {
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  margin: 1rem 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.search-form-wrapper.expanded {
-  max-height: 1000px; /* Arbitrary large height to allow full expansion */
-  padding: 1rem;
-}
-
-.search-form-wrapper.collapsed {
-  max-height: 60px;
-  padding: 0.5rem 1rem;
-}
-
-.search-toggle-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  font-weight: bold;
-  background-color: #e9ecef;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #ccc;
-}
-
-.toggle-icon {
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-.search-form-body {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 0.3s ease;
-}
-
-.search-form-body.show {
-  max-height: 800px;
-}
-
-.search-form {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.form-group input {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
-button[type="submit"] {
-  grid-column: span 2;
-  background-color: #0070f3;
-  color: white;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-button[type="submit"]:hover {
-  background-color: #005bb5;
-}
-
-.spinner {
-  width: 1rem;
-  height: 1rem;
-  border: 3px solid white;
-  border-top: 3px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-  margin: 0 auto;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-  `}</style>
+      <style jsx>{`
+        h1 {
+          margin-bottom: 2rem;
+        }
+      
+        .premium-badge {
+          display: inline-block;
+          background-color: #0070f3;
+          color: white;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          margin-bottom: 1.5rem;
+          font-weight: bold;
+        }
+      
+        .reopen-button {
+          margin-bottom: 1.5rem;
+          padding: 0.75rem 1.5rem;
+          background-color: #f0f0f0;
+          color: #0070f3;
+          border: none;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+      
+        .reopen-button:hover {
+          background-color: #e5e5e5;
+        }
+      
+        .search-form {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+          background: #ffffff;
+          padding: 2rem;
+          border-radius: 12px;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+      
+        .form-group {
+          display: flex;
+          flex-direction: column;
+        }
+      
+        label {
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+          color: #333;
+        }
+      
+        input {
+          padding: 1rem;
+          border-radius: 8px;
+          border: 1px solid #ddd;
+          font-size: 1rem;
+          transition: border-color 0.2s;
+        }
+      
+        input:focus {
+          outline: none;
+          border-color: #0070f3;
+          box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.15);
+        }
+      
+        button[type="submit"] {
+          grid-column: 1 / -1;
+          justify-self: center;
+          width: fit-content;
+          padding: 1rem 2rem;
+          font-size: 1.1rem;
+          border-radius: 8px;
+          background-color: #0070f3;
+          color: white;
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+      
+        button[type="submit"]:hover {
+          background-color: #005fc2;
+        }
+      
+        button:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+        }
+      
+        .spinner {
+          width: 20px;
+          height: 20px;
+          border: 3px solid #fff;
+          border-top: 3px solid #0070f3;
+          border-radius: 50%;
+          animation: spin 0.6s linear infinite;
+          display: inline-block;
+        }
+      
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      
+        .error {
+          color: red;
+          margin-bottom: 1rem;
+        }
+      
+        .results {
+          margin-top: 2rem;
+        }
+      
+        .score-card {
+          background-color: #f5f5f5;
+          padding: 1.5rem;
+          border-radius: 8px;
+          margin-bottom: 2rem;
+          text-align: center;
+        }
+      
+        .score {
+          font-size: 3rem;
+          font-weight: bold;
+          color: #0070f3;
+        }
+      
+        .score-max {
+          font-size: 1.5rem;
+          color: #666;
+        }
+      
+        .action-buttons {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 2rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+      
+        /* Car Specifications Styles */
+        .car-specs {
+          background-color: #f9f9f9;
+          padding: 2rem;
+          border-radius: 8px;
+          margin-bottom: 2rem;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .car-specs h3 {
+          margin-top: 0;
+          margin-bottom: 1.5rem;
+          color: #333;
+          text-align: center;
+        }
+        
+        .specs-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 1.5rem;
+        }
+        
+        .spec-item {
+          background-color: white;
+          padding: 1rem;
+          border-radius: 6px;
+          border-left: 3px solid #0070f3;
+        }
+        
+        .spec-label {
+          font-size: 0.9rem;
+          color: #666;
+          margin-bottom: 0.5rem;
+        }
+        
+        .spec-value {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #333;
+        }
+      
+        .categories {
+          margin-bottom: 2rem;
+        }
+      
+        .category-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 1rem;
+        }
+      
+        .category {
+          background-color: #f9f9f9;
+          padding: 1rem;
+          border-radius: 8px;
+          text-align: center;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+      
+        .category h4 {
+          margin-top: 0;
+          margin-bottom: 0.5rem;
+          color: #444;
+        }
+      
+        .category-score {
+          font-size: 1.25rem;
+          font-weight: bold;
+          color: #0070f3;
+        }
+      
+        .premium-prompt,
+        .upgrade-prompt {
+          background-color: #fffbea;
+          padding: 1rem;
+          border-radius: 8px;
+          text-align: center;
+          grid-column: 1 / -1;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+      
+        .common-issues {
+          margin-bottom: 2rem;
+        }
+      
+        .common-issues ul {
+          list-style-type: none;
+          padding: 0;
+        }
+      
+        .common-issues li {
+          background-color: #f9f9f9;
+          padding: 1.5rem;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+      
+        .analysis {
+          background-color: #f9f9f9;
+          padding: 1.5rem;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+      
+        .upgrade-button {
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background-color: #0070f3;
+          color: white;
+          border-radius: 6px;
+          font-weight: 500;
+          margin-top: 0.5rem;
+          text-decoration: none;
+          transition: background-color 0.2s;
+        }
+      
+        .upgrade-button:hover {
+          background-color: #0060df;
+        }
+      
+        .search-actions {
+          margin-top: 2rem;
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+        }
+      
+        .view-history-button,
+        .view-saved-button {
+          display: inline-block;
+          padding: 0.75rem 1.5rem;
+          background-color: #f5f5f5;
+          color: #0070f3;
+          border-radius: 6px;
+          font-weight: 500;
+          text-decoration: none;
+          transition: background-color 0.2s;
+        }
+      
+        .view-history-button:hover,
+        .view-saved-button:hover {
+          background-color: #e5f1ff;
+        }
+      
+        .loading-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background-color: rgba(255, 255, 255, 0.85);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          flex-direction: column;
+        }
+      
+        .loading-spinner {
+          width: 50px;
+          height: 50px;
+          border: 6px solid #ccc;
+          border-top: 6px solid #0070f3;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 1rem;
+        }
+      
+        .car-timeline {
+          margin: 2rem 0;
+        }
+      
+        .timeline-container {
+          position: relative;
+          padding-left: 2rem;
+          margin-left: 1rem;
+          border-left: 2px solid #0070f3;
+        }
+      
+        .timeline-event {
+          position: relative;
+          margin-bottom: 2rem;
+          padding-bottom: 1rem;
+        }
+      
+        .timeline-event:last-child {
+          margin-bottom: 0;
+        }
+      
+        .timeline-year {
+          position: absolute;
+          left: -3.5rem;
+          background-color: #0070f3;
+          color: white;
+          padding: 0.5rem;
+          border-radius: 4px;
+          font-weight: bold;
+        }
+      
+        .timeline-content {
+          background-color: #f5f5f5;
+          padding: 1.5rem;
+          border-radius: 8px;
+          margin-left: 1rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+      
+        .timeline-content h4 {
+          margin-top: 0;
+          margin-bottom: 0.75rem;
+          color: #0070f3;
+        }
+      
+        .timeline-image {
+          margin: 1rem 0;
+          text-align: center;
+        }
+      
+        .timeline-image img {
+          max-width: 100%;
+          border-radius: 4px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+      
+        .engineering-changes {
+          margin-top: 1rem;
+          background-color: #e5f1ff;
+          padding: 1rem;
+          border-radius: 4px;
+        }
+      
+        .engineering-changes h5 {
+          margin-top: 0;
+          margin-bottom: 0.75rem;
+        }
+      
+        .engineering-changes ul {
+          margin: 0;
+          padding-left: 1.5rem;
+        }
+      `}</style>
     </Layout>
   );
 }
