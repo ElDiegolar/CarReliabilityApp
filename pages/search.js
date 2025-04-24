@@ -304,7 +304,7 @@ export default function Search() {
 
             <div className="form-actions">
               {/* Add a reset button when viewing saved vehicle */}
-              {fromSaved === 'true' && (
+              {/* {fromSaved === 'true' && (
                 <button 
                   type="button" 
                   onClick={resetSearch}
@@ -312,7 +312,7 @@ export default function Search() {
                 >
                   {t('search.newSearch') || 'New Search'}
                 </button>
-              )}
+              )} */}
               <button type="submit" disabled={loading} className="search-button">
                 {loading ? <span className="spinner" /> : t('search.searchButton')}
               </button>

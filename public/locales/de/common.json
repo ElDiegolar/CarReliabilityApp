@@ -1,19 +1,19 @@
 {
   "hero": {
-    "title": "Erhalten Sie zuverlässige Informationen über Ihr Fahrzeug",
-    "description": "Detaillierte Fahrzeugzuverlässigkeitsdaten, häufige Probleme und Expertenanalysen.",
+    "title": "Erhalten Sie zuverlässige Informationen über Ihr Fahrzeug, bevor Sie kaufen!",
+    "description": "Detaillierte Daten zur Fahrzeugzuverlässigkeit, häufige Probleme und Expertenanalysen.",
     "search": "Fahrzeug suchen",
-    "signup": "Für Premium anmelden"
+    "signup": "Für Premium registrieren"
   },
   "features": {
     "title": "Unsere Funktionen",
     "reliabilityScores": {
-      "title": "Zuverlässigkeitswerte",
-      "description": "Erhalten Sie umfassende Zuverlässigkeitswerte für Motoren, Getriebe, elektrische Systeme und mehr."
+      "title": "Zuverlässigkeitsbewertungen",
+      "description": "Erhalten Sie umfassende Zuverlässigkeitsbewertungen für Motoren, Getriebe, elektrische Systeme und mehr."
     },
     "commonIssues": {
       "title": "Häufige Probleme",
-      "description": "Erfahren Sie mehr über häufige Probleme, geschätzte Reparaturkosten und wann sie typischerweise auftreten."
+      "description": "Erfahren Sie mehr über häufige Probleme, geschätzte Reparaturkosten und wann diese typischerweise auftreten."
     },
     "expertAnalysis": {
       "title": "Expertenanalyse",
@@ -25,11 +25,11 @@
     }
   },
   "howItWorks": {
-    "title": "Wie es funktioniert",
+    "title": "So funktioniert es",
     "steps": [
       {
-        "title": "Fahrzeugdaten eingeben",
-        "description": "Geben Sie das Jahr, die Marke, das Modell und die Laufleistung des Fahrzeugs ein, das Sie recherchieren möchten."
+        "title": "Fahrzeugdetails eingeben",
+        "description": "Geben Sie das Jahr, die Marke, das Modell und die Laufleistung des Fahrzeugs an, das Sie recherchieren möchten."
       },
       {
         "title": "Sofortige Ergebnisse erhalten",
@@ -37,7 +37,7 @@
       },
       {
         "title": "Informierte Entscheidungen treffen",
-        "description": "Nutzen Sie die Zuverlässigkeitsdaten, um bessere Entscheidungen beim Kauf, Verkauf oder bei der Wartung von Fahrzeugen zu treffen."
+        "description": "Nutzen Sie die Zuverlässigkeitsdaten, um bessere Entscheidungen beim Kauf, Verkauf oder der Wartung von Fahrzeugen zu treffen."
       }
     ]
   },
@@ -51,36 +51,36 @@
     "password": "Passwort",
     "confirmPassword": "Passwort bestätigen",
     "noAccount": "Noch kein Konto?",
-    "haveAccount": "Bereits ein Konto?",
-    "redirectNotice": "Sie werden nach der Anmeldung zurückgeleitet",
+    "haveAccount": "Haben Sie bereits ein Konto?",
+    "redirectNotice": "Sie werden nach der Anmeldung weitergeleitet",
     "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
     "authFailed": "Authentifizierung fehlgeschlagen",
     "emailRequired": "E-Mail ist erforderlich",
     "passwordRequired": "Passwort ist erforderlich",
     "confirmPasswordRequired": "Passwortbestätigung ist erforderlich",
     "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
-    "passwordTooShort": "Passwort muss mindestens 6 Zeichen lang sein"
+    "passwordTooShort": "Passwort muss mindestens 6 Zeichen haben"
   },
   "savedVehicles": {
     "title": "Gespeicherte Fahrzeuge",
     "saving": "Wird gespeichert...",
     "saved": "Gespeichert!",
     "saveSearch": "Fahrzeug speichern",
+    "saveVehicle": "Fahrzeug speichern",
     "loading": "Gespeicherte Fahrzeuge werden geladen...",
     "noVehicles": "Sie haben noch keine Fahrzeuge gespeichert",
-    "authRequired": "Sie müssen angemeldet sein, um Ihre gespeicherten Fahrzeuge anzuzeigen",
-    "loadFailed": "Fehler beim Laden der gespeicherten Fahrzeuge",
+    "authRequired": "Sie müssen angemeldet sein, um Ihre gespeicherten Fahrzeuge anzusehen",
+    "loadFailed": "Laden der gespeicherten Fahrzeuge fehlgeschlagen",
     "vehicle": "Fahrzeug",
-    "mileage": "Kilometerstand",
-    "saved": "Gespeichert am",
+    "mileage": "Laufleistung",
     "score": "Zuverlässigkeit",
     "actions": "Aktionen",
     "view": "Ansehen",
     "delete": "Löschen",
     "deleting": "Wird gelöscht...",
-    "miles": "Kilometer",
+    "miles": "Meilen",
     "invalidDate": "Ungültiges Datum",
-    "limitedPlan": "Ihr Plan ermöglicht es Ihnen, bis zu {{limit}} Fahrzeuge zu speichern",
+    "limitedPlan": "Ihr Plan erlaubt Ihnen bis zu {{limit}} Fahrzeuge zu speichern",
     "upgradeForMore": "Upgrade für mehr gespeicherte Fahrzeuge"
   },
   "search": {
@@ -89,37 +89,42 @@
     "year": "Jahr",
     "make": "Marke",
     "model": "Modell",
-    "miles": "Kilometer",
-    "mileage": "Kilometerstand",
+    "miles": "Meilen",
+    "mileage": "Laufleistung",
     "modifySearch": "Suche ändern",
     "searchButton": "Suchen",
     "searching": "Suche läuft...",
     "resultsFor": "Ergebnisse für",
-    "overallScore": "Gesamtzuverlässigkeitswert",
-    "categoryScores": "Kategoriewerte",
+    "overallScore": "Gesamtzuverlässigkeitsbewertung",
+    "categoryScores": "Kategoriebewertungen",
     "engine": "Motor",
     "transmission": "Getriebe",
-    "electrical": "Elektriksystem",
+    "electrical": "Elektrisches System",
     "brakes": "Bremsen",
-    "suspension": "Aufhängung",
+    "suspension": "Fahrwerk",
     "fuelSystem": "Kraftstoffsystem",
     "upgradeFull": "Upgrade auf Premium für vollständige Kategorieaufschlüsselung",
+    "searchSection": "Suche",
     "commonIssues": "Häufige Probleme",
     "costToFix": "Reparaturkosten",
     "occurrence": "Häufigkeit",
-    "typicalMileage": "Typischer Kilometerstand",
+    "typicalMileage": "Typische Laufleistung",
     "analysis": "Analyse",
     "upgradePrompt": "Upgrade auf Premium für vollständige KI-Analyse und detaillierte Berichte.",
-    "goPremium": "Premium aktivieren",
+    "goPremium": "Premium werden",
     "searchError": "Fehler beim Abrufen der Zuverlässigkeitsdaten",
-    "requiredFields": "Jahr, Marke, Modell und Kilometerstand sind erforderlich",
+    "requiredFields": "Jahr, Marke, Modell und Laufleistung sind erforderlich",
     "noResults": "Keine Ergebnisse für dieses Fahrzeug gefunden",
-    "loadingMessage": "Suche nach Zuverlässigkeit...",
+    "loadingMessage": "Suche nach Zuverlässigkeitsdaten...",
     "viewSearchHistory": "Suchverlauf anzeigen",
     "viewSavedVehicles": "Gespeicherte Fahrzeuge anzeigen",
     "saveSearch": "Dieses Fahrzeug speichern",
     "saved": "Fahrzeug gespeichert!",
     "saving": "Fahrzeug wird gespeichert..."
+  },
+  "buttons": {
+    "generating": "PDF wird erstellt...",
+    "downloadPdf": "PDF herunterladen"
   },
   "profile": {
     "title": "Ihr Profil",
@@ -158,37 +163,37 @@
     "newPassword": "Neues Passwort",
     "confirmNewPassword": "Neues Passwort bestätigen",
     "passwordsDoNotMatch": "Neue Passwörter stimmen nicht überein",
-    "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
+    "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
     "loginRequired": "Sie müssen angemeldet sein, um Ihr Passwort zu ändern",
-    "changeFailed": "Fehler beim Ändern des Passworts",
-    "changing": "Passwort wird geändert...",
+    "changeFailed": "Passwortänderung fehlgeschlagen",
+    "changing": "Änderung läuft...",
     "changePassword": "Passwort ändern"
   },
   "deleteModal": {
     "title": "Konto löschen",
     "warningPermanent": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Daten, einschließlich Suchverlauf und Abonnementinformationen, werden dauerhaft gelöscht.",
     "subscriptionWarning": "Wenn Sie ein aktives Abonnement haben, müssen Sie es separat über Ihren Zahlungsanbieter kündigen.",
-    "typeDeleteToConfirm": "Geben Sie LÖSCHEN ein, um zu bestätigen",
+    "typeDeleteToConfirm": "Geben Sie DELETE ein, um zu bestätigen",
     "loginRequired": "Sie müssen angemeldet sein, um Ihr Konto zu löschen",
-    "deleteFailed": "Fehler beim Löschen des Kontos",
-    "deleting": "Konto wird gelöscht...",
+    "deleteFailed": "Kontolöschung fehlgeschlagen",
+    "deleting": "Löschung läuft...",
     "deleteAccount": "Mein Konto löschen"
   },
   "searchHistory": {
     "title": "Suchverlauf",
     "noSearches": "Sie haben noch keine Fahrzeuge gesucht",
-    "loading": "Ihr Suchverlauf wird geladen...",
+    "loading": "Suchverlauf wird geladen...",
     "loadFailed": "Fehler beim Laden des Suchverlaufs",
     "authRequired": "Sie müssen angemeldet sein, um Ihren Suchverlauf anzuzeigen",
-    "limitedPlan": "Ihr Plan ermöglicht es Ihnen, bis zu {{limit}} aktuelle Suchen anzuzeigen",
+    "limitedPlan": "Ihr Plan erlaubt Ihnen bis zu {{limit}} kürzlich durchgeführte Suchen anzuzeigen",
     "upgradeProfessional": "Upgrade auf Professional für unbegrenzten Verlauf",
     "searchNow": "Jetzt suchen",
     "vehicle": "Fahrzeug",
     "score": "Bewertung",
-    "mileage": "Kilometerstand",
+    "mileage": "Laufleistung",
     "date": "Datum",
     "actions": "Aktionen",
-    "miles": "Kilometer",
+    "miles": "Meilen",
     "unknownDate": "Unbekanntes Datum",
     "invalidDate": "Ungültiges Datum",
     "searchAgain": "Erneut suchen",
@@ -197,17 +202,17 @@
   },
   "history": {
     "title": "Ihr Suchverlauf",
-    "limitNote": "Ihr aktueller Plan ermöglicht bis zu {limit} aktuelle Suchen.",
+    "limitNote": "Ihr aktueller Plan erlaubt bis zu {limit} kürzlich durchgeführte Suchen.",
     "upgradeLink": "Upgrade auf Professional für unbegrenzten Suchverlauf",
     "loading": "Suchverlauf wird geladen...",
     "noSearches": "Sie haben noch keine Fahrzeuge gesucht.",
     "searchNow": "Jetzt suchen",
     "vehicle": "Fahrzeug",
-    "mileage": "Kilometerstand",
+    "mileage": "Laufleistung",
     "date": "Datum",
     "actions": "Aktionen",
     "searchAgain": "Erneut suchen",
-    "miles": "Kilometer",
+    "miles": "Meilen",
     "loadError": "Fehler beim Laden des Suchverlaufs",
     "clearHistory": "Verlauf löschen",
     "clearConfirm": "Sind Sie sicher, dass Sie Ihren Suchverlauf löschen möchten?",
@@ -219,7 +224,7 @@
       "verifying": "Ihre Zahlung wird überprüft...",
       "thankYou": "Vielen Dank für Ihr Abonnement. Sie haben jetzt Premium-Zugang zu allen Funktionen.",
       "accessToken": "Ihr Premium-Zugriffstoken:",
-      "tokenTip": "Sie können dieses Token verwenden, um von anderen Geräten aus auf Premium-Funktionen zuzugreifen.",
+      "tokenTip": "Sie können diesen Token verwenden, um von anderen Geräten aus auf Premium-Funktionen zuzugreifen.",
       "viewProfile": "Profil anzeigen",
       "startSearching": "Mit der Suche beginnen"
     },
@@ -227,9 +232,9 @@
       "title": "Zahlung abgebrochen",
       "message": "Ihre Zahlung wurde abgebrochen und Ihnen wurde nichts berechnet. Bei Fragen oder Bedenken kontaktieren Sie bitte unser Support-Team.",
       "viewPlans": "Pläne anzeigen",
-      "continueSearching": "Weitersuchen",
+      "continueSearching": "Weiter suchen",
       "needHelp": "Benötigen Sie Hilfe?",
-      "supportMessage": "Wenn Sie Probleme beim Zahlungsvorgang hatten, steht Ihnen unser Support-Team zur Verfügung.",
+      "supportMessage": "Wenn Sie während des Zahlungsvorgangs auf Probleme gestoßen sind, steht Ihnen unser Support-Team zur Verfügung.",
       "contactSupport": "Support kontaktieren"
     },
     "failure": {
@@ -240,7 +245,7 @@
     "checkout": {
       "title": "Abonnement abschließen",
       "processing": "Ihre Anfrage wird bearbeitet...",
-      "redirecting": "Weiterleitung zum sicheren Checkout...",
+      "redirecting": "Weiterleitung zur sicheren Zahlung...",
       "cardInfo": "Karteninformationen",
       "cardNumber": "Kartennummer",
       "expiryDate": "Ablaufdatum",
@@ -254,7 +259,7 @@
   },
   "nav": {
     "home": "Startseite",
-    "search": "Suchen",
+    "search": "Suche",
     "pricing": "Preise",
     "history": "Verlauf",
     "profile": "Profil",
@@ -285,7 +290,7 @@
     "info": "Information",
     "loginSuccess": "Anmeldung erfolgreich!",
     "logoutSuccess": "Sie wurden erfolgreich abgemeldet.",
-    "registerSuccess": "Registrierung erfolgreich! Willkommen bei Verida."
+    "registerSuccess": "Registrierung erfolgreich! Willkommen bei der Fahrzeugzuverlässigkeit."
   },
   "common": {
     "warning": "Warnung",
@@ -296,46 +301,46 @@
   },
   "report": {
     "downloadPdf": "PDF-Bericht herunterladen",
-    "generating": "PDF wird generiert...",
+    "generating": "PDF wird erstellt...",
     "pdfTitle": "Fahrzeugzuverlässigkeitsbericht",
     "generatedOn": "Erstellt am",
-    "overallScore": "Gesamtwertung",
-    "categoryScores": "Kategoriewertungen",
+    "overallScore": "Gesamtbewertung",
+    "categoryScores": "Kategoriebewertungen",
     "commonIssues": "Häufige Probleme",
     "analysis": "Zuverlässigkeitsanalyse",
     "costToFix": "Reparaturkosten",
     "occurrence": "Häufigkeit",
-    "typicalMileage": "Typischer Kilometerstand",
-    "disclaimer": "Haftungsausschluss: Dieser Bericht basiert auf aggregierten Daten und entspricht möglicherweise nicht Ihrem spezifischen Fahrzeug. Konsultieren Sie immer einen qualifizierten Mechaniker.",
-    "poweredBy": "Powered by Verida.com",
+    "typicalMileage": "Typische Laufleistung",
+    "disclaimer": "Haftungsausschluss: Dieser Bericht basiert auf aggregierten Daten und repräsentiert möglicherweise nicht Ihr spezifisches Fahrzeug. Konsultieren Sie immer einen qualifizierten Mechaniker.",
+    "poweredBy": "Bereitgestellt von CarReliability.com",
     "premiumPrompt": "Upgrade auf Premium für detaillierte Informationen",
-    "generateFailed": "PDF-Generierung fehlgeschlagen. Bitte versuchen Sie es erneut."
+    "generateFailed": "PDF konnte nicht erstellt werden. Bitte versuchen Sie es erneut."
   },
   "pricing": {
     "title": "Wählen Sie Ihren Plan",
-    "description": "Greifen Sie mit unseren flexiblen Abonnementplänen auf die benötigten Fahrzeugzuverlässigkeitsdaten zu",
+    "description": "Greifen Sie mit flexiblen Abonnementplänen auf die benötigten Fahrzeugzuverlässigkeitsdaten zu",
     "per": "pro",
     "subscribeNow": "Jetzt abonnieren",
-    "processing": "Verarbeitung...",
+    "processing": "Wird verarbeitet...",
     "premium": {
       "title": "Premium",
       "period": "Monat",
       "badge": "Am beliebtesten",
       "features": [
-        "Umfassende Zuverlässigkeitswerte",
+        "Umfassende Zuverlässigkeitsbewertungen",
         "Daten zu allen Fahrzeugsystemen",
         "Häufige Probleme mit Reparaturkosten",
         "Bevorzugter Support",
         "Begrenzter Suchverlauf"
       ],
-      "cta": "Premium aktivieren"
+      "cta": "Premium wählen"
     },
     "professional": {
       "title": "Professional",
       "period": "Monat",
       "features": [
-        "Alles in Premium",
-        "Batch-Fahrzeuganalyse",
+        "Alles aus Premium",
+        "Stapelanalyse von Fahrzeugen",
         "Vergleichstools",
         "Marktwertanalyse",
         "Händlerintegration",
@@ -343,7 +348,7 @@
         "API-Zugang",
         "24/7 bevorzugter Support"
       ],
-      "cta": "Professional aktivieren"
+      "cta": "Professional wählen"
     },
     "free": {
       "title": "Kostenlos",
@@ -361,7 +366,7 @@
       "today": "Heute",
       "yesterday": "Gestern",
       "daysAgo": "Vor {count} Tagen",
-      "dateFormat": "TT.MM.JJJJ",
+      "dateFormat": "DD.MM.YYYY",
       "monthNames": [
         "Januar",
         "Februar",
@@ -393,15 +398,19 @@
     }
   },
   "timeline": {
-    "sectionTitle": "Design-Geschichte & Technik-Zeitleiste",
-    "title": "Modell-Entwicklung Zeitleiste",
+    "sectionTitle": "Design-Geschichte & Technische Entwicklung",
+    "title": "Modellentwicklungs-Zeitleiste",
     "loading": "Zeitleistendaten werden geladen...",
     "noData": "Keine Zeitleistendaten für dieses Fahrzeug verfügbar",
-    "upgradePrompt": "Upgraden Sie auf Premium, um die Design- und Technik-Zeitleiste dieses Fahrzeugs zu sehen",
+    "upgradePrompt": "Upgrade auf Premium, um die Design- und Technikgeschichte dieses Fahrzeugs zu sehen",
     "engineeringChanges": "Technische Änderungen",
     "generationIntro": "Generationseinführung",
     "redesign": "Neugestaltung",
-    "refresh": "Überarbeitung",
-    "majorChange": "Große Änderungen"
+    "refresh": "Aktualisierung",
+    "majorChange": "Wesentliche Änderungen"
+  },
+  "button": {
+    "generating": "Wird generiert...",
+    "downloadPdf": "PDF herunterladen"
   }
 }

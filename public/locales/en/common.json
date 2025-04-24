@@ -66,6 +66,7 @@
     "saving": "Saving...",
     "saved": "Saved!",
     "saveSearch": "Save Vehicle",
+    "saveVehicle": "Save Vehicle",
     "loading": "Loading saved vehicles...",
     "noVehicles": "You haven't saved any vehicles yet",
     "authRequired": "You need to be logged in to view your saved vehicles",
