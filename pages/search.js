@@ -1,3 +1,4 @@
+// pages/search.js
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -13,7 +14,7 @@ export default function Search() {
   const { t } = useTranslation('common');
   const { user, getToken } = useAuth();
   const router = useRouter();
-  const { year: queryYear, make: queryMake, model: queryModel, mileage: queryMileage } = router.query;
+  const { year: queryYear, make: queryMake, model: queryModel, mileage: queryMileage, fromSaved, savedId } = router.query;
 
   const apiRequestInProgress = useRef(false);
   const hasAutoSubmitted = useRef(false);
@@ -24,184 +25,36 @@ export default function Search() {
     model: '',
     mileage: ''
   });
+
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [subscription, setSubscription] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const [timelineData, setTimelineData] = useState([]);
   const [savedTimelineData, setSavedTimelineData] = useState(null);
   const [showSearchForm, setShowSearchForm] = useState(true);
   const [carImageUrl, setCarImageUrl] = useState(null);
 
-  const { fromSaved, savedId } = router.query;
-
   const fetchTimelineData = async (year, make, model) => {
-    if (!isPremium) {
-      console.log("DEBUG LOG - Skipping timeline fetch: not premium");
-      return null;
-    }
-
+    if (!isPremium) return null;
     try {
       const token = getToken();
-      console.log("DEBUG LOG - Fetching timeline for:", { year, make, model });
       const response = await fetch('/api/car-timeline', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         body: JSON.stringify({ year, make, model })
       });
-
-      if (!response.ok) {
-        console.error('Timeline fetch error:', response.status);
-        return null;
-      }
-
       const data = await response.json();
-      console.log("DEBUG LOG - Timeline API response:", data);
       return data.timeline || [];
     } catch (error) {
-      console.error('Error fetching timeline data:', error);
+      console.error('Error fetching timeline:', error);
       return null;
     }
   };
-
-  useEffect(() => {
-    if (queryYear || queryMake || queryModel || queryMileage) {
-      setFormData({
-        year: queryYear || '',
-        make: queryMake || '',
-        model: queryModel || '',
-        mileage: queryMileage || ''
-      });
-
-      if (fromSaved === 'true' && savedId && user) {
-        const loadSavedVehicle = async () => {
-          if (apiRequestInProgress.current) {
-            console.log("API request already in progress, skipping saved vehicle load");
-            return;
-          }
-
-          try {
-            const token = getToken();
-            const response = await fetch(`/api/saved-vehicles/get-one?id=${savedId}`, {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              if (data.savedVehicle?.reliability_data) {
-                if (isPremium && data.savedVehicle.reliability_data) {
-                  data.savedVehicle.reliability_data.isPremium = true;
-                }
-
-                setResults(data.savedVehicle.reliability_data);
-                if (data.savedVehicle.timeline_data) {
-                  setSavedTimelineData(data.savedVehicle.timeline_data);
-                  setTimelineData(data.savedVehicle.timeline_data);
-                }
-
-                if (data.savedVehicle.reliability_data.imageUrl) {
-                  setCarImageUrl(data.savedVehicle.reliability_data.imageUrl);
-                } else if (queryYear && queryMake && queryModel) {
-                  fetchCarImage(queryYear, queryMake, queryModel);
-                }
-
-                setLoading(false);
-                setShowSearchForm(false);
-                hasAutoSubmitted.current = true;
-                return;
-              }
-            }
-          } catch (err) {
-            console.error('Error loading saved vehicle data:', err);
-          }
-
-          if (queryYear && queryMake && queryModel && queryMileage && !hasAutoSubmitted.current) {
-            hasAutoSubmitted.current = true;
-            await handleSubmit(null, true);
-          }
-        };
-
-        loadSavedVehicle();
-      } else if (queryYear && queryMake && queryModel && queryMileage && !hasAutoSubmitted.current) {
-        console.log("Auto-submitting form with query parameters");
-        hasAutoSubmitted.current = true;
-        const autoSubmitForm = async () => {
-          await handleSubmit(null, true);
-        };
-        autoSubmitForm();
-      }
-    }
-  }, [queryYear, queryMake, queryModel, queryMileage, fromSaved, savedId, user, getToken, isPremium]);
-
-  useEffect(() => {
-    const checkSubscription = async () => {
-      if (user) {
-        try {
-          const token = getToken();
-          const response = await fetch('/api/profile', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setSubscription(data.subscription);
-            setIsPremium(!!data.subscription);
-          }
-        } catch (err) {
-          console.error('Error fetching subscription:', err);
-        }
-      }
-    };
-
-    checkSubscription();
-  }, [user, getToken]);
-
-  useEffect(() => {
-    const loadTimelineDataIfNeeded = async () => {
-      console.log("DEBUG LOG - Timeline useEffect triggered", {
-        results,
-        isPremium,
-        timelineData,
-        savedTimelineData
-      });
-
-      if (
-        results &&
-        isPremium &&
-        (!timelineData || timelineData.length === 0) &&
-        (!savedTimelineData || savedTimelineData.length === 0)
-      ) {
-        try {
-          console.log("DEBUG LOG - Conditions met, fetching timeline...");
-          const data = await fetchTimelineData(
-            formData.year || queryYear,
-            formData.make || queryMake,
-            formData.model || queryModel
-          );
-
-          if (data && data.length > 0) {
-            console.log("DEBUG LOG - Setting timeline data:", data);
-            setTimelineData(data);
-          }
-        } catch (error) {
-          console.error("Error loading timeline data:", error);
-        }
-      } else {
-        console.log("DEBUG LOG - Skipping timeline fetch");
-      }
-    };
-
-    loadTimelineDataIfNeeded();
-  }, [results, isPremium, formData, queryYear, queryMake, queryModel]);
 
   const fetchCarImage = async (year, make, model) => {
     try {
@@ -213,56 +66,128 @@ export default function Search() {
         },
         body: JSON.stringify({ q: `${year} ${make} ${model}` })
       });
-
       const data = await response.json();
       if (data.images && data.images.length > 0) {
-        const imageUrl = data.images[0].imageUrl;
-        setCarImageUrl(imageUrl);
-        return imageUrl;
+        setCarImageUrl(data.images[0].imageUrl);
+        return data.images[0].imageUrl;
       }
-      return null;
-    } catch (error) {
-      console.error('Failed to fetch car image:', error);
-      return null;
+    } catch (err) {
+      console.error('Failed to fetch car image:', err);
     }
+    return null;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  useEffect(() => {
+    const loadSavedVehicle = async () => {
+      if (!savedId || !user || apiRequestInProgress.current) return;
+      apiRequestInProgress.current = true;
+
+      try {
+        const token = getToken();
+        const response = await fetch(`/api/saved-vehicles/get-one?id=${savedId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const vehicle = data.savedVehicle;
+          if (vehicle?.reliability_data) {
+            if (isPremium) vehicle.reliability_data.isPremium = true;
+
+            setResults(vehicle.reliability_data);
+            if (vehicle.timeline_data) {
+              setTimelineData(vehicle.timeline_data);
+              setSavedTimelineData(vehicle.timeline_data);
+            }
+
+            if (vehicle.reliability_data.imageUrl) {
+              setCarImageUrl(vehicle.reliability_data.imageUrl);
+            } else {
+              fetchCarImage(queryYear, queryMake, queryModel);
+            }
+
+            setShowSearchForm(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('Error loading saved vehicle:', err);
+      }
+
+      if (queryYear && queryMake && queryModel && queryMileage && !hasAutoSubmitted.current) {
+        hasAutoSubmitted.current = true;
+        handleSubmit(null, true);
+      }
+    };
+
+    if (fromSaved === 'true') {
+      loadSavedVehicle();
+    } else if (queryYear && queryMake && queryModel && queryMileage && !hasAutoSubmitted.current) {
+      hasAutoSubmitted.current = true;
+      handleSubmit(null, true);
+    }
+
     setFormData({
-      ...formData,
-      [name]: value
+      year: queryYear || '',
+      make: queryMake || '',
+      model: queryModel || '',
+      mileage: queryMileage || ''
     });
+  }, [queryYear, queryMake, queryModel, queryMileage, fromSaved, savedId, user, getToken, isPremium]);
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!user) return;
+      try {
+        const token = getToken();
+        const response = await fetch('/api/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const data = await response.json();
+        setSubscription(data.subscription);
+        setIsPremium(!!data.subscription);
+      } catch (err) {
+        console.error('Error checking subscription:', err);
+      }
+    };
+    checkSubscription();
+  }, [user, getToken]);
+
+  useEffect(() => {
+    const loadTimelineDataIfNeeded = async () => {
+      if (results && isPremium && timelineData.length === 0 && savedTimelineData?.length === 0) {
+        const data = await fetchTimelineData(formData.year, formData.make, formData.model);
+        if (data?.length > 0) setTimelineData(data);
+      }
+    };
+    loadTimelineDataIfNeeded();
+  }, [results, isPremium, formData]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const resetSearch = () => {
     setResults(null);
     setTimelineData([]);
     setSavedTimelineData(null);
-    setShowSearchForm(true);
     setCarImageUrl(null);
-    hasAutoSubmitted.current = false;
+    setShowSearchForm(true);
     router.replace('/search', undefined, { shallow: true });
-
-    setFormData({
-      year: '',
-      make: '',
-      model: '',
-      mileage: ''
-    });
+    setFormData({ year: '', make: '', model: '', mileage: '' });
+    hasAutoSubmitted.current = false;
   };
 
   const handleSubmit = async (e, isAutoSubmit = false) => {
     if (e) e.preventDefault();
-
-    if (apiRequestInProgress.current) {
-      console.log("API request already in progress, skipping duplicate submission");
-      return;
-    }
+    if (apiRequestInProgress.current) return;
 
     apiRequestInProgress.current = true;
     setLoading(true);
-    setSubmitted(true);
     setError('');
 
     if (!isAutoSubmit) {
@@ -270,82 +195,58 @@ export default function Search() {
       setTimelineData([]);
       setSavedTimelineData(null);
       setCarImageUrl(null);
-      router.push({
-        pathname: router.pathname,
-        query: {
-          year: formData.year,
-          make: formData.make,
-          model: formData.model,
-          mileage: formData.mileage
-        }
-      }, undefined, { shallow: true });
     }
 
     try {
-      const requestBody = {
+      const body = {
         ...formData,
-        locale: router.locale
+        locale: router.locale,
+        ...(user && { userId: user.id }),
+        ...(subscription?.access_token && { premiumToken: subscription.access_token })
       };
 
-      if (user) requestBody.userId = user.id;
-      if (subscription?.access_token) {
-        requestBody.premiumToken = subscription.access_token;
-      }
-
-      console.log("Sending API request to car-reliability", requestBody);
-
-      const response = await fetch('/api/car-reliability', {
+      const res = await fetch('/api/car-reliability', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
+          ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify(body)
       });
 
-      if (!response.ok) throw new Error('Failed to fetch reliability data');
+      if (!res.ok) throw new Error('Failed to fetch reliability data');
 
-      let data;
-      try {
-        const rawText = await response.text();
-        data = JSON.parse(rawText);
-      } catch (jsonError) {
-        console.error("JSON parse error:", jsonError);
-        throw new Error('Error parsing vehicle data');
-      }
-
-      if (isPremium && data) {
-        data.isPremium = true;
-      }
-
+      const data = await res.json();
+      if (isPremium) data.isPremium = true;
       setResults(data);
       setShowSearchForm(false);
 
-      fetchCarImage(formData.year, formData.make, formData.model).then(imageUrl => {
-        if (imageUrl && !apiRequestInProgress.current) {
-          setResults(prevResults => {
-            if (!prevResults) return null;
-            return {
-              ...prevResults,
-              imageUrl: imageUrl
-            };
-          });
-        }
-      });
+      const imageUrl = await fetchCarImage(formData.year, formData.make, formData.model);
+      if (imageUrl) {
+        setResults(prev => ({ ...prev, imageUrl }));
+      }
+
+      if (!isAutoSubmit) {
+        router.push({
+          pathname: router.pathname,
+          query: {
+            year: formData.year,
+            make: formData.make,
+            model: formData.model,
+            mileage: formData.mileage
+          }
+        }, undefined, { shallow: true });
+      }
     } catch (err) {
-      console.error("API request error:", err);
       setError(err.message || 'Something went wrong');
     } finally {
-      setLoading(false);
       apiRequestInProgress.current = false;
+      setLoading(false);
     }
   };
 
   const handleTimelineLoaded = (data) => {
-    console.log("DEBUG LOG - CarTimeline onLoad called with:", data);
-    if (data && data.length > 0) {
-      setTimelineData(data);
-    }
+    setTimelineData(data);
   };
 
   return (
@@ -353,102 +254,94 @@ export default function Search() {
       <h1>{t('search.title')}</h1>
 
       {isPremium && (
-        <div className="premium-badge">
-          <span>{t('search.premiumUser')}</span>
-        </div>
+        <div className="premium-badge">{t('search.premiumUser')}</div>
       )}
 
-      {/* ✅ SEARCH FORM */}
-      <div className={`search-form-wrapper ${showSearchForm ? 'expanded' : 'collapsed'}`}>
-        <div className="search-toggle-header" onClick={() => setShowSearchForm(!showSearchForm)}>
-          <h2>{results ? t('search.modifySearch') : t('search.vehicleDetails')}</h2>
-          <span className="toggle-icon">{showSearchForm ? '−' : '+'}</span>
-        </div>
+      {!showSearchForm && (
+        <button onClick={() => setShowSearchForm(true)} className="reopen-button">
+          {t('search.showForm')}
+        </button>
+      )}
 
-        <div className={`search-form-body ${showSearchForm ? 'show' : ''}`}>
-          <form onSubmit={handleSubmit} className="search-form">
-            <div className="form-group">
-              <label htmlFor="year">{t('search.year')}</label>
+      {showSearchForm && (
+        <form onSubmit={handleSubmit} className="search-form">
+          {['year', 'make', 'model', 'mileage'].map((field) => (
+            <div key={field} className="form-group">
+              <label htmlFor={field}>{t(`search.${field}`)}</label>
               <input
-                type="number"
-                id="year"
-                name="year"
-                value={formData.year}
-                onChange={handleChange}
-                min="1980"
-                max="2025"
-                required
-                placeholder="e.g. 2018"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="make">{t('search.make')}</label>
-              <input
-                type="text"
-                id="make"
-                name="make"
-                value={formData.make}
+                type={field === 'mileage' || field === 'year' ? 'number' : 'text'}
+                id={field}
+                name={field}
+                value={formData[field]}
                 onChange={handleChange}
                 required
-                placeholder="e.g. Toyota"
               />
             </div>
+          ))}
 
-            <div className="form-group">
-              <label htmlFor="model">{t('search.model')}</label>
-              <input
-                type="text"
-                id="model"
-                name="model"
-                value={formData.model}
-                onChange={handleChange}
-                required
-                placeholder="e.g. Camry"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="mileage">{t('search.mileage')}</label>
-              <input
-                type="number"
-                id="mileage"
-                name="mileage"
-                value={formData.mileage}
-                onChange={handleChange}
-                min="0"
-                max="500000"
-                required
-                placeholder="e.g. 50000"
-              />
-            </div>
-
-            <div className="form-actions">
-              {results && (
-                <button type="button" className="reset-button" onClick={resetSearch}>
-                  {t('search.reset')}
-                </button>
-              )}
-              <button type="submit" className="search-button" disabled={loading || apiRequestInProgress.current}>
-                {loading ? <span className="spinner" /> : t('search.searchButton')}
+          <div className="form-actions">
+            {results && (
+              <button type="button" onClick={resetSearch} className="reset-button">
+                {t('search.reset')}
               </button>
-            </div>
-          </form>
-        </div>
-      </div>
+            )}
+            <button type="submit" className="search-button" disabled={loading}>
+              {loading ? <span className="spinner" /> : t('search.searchButton')}
+            </button>
+          </div>
+        </form>
+      )}
 
       {error && <div className="error">{error}</div>}
 
       {carImageUrl && (
         <div className="car-image">
-          <img
-            src={carImageUrl}
-            alt={`${formData.make} ${formData.model}`}
-            style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: '1rem' }}
-          />
+          <img src={carImageUrl} alt={`${formData.make} ${formData.model}`} />
         </div>
       )}
 
+      {results && (
+        <div className="results">
+          <div className="score-card">
+            <h3>{t('search.overallScore')}</h3>
+            <div className="score">{results.overallScore}/100</div>
+          </div>
+
+          <div className="action-buttons">
+            {user && (
+              <SaveSearchButton
+                vehicleData={results}
+                searchParams={formData}
+                timelineData={savedTimelineData || timelineData}
+                savedId={savedId}
+              />
+            )}
+            <DownloadPdfButton
+              vehicleData={results}
+              searchParams={formData}
+              timelineData={savedTimelineData || timelineData}
+            />
+          </div>
+
+          <CarTimeline
+            timelineData={savedTimelineData || timelineData}
+            onLoad={handleTimelineLoaded}
+            isPremium={results.isPremium}
+          />
+
+          {user && (
+            <div className="search-actions">
+              <Link href="/search-history" className="view-history-button">
+                {t('search.viewSearchHistory')}
+              </Link>
+              <Link href="/saved-vehicles" className="view-saved-button">
+                {t('search.viewSavedVehicles')}
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+      
 <style jsx>{`
   h1 {
     margin-bottom: 2rem;
@@ -812,16 +705,13 @@ export default function Search() {
     }
   }
 `}</style>
-      {results && (
-        <>
-          <CarTimeline
-            timelineData={savedTimelineData || timelineData}
-            onLoad={handleTimelineLoaded}
-            isPremium={isPremium || (results && results.isPremium)}
-          />
-        </>
+
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner" />
+          <span>{t('search.loadingMessage') || 'Loading...'}</span>
+        </div>
       )}
-      
     </Layout>
   );
 }
