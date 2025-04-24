@@ -30,7 +30,6 @@ export default function Search() {
   const [timelineData, setTimelineData] = useState([]);
   const [savedTimelineData, setSavedTimelineData] = useState(null);
   const [showSearchForm, setShowSearchForm] = useState(true);
-  const [carImageUrl, setCarImageUrl] = useState(null);
 
   const { fromSaved, savedId } = router.query;
 
@@ -121,24 +120,27 @@ export default function Search() {
     }
   }, [results, queryYear, queryMake, queryModel, queryMileage, loading, fromSaved]);
 
-  const fetchCarImage = async (year, make, model) => {
-    try {
-      const response = await fetch('https://google.serper.dev/images', {
-        method: 'POST',
-        headers: {
-          'X-API-KEY': process.env.NEXT_PUBLIC_SERPER_API_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ q: `${year} ${make} ${model}` })
-      });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
 
-      const data = await response.json();
-      if (data.images && data.images.length > 0) {
-        setCarImageUrl(data.images[0].imageUrl);
-      }
-    } catch (error) {
-      console.error('Failed to fetch car image:', error);
-    }
+  const resetSearch = () => {
+    setResults(null);
+    setTimelineData([]);
+    setSavedTimelineData(null);
+    setShowSearchForm(true);
+    router.replace('/search', undefined, { shallow: true });
+
+    setFormData({
+      year: '',
+      make: '',
+      model: '',
+      mileage: ''
+    });
   };
 
   const handleSubmit = async (e, isAutoSubmit = false) => {
@@ -177,7 +179,7 @@ export default function Search() {
           'Content-Type': 'application/json',
           ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {})
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) throw new Error('Failed to fetch reliability data');
@@ -185,8 +187,6 @@ export default function Search() {
       const data = await response.json();
       setResults(data);
       setShowSearchForm(false);
-
-      fetchCarImage(formData.year, formData.make, formData.model);
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -202,17 +202,204 @@ export default function Search() {
     <Layout title={t('search.title')}>
       <h1>{t('search.title')}</h1>
 
-      {/* Car Image Preview */}
-      {carImageUrl && (
+      {isPremium && (
+        <div className="premium-badge">
+          <span>{t('search.premiumUser')}</span>
+        </div>
+      )}
+
+      {/* Search Form Section */}
+      <div className={`search-form-wrapper ${showSearchForm ? 'expanded' : 'collapsed'}`}>
+        <div className="search-toggle-header" onClick={() => setShowSearchForm(!showSearchForm)}>
+          <h2>{results ? 'Modify Search' : 'Vehicle Details'}</h2>
+          <span className="toggle-icon">{showSearchForm ? '−' : '+'}</span>
+        </div>
+        
+        <div className={`search-form-body ${showSearchForm ? 'show' : ''}`}>
+          <form onSubmit={handleSubmit} className="search-form">
+            <div className="form-group">
+              <label htmlFor="year">{t('search.year')}</label>
+              <input
+                type="number"
+                id="year"
+                name="year"
+                value={formData.year}
+                onChange={handleChange}
+                min="1980"
+                max="2025"
+                required
+                placeholder="e.g. 2018"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="make">{t('search.make')}</label>
+              <input
+                type="text"
+                id="make"
+                name="make"
+                value={formData.make}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Toyota"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="model">{t('search.model')}</label>
+              <input
+                type="text"
+                id="model"
+                name="model"
+                value={formData.model}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Camry"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="mileage">{t('search.mileage')}</label>
+              <input
+                type="number"
+                id="mileage"
+                name="mileage"
+                value={formData.mileage}
+                onChange={handleChange}
+                min="0"
+                max="500000"
+                required
+                placeholder="e.g. 50000"
+              />
+            </div>
+
+            <div className="form-actions">
+              {results && (
+                <button type="button" className="reset-button" onClick={resetSearch}>
+                  Reset
+                </button>
+              )}
+              <button type="submit" className="search-button" disabled={loading}>
+                {loading ? <span className="spinner" /> : t('search.searchButton')}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {error && <div className="error">{error}</div>}
+
+      {/* Image display from local SVGs */}
+      {results?.imageUrl && (
         <div className="car-image">
           <img
-            src={carImageUrl}
+            src={results.imageUrl}
             alt={`${formData.make} ${formData.model}`}
-            style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: '1rem' }}
+            style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px', marginBottom: '1rem' }}
           />
         </div>
       )}
 
+      {/* Results Section */}
+      {results && (
+        <div className="results">
+          <div className="score-card">
+            <h3>{t('search.overallScore')}</h3>
+            <div className="score">
+              <span className="score-value">{results.overallScore}</span>
+              <span className="score-max">/100</span>
+            </div>
+          </div>
+
+          <div className="action-buttons">
+            <SaveSearchButton vehicleData={results} searchParams={formData} />
+            <DownloadPdfButton 
+              vehicleData={results}
+              searchParams={formData}
+              timelineData={savedTimelineData || timelineData}
+              imageUrl={results.imageUrl}
+            />
+          </div>
+
+          {results.categories && (
+            <div className="categories">
+              <h2>{t('search.categoryScores')}</h2>
+              <div className="category-grid">
+                {Object.entries(results.categories).map(([key, value]) => (
+                  value !== null && (
+                    <div className="category" key={key}>
+                      <h4>{key}</h4>
+                      <div className="category-score">{`${value}/100`}</div>
+                    </div>
+                  )
+                ))}
+                
+                {!results.isPremium && (
+                  <div className="premium-prompt">
+                    <p>{t('search.upgradeFull')}</p>
+                    <Link href="/pricing" className="upgrade-button">
+                      {t('search.goPremium')}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {results.isPremium && results.commonIssues && results.commonIssues.length > 0 && (
+            <div className="common-issues">
+              <h2>{t('search.commonIssues')}</h2>
+              <ul>
+                {results.commonIssues.map((issue, index) => (
+                  <li key={index}>
+                    <strong>{issue.description}</strong>
+                    <div>{t('search.costToFix')}: {issue.costToFix}</div>
+                    <div>{t('search.occurrence')}: {issue.occurrence}</div>
+                    <div>{t('search.typicalMileage')}: {issue.mileage}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="analysis">
+            <h2>{t('search.analysis')}</h2>
+            <p>{results.aiAnalysis}</p>
+
+            {!results.isPremium && (
+              <div className="upgrade-prompt">
+                <p>{t('search.upgradePrompt')}</p>
+                <Link href="/pricing" className="upgrade-button">
+                  {t('search.goPremium')}
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <CarTimeline
+            timelineData={savedTimelineData || timelineData}
+            onLoad={handleTimelineLoaded}
+          />
+
+          {user && (
+            <div className="search-actions">
+              <Link href="/search-history" className="view-history-button">
+                {t('search.viewSearchHistory')}
+              </Link>
+              <Link href="/saved-vehicles" className="view-saved-button">
+                View Saved Vehicles
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner" />
+          <span>{t('search.loadingMessage') || 'Loading...'}</span>
+        </div>
+      )}
 
       <style jsx>{`
         h1 {
@@ -584,7 +771,7 @@ export default function Search() {
 export async function getServerSideProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ['common']))
-    }
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
   };
 }
