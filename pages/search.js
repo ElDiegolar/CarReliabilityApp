@@ -30,6 +30,7 @@ export default function Search() {
   const [timelineData, setTimelineData] = useState([]);
   const [savedTimelineData, setSavedTimelineData] = useState(null);
   const [showSearchForm, setShowSearchForm] = useState(true);
+  const [carImageUrl, setCarImageUrl] = useState(null);
 
   const { fromSaved, savedId } = router.query;
 
@@ -120,6 +121,25 @@ export default function Search() {
     }
   }, [results, queryYear, queryMake, queryModel, queryMileage, loading, fromSaved]);
 
+  const fetchCarImage = async (year, make, model) => {
+    try {
+      const response = await fetch('https://google.serper.dev/images', {
+        method: 'POST',
+        headers: {
+          'X-API-KEY': process.env.NEXT_PUBLIC_SERPER_API_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ q: `${year} ${make} ${model}` })
+      });
+
+      const data = await response.json();
+      if (data.images && data.images.length > 0) {
+        setCarImageUrl(data.images[0].imageUrl);
+      }
+    } catch (error) {
+      console.error('Failed to fetch car image:', error);
+    }
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -187,6 +207,8 @@ export default function Search() {
       const data = await response.json();
       setResults(data);
       setShowSearchForm(false);
+      
+      fetchCarImage(formData.year, formData.make, formData.model);
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -290,16 +312,16 @@ export default function Search() {
       {error && <div className="error">{error}</div>}
 
       {/* Image display from local SVGs */}
-      {results?.imageUrl && (
+       {/* Car Image Preview */}
+       {carImageUrl && (
         <div className="car-image">
           <img
-            src={results.imageUrl}
+            src={carImageUrl}
             alt={`${formData.make} ${formData.model}`}
-            style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px', marginBottom: '1rem' }}
+            style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: '1rem' }}
           />
         </div>
       )}
-
       {/* Results Section */}
       {results && (
         <div className="results">
