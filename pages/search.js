@@ -38,13 +38,33 @@ export default function Search() {
 
   const { fromSaved, savedId } = router.query;
 
-  // Reset autoSubmit tracking when query params change
-  useEffect(() => {
-    if (queryYear && queryMake && queryModel && queryMileage) {
-      // Only reset if all params are present to avoid premature resets
-      hasAutoSubmitted.current = false;
+  // Separate function to fetch timeline data
+  const fetchTimelineData = async (year, make, model) => {
+    if (!isPremium) return null;
+    
+    try {
+      const token = getToken();
+      const response = await fetch('/api/car-timeline', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ year, make, model })
+      });
+      
+      if (!response.ok) {
+        console.error('Timeline fetch error:', response.status);
+        return null;
+      }
+      
+      const data = await response.json();
+      return data.timeline || [];
+    } catch (error) {
+      console.error('Error fetching timeline data:', error);
+      return null;
     }
-  }, [queryYear, queryMake, queryModel, queryMileage]);
+  };
 
   useEffect(() => {
     if (queryYear || queryMake || queryModel || queryMileage) {
@@ -149,19 +169,36 @@ export default function Search() {
     checkSubscription();
   }, [user, getToken]);
 
-  // Remove this useEffect to prevent duplicate API calls
-  // This functionality is now handled in the first useEffect
-  /*
+  // Load timeline data when results are available
   useEffect(() => {
-    if (
-      !results &&
-      queryYear && queryMake && queryModel && queryMileage &&
-      !loading && !fromSaved
-    ) {
-      handleSubmit(null, true);
-    }
-  }, [results, queryYear, queryMake, queryModel, queryMileage, loading, fromSaved]);
-  */
+    const loadTimelineDataIfNeeded = async () => {
+      // Only load if we have results, are premium, and don't already have timeline data
+      if (
+        results && 
+        isPremium && 
+        (!timelineData || timelineData.length === 0) && 
+        (!savedTimelineData || savedTimelineData.length === 0)
+      ) {
+        try {
+          console.log("Fetching timeline data");
+          const data = await fetchTimelineData(
+            formData.year || queryYear, 
+            formData.make || queryMake, 
+            formData.model || queryModel
+          );
+          
+          if (data && data.length > 0) {
+            console.log("Timeline data loaded successfully");
+            setTimelineData(data);
+          }
+        } catch (error) {
+          console.error("Error loading timeline data:", error);
+        }
+      }
+    };
+    
+    loadTimelineDataIfNeeded();
+  }, [results, isPremium, formData, queryYear, queryMake, queryModel]);
 
   const fetchCarImage = async (year, make, model) => {
     try {
@@ -270,7 +307,8 @@ export default function Search() {
       // Handle the JSON parsing error here if needed
       let data;
       try {
-        data = await response.json();
+        const rawText = await response.text();
+        data = JSON.parse(rawText);
       } catch (jsonError) {
         console.error("JSON parse error:", jsonError);
         throw new Error('Error parsing vehicle data');
