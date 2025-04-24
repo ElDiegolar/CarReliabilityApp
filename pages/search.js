@@ -56,10 +56,23 @@ export default function Search() {
             if (response.ok) {
               const data = await response.json();
               if (data.savedVehicle?.reliability_data) {
+                // Force the isPremium flag to match the user's actual subscription status
+                if (isPremium && data.savedVehicle.reliability_data) {
+                  data.savedVehicle.reliability_data.isPremium = true;
+                }
+                
                 setResults(data.savedVehicle.reliability_data);
                 if (data.savedVehicle.timeline_data) {
                   setSavedTimelineData(data.savedVehicle.timeline_data);
                   setTimelineData(data.savedVehicle.timeline_data);
+                }
+                
+                // Set the car image URL if it exists in saved data
+                if (data.savedVehicle.reliability_data.imageUrl) {
+                  setCarImageUrl(data.savedVehicle.reliability_data.imageUrl);
+                } else if (queryYear && queryMake && queryModel) {
+                  // Fetch image if not in saved data
+                  fetchCarImage(queryYear, queryMake, queryModel);
                 }
 
                 setLoading(false);
@@ -84,7 +97,7 @@ export default function Search() {
         autoSubmitForm();
       }
     }
-  }, [queryYear, queryMake, queryModel, queryMileage, fromSaved, savedId, user, getToken]);
+  }, [queryYear, queryMake, queryModel, queryMileage, fromSaved, savedId, user, getToken, isPremium]);
 
   useEffect(() => {
     const checkSubscription = async () => {
@@ -134,12 +147,17 @@ export default function Search() {
 
       const data = await response.json();
       if (data.images && data.images.length > 0) {
-        setCarImageUrl(data.images[0].imageUrl);
+        const imageUrl = data.images[0].imageUrl;
+        setCarImageUrl(imageUrl);
+        return imageUrl;
       }
+      return null;
     } catch (error) {
       console.error('Failed to fetch car image:', error);
+      return null;
     }
   };
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -153,6 +171,7 @@ export default function Search() {
     setTimelineData([]);
     setSavedTimelineData(null);
     setShowSearchForm(true);
+    setCarImageUrl(null);
     router.replace('/search', undefined, { shallow: true });
 
     setFormData({
@@ -173,6 +192,7 @@ export default function Search() {
       setResults(null);
       setTimelineData([]);
       setSavedTimelineData(null);
+      setCarImageUrl(null);
       router.push({
         pathname: router.pathname,
         query: {
@@ -191,7 +211,10 @@ export default function Search() {
       };
 
       if (user) requestBody.userId = user.id;
-      if (subscription?.access_token) requestBody.premiumToken = subscription.access_token;
+      if (subscription?.access_token) {
+        requestBody.premiumToken = subscription.access_token;
+        console.log("Including premium token in request");
+      }
 
       const response = await fetch('/api/car-reliability', {
         method: 'POST',
@@ -205,10 +228,24 @@ export default function Search() {
       if (!response.ok) throw new Error('Failed to fetch reliability data');
 
       const data = await response.json();
+      
+      // Force the isPremium flag to match the user's actual subscription status
+      if (isPremium && data) {
+        data.isPremium = true;
+      }
+      
       setResults(data);
       setShowSearchForm(false);
       
-      fetchCarImage(formData.year, formData.make, formData.model);
+      // Store the carImageUrl in the results object so it's included in saves
+      fetchCarImage(formData.year, formData.make, formData.model).then(imageUrl => {
+        if (imageUrl) {
+          setResults(prevResults => ({
+            ...prevResults,
+            imageUrl: imageUrl
+          }));
+        }
+      });
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -311,9 +348,8 @@ export default function Search() {
 
       {error && <div className="error">{error}</div>}
 
-      {/* Image display from local SVGs */}
-       {/* Car Image Preview */}
-       {carImageUrl && (
+      {/* Car Image Preview */}
+      {carImageUrl && (
         <div className="car-image">
           <img
             src={carImageUrl}
@@ -322,6 +358,7 @@ export default function Search() {
           />
         </div>
       )}
+      
       {/* Results Section */}
       {results && (
         <div className="results">
@@ -339,7 +376,7 @@ export default function Search() {
               vehicleData={results}
               searchParams={formData}
               timelineData={savedTimelineData || timelineData}
-              imageUrl={results.imageUrl}
+              imageUrl={carImageUrl || results.imageUrl}
             />
           </div>
 
@@ -401,6 +438,7 @@ export default function Search() {
           <CarTimeline
             timelineData={savedTimelineData || timelineData}
             onLoad={handleTimelineLoaded}
+            isPremium={isPremium || (results && results.isPremium)}
           />
 
           {user && (

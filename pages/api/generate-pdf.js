@@ -115,24 +115,63 @@ export default async function handler(req, res) {
       font: helveticaFont,
     });
     
+    currentY -= lineHeight * 2;
+    
     // Add vehicle image if available
     if (imageUrl) {
       try {
-        // Fetch the image
-        const imageResponse = await fetch(imageUrl);
-        if (!imageResponse.ok) throw new Error('Failed to fetch image');
+        // Fetch the image with a timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+        
+        console.log(`Attempting to fetch image: ${imageUrl}`);
+        
+        const imageResponse = await fetch(imageUrl, { 
+          signal: controller.signal,
+          headers: {
+            // Some images might require a user-agent header
+            'User-Agent': 'Mozilla/5.0 Vehicle Report Generator'
+          }
+        });
+        clearTimeout(timeoutId);
+        
+        if (!imageResponse.ok) {
+          throw new Error(`Failed to fetch image: ${imageResponse.status} ${imageResponse.statusText}`);
+        }
+        
+        const contentType = imageResponse.headers.get('content-type');
+        console.log(`Image content type: ${contentType}`);
         
         const imageBytes = await imageResponse.arrayBuffer();
+        console.log(`Image size: ${imageBytes.byteLength} bytes`);
         
         // Determine image type and embed accordingly
         let embeddedImage;
-        if (imageUrl.toLowerCase().endsWith('.jpg') || imageUrl.toLowerCase().endsWith('.jpeg') || imageUrl.includes('jpg') || imageUrl.includes('jpeg')) {
+        if (contentType?.includes('jpeg') || contentType?.includes('jpg') || 
+            imageUrl.toLowerCase().endsWith('.jpg') || imageUrl.toLowerCase().endsWith('.jpeg') || 
+            imageUrl.includes('jpg') || imageUrl.includes('jpeg')) {
           embeddedImage = await pdfDoc.embedJpg(imageBytes);
-        } else if (imageUrl.toLowerCase().endsWith('.png') || imageUrl.includes('png')) {
+        } else if (contentType?.includes('png') || imageUrl.toLowerCase().endsWith('.png') || 
+                  imageUrl.includes('png')) {
           embeddedImage = await pdfDoc.embedPng(imageBytes);
         } else {
-          // Default to JPG if type can't be determined
-          embeddedImage = await pdfDoc.embedJpg(imageBytes);
+          // Try to determine from the first few bytes
+          const header = new Uint8Array(imageBytes.slice(0, 4));
+          const hexHeader = Array.from(header).map(b => b.toString(16).padStart(2, '0')).join('');
+          
+          console.log(`Image header: ${hexHeader}`);
+          
+          if (hexHeader.startsWith('ffd8')) {
+            // JPEG starts with FFD8
+            embeddedImage = await pdfDoc.embedJpg(imageBytes);
+          } else if (hexHeader.startsWith('89504e47')) {
+            // PNG starts with 89 50 4E 47
+            embeddedImage = await pdfDoc.embedPng(imageBytes);
+          } else {
+            // Default to JPG if type can't be determined
+            console.log("Unable to determine image type, defaulting to JPG");
+            embeddedImage = await pdfDoc.embedJpg(imageBytes);
+          }
         }
         
         // Scale the image - maintain aspect ratio but don't exceed 300px width
@@ -151,8 +190,14 @@ export default async function handler(req, res) {
         
         // Update the current Y position to be below the image
         currentY -= imgHeight + 20;
+        
+        console.log("Successfully embedded image in PDF");
       } catch (err) {
-        console.warn("Image embedding failed:", err);
+        console.error("Image embedding failed:", err);
+        // Additional logging for debugging
+        if (err.name === 'AbortError') {
+          console.warn("Image fetch timed out after 8 seconds");
+        }
         // Continue with PDF generation even if image fails
       }
     }
