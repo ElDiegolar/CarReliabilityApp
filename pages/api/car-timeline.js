@@ -8,8 +8,12 @@ const CarTimeline = ({ timelineData, onLoad, isPremium }) => {
   const [loading, setLoading] = useState(false);
   
   useEffect(() => {
+    console.log("CarTimeline useEffect running, isPremium:", isPremium);
+    console.log("Initial timelineData:", timelineData);
+    
     // If timeline data is already provided, use it
     if (timelineData && timelineData.length > 0) {
+      console.log("Using provided timeline data");
       setLocalTimelineData(timelineData);
       if (onLoad) onLoad(timelineData);
       return;
@@ -17,60 +21,76 @@ const CarTimeline = ({ timelineData, onLoad, isPremium }) => {
     
     // Only attempt to load timeline data if user is premium
     if (isPremium) {
+      console.log("Premium user, fetching timeline data");
       setLoading(true);
-      // Mock API call to fetch timeline data
-      const fetchTimelineData = async () => {
-        try {
-          // This would typically be an API call
-          // For demonstration, create mock data after a delay
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const mockTimelineData = [
-            {
-              year: 2010,
-              title: "Initial Model Release",
-              description: "First generation model introduced to the market.",
-              engineeringChanges: [
-                "Base engine offered with 180hp",
-                "5-speed automatic transmission"
-              ]
-            },
-            {
-              year: 2013,
-              title: "Mid-cycle Refresh",
-              description: "Updated styling and interior features.",
-              engineeringChanges: [
-                "Improved fuel efficiency",
-                "Enhanced safety features"
-              ]
-            },
-            {
-              year: 2016,
-              title: "Major Redesign",
-              description: "Complete platform overhaul with new technologies.",
-              engineeringChanges: [
-                "New 210hp turbocharged engine option",
-                "8-speed automatic transmission",
-                "Advanced driver assistance systems"
-              ]
-            }
-          ];
-          
-          setLocalTimelineData(mockTimelineData);
-          if (onLoad) onLoad(mockTimelineData);
-        } catch (error) {
-          console.error("Error fetching timeline data:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
       
-      fetchTimelineData();
+      // Set a safety timeout to prevent infinite loading
+      const safetyTimeout = setTimeout(() => {
+        console.log("Safety timeout triggered");
+        setLoading(false);
+        setLocalTimelineData([{
+          year: new Date().getFullYear(),
+          title: "Timeline Data",
+          description: "Here is the model timeline data.",
+          engineeringChanges: ["Feature 1", "Feature 2"]
+        }]);
+      }, 5000);
+      
+      // Immediately create and set mock data after a brief delay
+      setTimeout(() => {
+        console.log("Creating mock timeline data");
+        
+        const mockTimelineData = [
+          {
+            year: 2010,
+            title: "Initial Model Release",
+            description: "First generation model introduced to the market.",
+            engineeringChanges: [
+              "Base engine offered with 180hp",
+              "5-speed automatic transmission"
+            ]
+          },
+          {
+            year: 2013,
+            title: "Mid-cycle Refresh",
+            description: "Updated styling and interior features.",
+            engineeringChanges: [
+              "Improved fuel efficiency",
+              "Enhanced safety features"
+            ]
+          },
+          {
+            year: 2016,
+            title: "Major Redesign",
+            description: "Complete platform overhaul with new technologies.",
+            engineeringChanges: [
+              "New 210hp turbocharged engine option",
+              "8-speed automatic transmission",
+              "Advanced driver assistance systems"
+            ]
+          }
+        ];
+        
+        console.log("Setting timeline data");
+        setLocalTimelineData(mockTimelineData);
+        if (onLoad) onLoad(mockTimelineData);
+        setLoading(false);
+        clearTimeout(safetyTimeout);
+      }, 1000);
+      
+      // Cleanup function to clear timeout
+      return () => clearTimeout(safetyTimeout);
     }
   }, [timelineData, onLoad, isPremium]);
   
+  // Debug output
+  console.log("Rendering CarTimeline, isPremium:", isPremium);
+  console.log("Loading state:", loading);
+  console.log("Local timeline data:", localTimelineData);
+  
   // If not premium, show upgrade prompt
   if (!isPremium) {
+    console.log("Not premium, showing upgrade prompt");
     return (
       <div className="timeline-section">
         <h2>{t('timeline.title') || 'Design History & Engineering Timeline'}</h2>
@@ -127,8 +147,9 @@ const CarTimeline = ({ timelineData, onLoad, isPremium }) => {
     );
   }
   
-  // If no timeline data available
+  // If no timeline data available and not loading
   if (!loading && (!localTimelineData || localTimelineData.length === 0)) {
+    console.log("No timeline data and not loading");
     return (
       <div className="timeline-section">
         <h2>{t('timeline.title') || 'Design History & Engineering Timeline'}</h2>
@@ -161,6 +182,8 @@ const CarTimeline = ({ timelineData, onLoad, isPremium }) => {
     );
   }
   
+  // Loading or has data
+  console.log("Rendering timeline content, loading:", loading);
   return (
     <div className="timeline-section">
       <h2>{t('timeline.title') || 'Design History & Engineering Timeline'}</h2>
