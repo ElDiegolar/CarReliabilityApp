@@ -479,6 +479,87 @@ export default function Search() {
         .reopen-button:hover {
           background-color: #e5e5e5;
         }
+          .search-form-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.search-toggle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  cursor: pointer;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #eee;
+}
+
+.search-toggle-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.toggle-icon {
+  font-size: 1.5rem;
+  color: #0070f3;
+  font-weight: bold;
+}
+
+.search-form-wrapper.collapsed {
+  border-bottom: none;
+}
+
+.search-form-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.search-form-body.show {
+  max-height: 1000px; /* Large enough to contain the form */
+}
+
+.search-form-wrapper.expanded .search-form-body {
+  border-top: 1px solid #eee;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.reset-button {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reset-button:hover {
+  background-color: #e5e5e5;
+}
+
+.search-button {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
       
         .search-form {
           display: grid;
