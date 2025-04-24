@@ -54,7 +54,7 @@ if (imageUrl) {
   }
 }
 
-    const { width, height } = page.getSize();
+
     
     // Set some initial variables for positioning
     let currentY = height - 50;
