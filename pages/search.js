@@ -449,16 +449,6 @@ export default function Search() {
         </div>
       )}
 
-      {results && (
-        <>
-          <CarTimeline
-            timelineData={savedTimelineData || timelineData}
-            onLoad={handleTimelineLoaded}
-            isPremium={isPremium || (results && results.isPremium)}
-          />
-        </>
-      )}
-      
 <style jsx>{`
   h1 {
     margin-bottom: 2rem;
@@ -822,6 +812,16 @@ export default function Search() {
     }
   }
 `}</style>
+      {results && (
+        <>
+          <CarTimeline
+            timelineData={savedTimelineData || timelineData}
+            onLoad={handleTimelineLoaded}
+            isPremium={isPremium || (results && results.isPremium)}
+          />
+        </>
+      )}
+      
     </Layout>
   );
 }
