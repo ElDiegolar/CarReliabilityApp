@@ -1,4 +1,4 @@
-// pages/search.js - Car search page with translations
+// pages/search.js - Car search page with collapsible modern search area
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -140,6 +140,15 @@ export default function Search() {
     if (!isAutoSubmit) {
       setTimelineData([]);
       setSavedTimelineData(null);
+      router.push({
+        pathname: router.pathname,
+        query: {
+          year: formData.year,
+          make: formData.make,
+          model: formData.model,
+          mileage: formData.mileage
+        }
+      }, undefined, { shallow: true });
     }
 
     try {
@@ -148,13 +157,8 @@ export default function Search() {
         locale: router.locale
       };
 
-      if (user) {
-        requestBody.userId = user.id;
-      }
-
-      if (subscription?.access_token) {
-        requestBody.premiumToken = subscription.access_token;
-      }
+      if (user) requestBody.userId = user.id;
+      if (subscription?.access_token) requestBody.premiumToken = subscription.access_token;
 
       const response = await fetch('/api/car-reliability', {
         method: 'POST',
@@ -165,9 +169,7 @@ export default function Search() {
         body: JSON.stringify(requestBody),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch reliability data');
-      }
+      if (!response.ok) throw new Error('Failed to fetch reliability data');
 
       const data = await response.json();
       setResults(data);
@@ -195,6 +197,7 @@ export default function Search() {
   const handleTimelineLoaded = (data) => {
     setTimelineData(data);
   };
+
   return (
     <Layout title={t('search.title')}>
       <h1>{t('search.title')}</h1>
@@ -205,75 +208,76 @@ export default function Search() {
         </div>
       )}
 
-      {!showSearchForm && (
-        <button className="reopen-button" onClick={() => setShowSearchForm(true)}>
-          {t('search.showForm') || 'Edit Search'}
-        </button>
-      )}
+      <div className={`search-form-wrapper ${showSearchForm ? 'expanded' : 'collapsed'}`}>
+        <div className="search-toggle-header" onClick={() => setShowSearchForm(!showSearchForm)}>
+          <h2>{t('search.searchSection')}</h2>
+          <span className="toggle-icon">{showSearchForm ? '−' : '+'}</span>
+        </div>
 
-      {showSearchForm && (
-        <form onSubmit={handleSubmit} className="search-form">
-          <div className="form-group">
-            <label htmlFor="year">{t('search.year')}</label>
-            <input
-              type="number"
-              id="year"
-              name="year"
-              value={formData.year}
-              onChange={handleChange}
-              min="1980"
-              max="2025"
-              required
-              placeholder="e.g. 2018"
-            />
-          </div>
+        <div className={`search-form-body ${showSearchForm ? 'show' : ''}`}>
+          <form onSubmit={handleSubmit} className="search-form">
+            <div className="form-group">
+              <label htmlFor="year">{t('search.year')}</label>
+              <input
+                type="number"
+                id="year"
+                name="year"
+                value={formData.year}
+                onChange={handleChange}
+                min="1980"
+                max="2025"
+                required
+                placeholder="e.g. 2018"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="make">{t('search.make')}</label>
-            <input
-              type="text"
-              id="make"
-              name="make"
-              value={formData.make}
-              onChange={handleChange}
-              required
-              placeholder="e.g. Toyota"
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="make">{t('search.make')}</label>
+              <input
+                type="text"
+                id="make"
+                name="make"
+                value={formData.make}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Toyota"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="model">{t('search.model')}</label>
-            <input
-              type="text"
-              id="model"
-              name="model"
-              value={formData.model}
-              onChange={handleChange}
-              required
-              placeholder="e.g. Camry"
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="model">{t('search.model')}</label>
+              <input
+                type="text"
+                id="model"
+                name="model"
+                value={formData.model}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Camry"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="mileage">{t('search.mileage')}</label>
-            <input
-              type="number"
-              id="mileage"
-              name="mileage"
-              value={formData.mileage}
-              onChange={handleChange}
-              min="0"
-              max="500000"
-              required
-              placeholder="e.g. 50000"
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="mileage">{t('search.mileage')}</label>
+              <input
+                type="number"
+                id="mileage"
+                name="mileage"
+                value={formData.mileage}
+                onChange={handleChange}
+                min="0"
+                max="500000"
+                required
+                placeholder="e.g. 50000"
+              />
+            </div>
 
-          <button type="submit" disabled={loading}>
-            {loading ? <span className="spinner" /> : t('search.searchButton')}
-          </button>
-        </form>
-      )}
+            <button type="submit" disabled={loading}>
+              {loading ? <span className="spinner" /> : t('search.searchButton')}
+            </button>
+          </form>
+        </div>
+      </div>
 
       {error && <p className="error">{error}</p>}
 
@@ -439,11 +443,9 @@ export default function Search() {
           <div className="loading-spinner" />
           <span>{t('search.loadingMessage') || 'Loading...'}</span>
         </div>
-      )}<style jsx>{`
-        h1 {
-          margin-bottom: 2rem;
-        }
-      
+      )}
+
+      <style jsx>{`
         .premium-badge {
           display: inline-block;
           background-color: #0070f3;
@@ -453,45 +455,63 @@ export default function Search() {
           margin-bottom: 1.5rem;
           font-weight: bold;
         }
-      
-        .reopen-button {
-          margin-bottom: 1.5rem;
-          padding: 0.75rem 1.5rem;
-          background-color: #f0f0f0;
-          color: #0070f3;
-          border: none;
-          border-radius: 6px;
-          font-weight: 600;
+
+        .search-form-wrapper {
+          margin-bottom: 2rem;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+          background: #fafafa;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+          transition: box-shadow 0.2s;
+        }
+
+        .search-toggle-header {
+          padding: 1.2rem 1.5rem;
+          background-color: #f0f4f8;
           cursor: pointer;
-          transition: background-color 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #0070f3;
+          border-bottom: 1px solid #e0e0e0;
         }
-      
-        .reopen-button:hover {
-          background-color: #e5e5e5;
+
+        .toggle-icon {
+          font-size: 1.5rem;
         }
-      
+
+        .search-form-body {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.4s ease;
+        }
+
+        .search-form-body.show {
+          max-height: 1000px;
+        }
+
         .search-form {
+          padding: 1.5rem;
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
           gap: 1.5rem;
-          margin-bottom: 2rem;
-          background: #ffffff;
-          padding: 2rem;
-          border-radius: 12px;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+          background-color: white;
         }
-      
+
         .form-group {
           display: flex;
           flex-direction: column;
         }
-      
+
         label {
           margin-bottom: 0.5rem;
           font-weight: 600;
           color: #333;
         }
-      
+
         input {
           padding: 1rem;
           border-radius: 8px;
@@ -499,13 +519,13 @@ export default function Search() {
           font-size: 1rem;
           transition: border-color 0.2s;
         }
-      
+
         input:focus {
           outline: none;
           border-color: #0070f3;
           box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.15);
         }
-      
+
         button[type="submit"] {
           grid-column: 1 / -1;
           justify-self: center;
@@ -519,16 +539,16 @@ export default function Search() {
           cursor: pointer;
           transition: background-color 0.2s;
         }
-      
+
         button[type="submit"]:hover {
           background-color: #005fc2;
         }
-      
+
         button:disabled {
           background-color: #ccc;
           cursor: not-allowed;
         }
-      
+
         .spinner {
           width: 20px;
           height: 20px;
@@ -538,13 +558,13 @@ export default function Search() {
           animation: spin 0.6s linear infinite;
           display: inline-block;
         }
-      
+
         @keyframes spin {
           to {
             transform: rotate(360deg);
           }
         }
-      
+
         .error {
           color: red;
           margin-bottom: 1rem;
@@ -692,7 +712,7 @@ export default function Search() {
           z-index: 9999;
           flex-direction: column;
         }
-      
+
         .loading-spinner {
           width: 50px;
           height: 50px;
@@ -775,7 +795,6 @@ export default function Search() {
           padding-left: 1.5rem;
         }
       `}</style>
-      
     </Layout>
   );
 }
@@ -787,4 +806,3 @@ export async function getServerSideProps({ locale }) {
     },
   };
 }
-

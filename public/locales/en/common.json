@@ -72,7 +72,6 @@
     "loadFailed": "Failed to load saved vehicles",
     "vehicle": "Vehicle",
     "mileage": "Mileage",
-    "saved": "Saved On",
     "score": "Reliability",
     "actions": "Actions",
     "view": "View",
@@ -120,6 +119,10 @@
     "saveSearch": "Save This Vehicle",
     "saved": "Vehicle Saved!",
     "saving": "Saving Vehicle..."
+  },
+  "buttons": {
+    "generating": "Generating PDF...",
+    "downloadPdf": "Download PDF"
   },
   "profile": {
     "title": "Your Profile",
