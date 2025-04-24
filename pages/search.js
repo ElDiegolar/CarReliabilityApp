@@ -219,6 +219,87 @@ export default function Search() {
         </div>
       )}
 
+      {/* Search Form Section */}
+      <div className={`search-form-wrapper ${showSearchForm ? 'expanded' : 'collapsed'}`}>
+        <div className="search-toggle-header" onClick={() => setShowSearchForm(!showSearchForm)}>
+          <h2>{results ? 'Modify Search' : 'Vehicle Details'}</h2>
+          <span className="toggle-icon">{showSearchForm ? '−' : '+'}</span>
+        </div>
+        
+        <div className={`search-form-body ${showSearchForm ? 'show' : ''}`}>
+          <form onSubmit={handleSubmit} className="search-form">
+            <div className="form-group">
+              <label htmlFor="year">{t('search.year')}</label>
+              <input
+                type="number"
+                id="year"
+                name="year"
+                value={formData.year}
+                onChange={handleChange}
+                min="1980"
+                max="2025"
+                required
+                placeholder="e.g. 2018"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="make">{t('search.make')}</label>
+              <input
+                type="text"
+                id="make"
+                name="make"
+                value={formData.make}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Toyota"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="model">{t('search.model')}</label>
+              <input
+                type="text"
+                id="model"
+                name="model"
+                value={formData.model}
+                onChange={handleChange}
+                required
+                placeholder="e.g. Camry"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="mileage">{t('search.mileage')}</label>
+              <input
+                type="number"
+                id="mileage"
+                name="mileage"
+                value={formData.mileage}
+                onChange={handleChange}
+                min="0"
+                max="500000"
+                required
+                placeholder="e.g. 50000"
+              />
+            </div>
+
+            <div className="form-actions">
+              {results && (
+                <button type="button" className="reset-button" onClick={resetSearch}>
+                  Reset
+                </button>
+              )}
+              <button type="submit" className="search-button" disabled={loading}>
+                {loading ? <span className="spinner" /> : t('search.searchButton')}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {error && <div className="error">{error}</div>}
+
       {/* Image preview */}
       {results?.imageUrl && (
         <div className="car-image">
@@ -230,68 +311,108 @@ export default function Search() {
         </div>
       )}
 
-{results && (
-  <div className="results">
-    <div className="score-card">
-      <div className="score">{results.overallScore}</div>
-      <div className="score-max">/100</div>
-    </div>
-
-    <div className="action-buttons">
-      <SaveSearchButton vehicleData={results} searchParams={formData} />
-      <DownloadPdfButton 
-        vehicleData={results}
-        searchParams={formData}
-        timelineData={savedTimelineData || timelineData}
-        imageUrl={results.imageUrl}
-      />
-    </div>
-
-    {results.categories && (
-      <div className="categories">
-        <h2>Category Scores</h2>
-        <div className="category-grid">
-          {Object.entries(results.categories).map(([key, value]) => (
-            <div className="category" key={key}>
-              <h4>{key}</h4>
-              <div className="category-score">{value !== null ? `${value}/100` : 'N/A'}</div>
+      {/* Results Section */}
+      {results && (
+        <div className="results">
+          <div className="score-card">
+            <h3>{t('search.overallScore')}</h3>
+            <div className="score">
+              <span className="score-value">{results.overallScore}</span>
+              <span className="score-max">/100</span>
             </div>
-          ))}
+          </div>
+
+          <div className="action-buttons">
+            <SaveSearchButton vehicleData={results} searchParams={formData} />
+            <DownloadPdfButton 
+              vehicleData={results}
+              searchParams={formData}
+              timelineData={savedTimelineData || timelineData}
+              imageUrl={results.imageUrl}
+            />
+          </div>
+
+          {results.categories && (
+            <div className="categories">
+              <h2>{t('search.categoryScores')}</h2>
+              <div className="category-grid">
+                {Object.entries(results.categories).map(([key, value]) => (
+                  value !== null && (
+                    <div className="category" key={key}>
+                      <h4>{key}</h4>
+                      <div className="category-score">{`${value}/100`}</div>
+                    </div>
+                  )
+                ))}
+                
+                {!results.isPremium && (
+                  <div className="premium-prompt">
+                    <p>{t('search.upgradeFull')}</p>
+                    <Link href="/pricing" className="upgrade-button">
+                      {t('search.goPremium')}
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {results.isPremium && results.commonIssues && results.commonIssues.length > 0 && (
+            <div className="common-issues">
+              <h2>{t('search.commonIssues')}</h2>
+              <ul>
+                {results.commonIssues.map((issue, index) => (
+                  <li key={index}>
+                    <strong>{issue.description}</strong>
+                    <div>{t('search.costToFix')}: {issue.costToFix}</div>
+                    <div>{t('search.occurrence')}: {issue.occurrence}</div>
+                    <div>{t('search.typicalMileage')}: {issue.mileage}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="analysis">
+            <h2>{t('search.analysis')}</h2>
+            <p>{results.aiAnalysis}</p>
+
+            {!results.isPremium && (
+              <div className="upgrade-prompt">
+                <p>{t('search.upgradePrompt')}</p>
+                <Link href="/pricing" className="upgrade-button">
+                  {t('search.goPremium')}
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <CarTimeline
+            timelineData={savedTimelineData || timelineData}
+            onLoad={handleTimelineLoaded}
+          />
+
+          {user && (
+            <div className="search-actions">
+              <Link href="/search-history" className="view-history-button">
+                {t('search.viewSearchHistory')}
+              </Link>
+              <Link href="/saved-vehicles" className="view-saved-button">
+                View Saved Vehicles
+              </Link>
+            </div>
+          )}
         </div>
-      </div>
-    )}
+      )}
 
-    {results.commonIssues && results.commonIssues.length > 0 && (
-      <div className="common-issues">
-        <h2>Common Issues</h2>
-        <ul>
-          {results.commonIssues.map((issue, i) => (
-            <li key={i}>
-              <strong>{issue.description}</strong><br />
-              Cost to Fix: {issue.costToFix}<br />
-              Occurrence: {issue.occurrence}<br />
-              Typical Mileage: {issue.mileage}
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner" />
+          <span>{t('search.loadingMessage') || 'Loading...'}</span>
+        </div>
+      )}
 
-    {results.aiAnalysis && (
-      <div className="analysis">
-        <h2>AI Analysis</h2>
-        <p>{results.aiAnalysis}</p>
-      </div>
-    )}
-
-    <CarTimeline
-      timelineData={savedTimelineData || timelineData}
-      onLoad={handleTimelineLoaded}
-    />
-  </div>
-)}
-
-<style jsx>{`
+      <style jsx>{`
         h1 {
           margin-bottom: 2rem;
         }
@@ -306,112 +427,62 @@ export default function Search() {
           font-weight: bold;
         }
       
-        .reopen-button {
-          margin-bottom: 1.5rem;
-          padding: 0.75rem 1.5rem;
-          background-color: #f0f0f0;
-          color: #0070f3;
-          border: none;
-          border-radius: 6px;
-          font-weight: 600;
+        .search-form-wrapper {
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+          margin-bottom: 2rem;
+          overflow: hidden;
+          transition: all 0.3s ease;
+        }
+        
+        .search-toggle-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.5rem 2rem;
           cursor: pointer;
-          transition: background-color 0.2s;
+          background-color: #f9f9f9;
+          border-bottom: 1px solid #eee;
         }
-      
-        .reopen-button:hover {
-          background-color: #e5e5e5;
+        
+        .search-toggle-header h2 {
+          margin: 0;
+          font-size: 1.3rem;
+          color: #333;
         }
-          .search-form-wrapper {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.search-toggle-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  cursor: pointer;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #eee;
-}
-
-.search-toggle-header h2 {
-  margin: 0;
-  font-size: 1.3rem;
-  color: #333;
-}
-
-.toggle-icon {
-  font-size: 1.5rem;
-  color: #0070f3;
-  font-weight: bold;
-}
-
-.search-form-wrapper.collapsed {
-  border-bottom: none;
-}
-
-.search-form-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
-
-.search-form-body.show {
-  max-height: 1000px; /* Large enough to contain the form */
-}
-
-.search-form-wrapper.expanded .search-form-body {
-  border-top: 1px solid #eee;
-}
-
-.form-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.reset-button {
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
-  border-radius: 8px;
-  background-color: #f5f5f5;
-  color: #333;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.reset-button:hover {
-  background-color: #e5e5e5;
-}
-
-.search-button {
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
-  border-radius: 8px;
-  background-color: #0070f3;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
+        
+        .toggle-icon {
+          font-size: 1.5rem;
+          color: #0070f3;
+          font-weight: bold;
+        }
+        
+        .search-form-wrapper.collapsed {
+          border-bottom: none;
+        }
+        
+        .search-form-body {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.3s ease;
+        }
+        
+        .search-form-body.show {
+          max-height: 1000px; /* Large enough to contain the form */
+        }
+        
+        .search-form-wrapper.expanded .search-form-body {
+          border-top: 1px solid #eee;
+        }
       
         .search-form {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
           gap: 1.5rem;
-          margin-bottom: 2rem;
           background: #ffffff;
           padding: 2rem;
           border-radius: 12px;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
         }
       
         .form-group {
@@ -438,11 +509,30 @@ export default function Search() {
           border-color: #0070f3;
           box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.15);
         }
-      
-        button[type="submit"] {
+        
+        .form-actions {
           grid-column: 1 / -1;
-          justify-self: center;
-          width: fit-content;
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+        }
+        
+        .reset-button {
+          padding: 1rem 2rem;
+          font-size: 1.1rem;
+          border-radius: 8px;
+          background-color: #f5f5f5;
+          color: #333;
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+        
+        .reset-button:hover {
+          background-color: #e5e5e5;
+        }
+        
+        .search-button {
           padding: 1rem 2rem;
           font-size: 1.1rem;
           border-radius: 8px;
@@ -452,8 +542,8 @@ export default function Search() {
           cursor: pointer;
           transition: background-color 0.2s;
         }
-      
-        button[type="submit"]:hover {
+        
+        .search-button:hover {
           background-color: #005fc2;
         }
       
@@ -480,7 +570,11 @@ export default function Search() {
       
         .error {
           color: red;
+          padding: 1rem;
+          background-color: #fff5f5;
+          border-radius: 8px;
           margin-bottom: 1rem;
+          border-left: 4px solid #e53e3e;
         }
       
         .results {
@@ -493,6 +587,13 @@ export default function Search() {
           border-radius: 8px;
           margin-bottom: 2rem;
           text-align: center;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .score-card h3 {
+          margin-top: 0;
+          margin-bottom: 1rem;
+          color: #333;
         }
       
         .score {
@@ -514,49 +615,20 @@ export default function Search() {
           flex-wrap: wrap;
         }
       
-        /* Car Specifications Styles */
-        .car-specs {
-          background-color: #f9f9f9;
-          padding: 2rem;
-          border-radius: 8px;
-          margin-bottom: 2rem;
+        .categories, .common-issues, .analysis {
+          background-color: #fff;
+          border-radius: 12px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          padding: 2rem;
+          margin-bottom: 2rem;
         }
         
-        .car-specs h3 {
+        .categories h2, .common-issues h2, .analysis h2 {
           margin-top: 0;
           margin-bottom: 1.5rem;
           color: #333;
-          text-align: center;
-        }
-        
-        .specs-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: 1.5rem;
-        }
-        
-        .spec-item {
-          background-color: white;
-          padding: 1rem;
-          border-radius: 6px;
-          border-left: 3px solid #0070f3;
-        }
-        
-        .spec-label {
-          font-size: 0.9rem;
-          color: #666;
-          margin-bottom: 0.5rem;
-        }
-        
-        .spec-value {
-          font-size: 1.1rem;
-          font-weight: 600;
-          color: #333;
-        }
-      
-        .categories {
-          margin-bottom: 2rem;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 0.75rem;
         }
       
         .category-grid {
@@ -577,6 +649,7 @@ export default function Search() {
           margin-top: 0;
           margin-bottom: 0.5rem;
           color: #444;
+          text-transform: capitalize;
         }
       
         .category-score {
@@ -585,18 +658,14 @@ export default function Search() {
           color: #0070f3;
         }
       
-        .premium-prompt,
-        .upgrade-prompt {
+        .premium-prompt, .upgrade-prompt {
           background-color: #fffbea;
-          padding: 1rem;
+          padding: 1.5rem;
           border-radius: 8px;
           text-align: center;
           grid-column: 1 / -1;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-      
-        .common-issues {
-          margin-bottom: 2rem;
+          margin-top: 1rem;
         }
       
         .common-issues ul {
@@ -611,12 +680,17 @@ export default function Search() {
           margin-bottom: 1rem;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
+        
+        .common-issues li strong {
+          display: block;
+          margin-bottom: 0.75rem;
+          color: #333;
+          font-size: 1.1rem;
+        }
       
-        .analysis {
-          background-color: #f9f9f9;
-          padding: 1.5rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        .analysis p {
+          line-height: 1.6;
+          color: #444;
         }
       
         .upgrade-button {
@@ -640,10 +714,10 @@ export default function Search() {
           display: flex;
           gap: 1rem;
           justify-content: center;
+          flex-wrap: wrap;
         }
       
-        .view-history-button,
-        .view-saved-button {
+        .view-history-button, .view-saved-button {
           display: inline-block;
           padding: 0.75rem 1.5rem;
           background-color: #f5f5f5;
@@ -654,8 +728,7 @@ export default function Search() {
           transition: background-color 0.2s;
         }
       
-        .view-history-button:hover,
-        .view-saved-button:hover {
+        .view-history-button:hover, .view-saved-button:hover {
           background-color: #e5f1ff;
         }
       
@@ -683,77 +756,23 @@ export default function Search() {
           margin-bottom: 1rem;
         }
       
-        .car-timeline {
-          margin: 2rem 0;
-        }
-      
-        .timeline-container {
-          position: relative;
-          padding-left: 2rem;
-          margin-left: 1rem;
-          border-left: 2px solid #0070f3;
-        }
-      
-        .timeline-event {
-          position: relative;
-          margin-bottom: 2rem;
-          padding-bottom: 1rem;
-        }
-      
-        .timeline-event:last-child {
-          margin-bottom: 0;
-        }
-      
-        .timeline-year {
-          position: absolute;
-          left: -3.5rem;
-          background-color: #0070f3;
-          color: white;
-          padding: 0.5rem;
-          border-radius: 4px;
-          font-weight: bold;
-        }
-      
-        .timeline-content {
-          background-color: #f5f5f5;
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-left: 1rem;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-      
-        .timeline-content h4 {
-          margin-top: 0;
-          margin-bottom: 0.75rem;
-          color: #0070f3;
-        }
-      
-        .timeline-image {
-          margin: 1rem 0;
-          text-align: center;
-        }
-      
-        .timeline-image img {
-          max-width: 100%;
-          border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-      
-        .engineering-changes {
-          margin-top: 1rem;
-          background-color: #e5f1ff;
-          padding: 1rem;
-          border-radius: 4px;
-        }
-      
-        .engineering-changes h5 {
-          margin-top: 0;
-          margin-bottom: 0.75rem;
-        }
-      
-        .engineering-changes ul {
-          margin: 0;
-          padding-left: 1.5rem;
+        @media (max-width: 768px) {
+          .search-form {
+            grid-template-columns: 1fr;
+          }
+          
+          .action-buttons {
+            flex-direction: column;
+          }
+          
+          .search-actions {
+            flex-direction: column;
+          }
+          
+          .view-history-button, .view-saved-button {
+            width: 100%;
+            text-align: center;
+          }
         }
       `}</style>
     </Layout>
