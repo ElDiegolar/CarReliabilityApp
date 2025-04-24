@@ -132,6 +132,27 @@ export default function Search() {
     });
   };
 
+  // Add a reset search function to completely clear saved data
+  const resetSearch = () => {
+    setResults(null);
+    setTimelineData([]);
+    setSavedTimelineData(null);
+    setShowSearchForm(true);
+    
+    // Clear URL parameters
+    router.replace({
+      pathname: router.pathname
+    }, undefined, { shallow: true });
+    
+    // Reset form
+    setFormData({
+      year: '',
+      make: '',
+      model: '',
+      mileage: ''
+    });
+  };
+
   const handleSubmit = async (e, isAutoSubmit = false) => {
     if (e) e.preventDefault();
     setLoading(true);
@@ -139,9 +160,12 @@ export default function Search() {
     setError('');
 
     if (!isAutoSubmit) {
-      setResults(null); // ✅ Clear previous results when new manual search is submitted
+      // Clear previous results when new manual search is submitted
+      setResults(null); 
       setTimelineData([]);
       setSavedTimelineData(null);
+      
+      // Clear the URL of any saved vehicle parameters before starting a new search
       router.push({
         pathname: router.pathname,
         query: {
@@ -149,6 +173,7 @@ export default function Search() {
           make: formData.make,
           model: formData.model,
           mileage: formData.mileage
+          // Note: explicitly NOT including savedId and fromSaved here
         }
       }, undefined, { shallow: true });
     }
@@ -177,15 +202,18 @@ export default function Search() {
       setResults(data);
       setShowSearchForm(false);
 
+      // Don't re-add savedId and fromSaved to the URL - this is the key fix
+      // The original code was adding these back, causing the issue
       if (!isAutoSubmit) {
+        // Keep the URL clean with just the new search parameters
         router.push({
           pathname: router.pathname,
           query: {
             year: formData.year,
             make: formData.make,
             model: formData.model,
-            mileage: formData.mileage,
-            ...(savedId ? { savedId, fromSaved: 'true' } : {})
+            mileage: formData.mileage
+            // No longer adding back savedId and fromSaved
           }
         }, undefined, { shallow: true });
       }
@@ -274,9 +302,21 @@ export default function Search() {
               />
             </div>
 
-            <button type="submit" disabled={loading}>
-              {loading ? <span className="spinner" /> : t('search.searchButton')}
-            </button>
+            <div className="form-actions">
+              {/* Add a reset button when viewing saved vehicle */}
+              {fromSaved === 'true' && (
+                <button 
+                  type="button" 
+                  onClick={resetSearch}
+                  className="reset-button"
+                >
+                  {t('search.newSearch') || 'New Search'}
+                </button>
+              )}
+              <button type="submit" disabled={loading} className="search-button">
+                {loading ? <span className="spinner" /> : t('search.searchButton')}
+              </button>
+            </div>
           </form>
         </div>
       </div>
