@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import SaveSearchButton from '../components/SaveSearchButton';
 import DownloadPdfButton from '../components/DownloadPdfButton';
 import CarTimeline from '../components/CarTimeline';
+import JSXStyle from 'styled-jsx/style';
 
 export default function Search() {
   const { t } = useTranslation('common');
@@ -445,6 +446,113 @@ export default function Search() {
           <span>{t('search.loadingMessage') || 'Loading...'}</span>
         </div>
       )}
+      
+
+
+ <style jsx>{`
+      .search-form-wrapper {
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  margin: 1rem 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.search-form-wrapper.expanded {
+  max-height: 1000px; /* Arbitrary large height to allow full expansion */
+  padding: 1rem;
+}
+
+.search-form-wrapper.collapsed {
+  max-height: 60px;
+  padding: 0.5rem 1rem;
+}
+
+.search-toggle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #e9ecef;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.toggle-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.search-form-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+}
+
+.search-form-body.show {
+  max-height: 800px;
+}
+
+.search-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+button[type="submit"] {
+  grid-column: span 2;
+  background-color: #0070f3;
+  color: white;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #005bb5;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 3px solid white;
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+  `}</style>
     </Layout>
   );
 }
