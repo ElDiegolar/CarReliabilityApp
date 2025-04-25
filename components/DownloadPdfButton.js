@@ -1,4 +1,3 @@
-// components/DownloadPdfButton.js
 import { useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,53 +9,45 @@ export default function DownloadPdfButton({ vehicleData, searchParams, timelineD
 
   const handleDownload = async () => {
     setLoading(true);
-    
+
     try {
-      console.log('Timeline data before PDF generation:', timelineData);
-      
-      // If we don't have timeline data and this is a premium account, try to get it directly
       let timelineDataToUse = timelineData;
-      if (!timelineDataToUse || timelineDataToUse.length === 0) {
-        if (vehicleData.isPremium) {
-          try {
-            const token = getToken();
-            console.log('Fetching timeline data directly for PDF');
-            
-            const response = await fetch(`/api/car-timeline`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-              },
-              body: JSON.stringify({
-                year: searchParams.year,
-                make: searchParams.make,
-                model: searchParams.model
-              }),
-            });
-            
-            if (response.ok) {
-              const data = await response.json();
-              timelineDataToUse = data.timeline || [];
-              console.log('Fetched timeline data directly:', timelineDataToUse.length);
-            }
-          } catch (err) {
-            console.error('Error fetching timeline data for PDF:', err);
+
+      if ((!timelineDataToUse || timelineDataToUse.length === 0) && vehicleData.isPremium) {
+        try {
+          const token = getToken();
+
+          const response = await fetch(`/api/car-timeline`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({
+              year: searchParams.year,
+              make: searchParams.make,
+              model: searchParams.model,
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            timelineDataToUse = data.timeline || [];
           }
+        } catch (err) {
+          console.error('Error fetching timeline data for PDF:', err);
         }
       }
-      
+
       const requestData = {
         year: searchParams.year,
         make: searchParams.make,
         model: searchParams.model,
         mileage: searchParams.mileage,
         reliability_data: vehicleData,
-        timeline_data: timelineDataToUse
+        timeline_data: timelineDataToUse,
       };
-      
-      console.log('PDF request data:', JSON.stringify(requestData).substring(0, 200) + '...');
-      
+
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: {
@@ -64,25 +55,18 @@ export default function DownloadPdfButton({ vehicleData, searchParams, timelineD
         },
         body: JSON.stringify(requestData),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to generate PDF');
       }
-      
-      // Convert the response to a blob
+
       const blob = await response.blob();
-      
-      // Create a URL for the blob
       const url = window.URL.createObjectURL(blob);
-      
-      // Create a temporary link and click it to download
       const a = document.createElement('a');
       a.href = url;
       a.download = `${searchParams.year}-${searchParams.make}-${searchParams.model}-reliability-report.pdf`;
       document.body.appendChild(a);
       a.click();
-      
-      // Clean up
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
@@ -94,37 +78,41 @@ export default function DownloadPdfButton({ vehicleData, searchParams, timelineD
   };
 
   return (
-    <button 
-      onClick={handleDownload} 
-      className="download-button"
-      disabled={loading}
-    >
-      {loading ? t('buttons.generating') : t('buttons.downloadPdf')}
-      
+    <>
+      <button onClick={handleDownload} className="button download" disabled={loading}>
+        {loading ? t('buttons.generating') : t('buttons.downloadPdf')}
+      </button>
+
       <style jsx>{`
-        .download-button {
-          background-color: #2e7d32;
-          color: white;
+        .button {
+          flex: 1 1 200px;
           padding: 0.75rem 1.5rem;
-          border: none;
           border-radius: 4px;
           font-size: 1rem;
           cursor: pointer;
-          transition: background-color 0.2s;
+          transition: all 0.2s ease-in-out;
           display: flex;
           align-items: center;
+          justify-content: center;
           gap: 0.5rem;
+          text-align: center;
+          border: none;
         }
-        
-        .download-button:hover {
+
+        .button.download {
+          background-color: #2e7d32;
+          color: white;
+        }
+
+        .button.download:hover {
           background-color: #1b5e20;
         }
-        
-        .download-button:disabled {
+
+        .button.download:disabled {
           background-color: #a5d6a7;
           cursor: not-allowed;
         }
       `}</style>
-    </button>
+    </>
   );
 }

@@ -344,19 +344,7 @@ export default function Search() {
             />
           </div>
 
-          {/* Use CarTimeline component */}
-          {isPremium && (
-            <div className="timeline-container">
-              <CarTimeline 
-                year={formData.year}
-                make={formData.make}
-                model={formData.model}
-                isPremium={isPremium}
-                timelineData={timelineData}
-                onTimelineLoaded={handleTimelineLoaded}
-              />
-            </div>
-          )}
+          
 
           {/* Category Scores */}
           <div className="categories">
@@ -403,20 +391,34 @@ export default function Search() {
 
           {/* Common Issues - Only show for premium users and if there are issues */}
           {results.isPremium && results.commonIssues && results.commonIssues.length > 0 && (
-            <div className="common-issues">
-              <h3>{t('search.commonIssues') || 'Common Issues'}</h3>
-              <ul>
-                {results.commonIssues.map((issue, index) => (
-                  <li key={index}>
-                    <strong>{issue.description}</strong>
-                    <div>{t('search.costToFix') || 'Cost to Fix'}: {issue.costToFix}</div>
-                    <div>{t('search.occurrence') || 'Occurrence'}: {issue.occurrence}</div>
-                    <div>{t('search.typicalMileage') || 'Typical Mileage'}: {issue.mileage}</div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+  <div className="common-issues">
+    <h3>{t('search.commonIssues') || 'Common Issues'}</h3>
+    <ul>
+      {results.commonIssues.map((issue, index) => {
+        const { description, costToFix, occurrence, mileage } = issue;
+
+        // Skip if any of the fields are undefined
+        if (
+          description === undefined ||
+          costToFix === undefined ||
+          occurrence === undefined ||
+          mileage === undefined
+        ) {
+          return null;
+        }
+
+        return (
+          <li key={index}>
+            <strong>{description}</strong>
+            <div>{t('search.costToFix') || 'Cost to Fix'}: {costToFix}</div>
+            <div>{t('search.occurrence') || 'Occurrence'}: {occurrence}</div>
+            <div>{t('search.typicalMileage') || 'Typical Mileage'}: {mileage}</div>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+)}
 
           {/* AI Analysis */}
           <div className="analysis">
@@ -432,6 +434,19 @@ export default function Search() {
               </div>
             )}
           </div>
+          {/* Use CarTimeline component */}
+          {isPremium && (
+            <div className="timeline-container">
+              <CarTimeline 
+                year={formData.year}
+                make={formData.make}
+                model={formData.model}
+                isPremium={isPremium}
+                timelineData={timelineData}
+                onTimelineLoaded={handleTimelineLoaded}
+              />
+            </div>
+          )}
 
           {user && (
             <div className="search-actions">
