@@ -72,7 +72,7 @@ export default function Layout({ children, title }) {
             <div className="footer-content">
               <div className="footer-logo">
                 <Link href="/">
-                  <span className="logo-text">Veri<span className="highlight">da</span></span>
+                  <span className="logo-text">Lemon<span className="highlight">aed</span></span>
                 </Link>
                 <p className="footer-tagline">
                   {t('hero.description')}

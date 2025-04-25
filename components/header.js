@@ -69,24 +69,28 @@ export default function Header() {
   return (
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container">
-        <div className="logo">
-          <Link href="/">
-            <div className="logo-content">
-              <img 
-                src="/logo.png" 
-                alt="CarReliability" 
-                className="logo-image"
-                width={64}
-                height={32}
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-              {/* <span className="logo-text">Car<span className="highlight">Reliability</span></span> */}
-            </div>
-          </Link>
-        </div>
-
+      <div className="logo">
+  <Link href="/">
+    <div className="logo-content">
+      <img 
+        src="/logo.png" 
+        alt="CarReliability" 
+        className="logo-image"
+        width={48}
+        height={48}
+        onError={(e) => {
+          e.target.style.display = 'none';
+        }}
+      />
+      <div className="logo-text-wrapper">
+        <span className="logo-text">
+         Lemonaed
+        </span>
+        <span className="logo-subtext">When life hands you lemons</span>
+      </div>
+    </div>
+  </Link>
+</div>
         <button 
           className={`menu-toggle ${isMenuOpen ? 'active' : ''}`} 
           onClick={toggleMenu}
@@ -209,34 +213,71 @@ export default function Header() {
           padding: 0.75rem 1.5rem;
         }
 
-        .logo {
-          display: flex;
-          align-items: center;
-          min-width: 200px;
-        }
+.logo-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.1;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #222;
+  letter-spacing: -0.02em;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.highlight {
+  color:#fdc504;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.logo-subtext {
+  font-size: 0.8rem;
+  color: grey;
+  margin-top: 0.2rem;
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
 
         .logo-content {
-          display: flex;
-          align-items: center;
-          text-decoration: none;
-        }
+  display: flex;
+  align-items: center;
+}
 
-        .logo-image {
-          margin-right: 0.5rem;
-          width: 128px;
-          height: auto;
-        }
+.logo-image {
+  margin-right: 0.5rem;
+  width: 48px;
+  height: auto;
+}
 
-        .logo-text {
-          font-size: 1.3rem;
-          font-weight: 700;
-          color: #333;
-          letter-spacing: -0.01em;
-        }
+.logo-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
-        .highlight {
-          color: #0070f3;
-        }
+.logo-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  letter-spacing: -0.01em;
+}
+
+.logo-subtext {
+  font-size: 0.75rem;
+  color: rgba(99, 86, 0, 0.63)
+  font-weight: 900;
+  margin-top: 0.15rem;
+}
+
+
+      
 
         .menu-toggle {
           display: none;
