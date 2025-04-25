@@ -3,27 +3,56 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'next-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function CarTimeline({ year, make, model, isPremium, onTimelineLoaded }) {
+export default function CarTimeline({ year, make, model, isPremium, onTimelineLoaded, timelineData: providedTimelineData }) {
   const { t } = useTranslation('common');
   const { getToken } = useAuth();
-  const [timelineData, setTimelineData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [timelineData, setTimelineData] = useState(providedTimelineData || []);
+  const [loading, setLoading] = useState(providedTimelineData ? false : true);
   const [error, setError] = useState('');
   const [lastFetched, setLastFetched] = useState({ year: '', make: '', model: '' });
+  
+  // Use provided timeline data if available
+  useEffect(() => {
+    if (providedTimelineData && Array.isArray(providedTimelineData) && providedTimelineData.length > 0) {
+      setTimelineData(providedTimelineData);
+      setLoading(false);
+      
+      // Call the callback with the timeline data if provided
+      if (onTimelineLoaded && typeof onTimelineLoaded === 'function') {
+        onTimelineLoaded(providedTimelineData);
+      }
+    }
+  }, [providedTimelineData, onTimelineLoaded]);
 
   // Memoized fetch function with debounce logic
   const fetchTimeline = useCallback(async () => {
-    if (!isPremium) return;
+    if (!isPremium) {
+      setLoading(false);
+      return;
+    }
     
     // Skip if any required field is empty
-    if (!year || !make || !model) return;
+    if (!year || !make || !model) {
+      setLoading(false);
+      return;
+    }
     
     // Skip if we've already fetched for these exact parameters
-    if (lastFetched.year === year && lastFetched.make === make && lastFetched.model === model) return;
+    if (lastFetched.year === year && lastFetched.make === make && lastFetched.model === model) {
+      setLoading(false);
+      return;
+    }
+    
+    // Skip if we already have timeline data from props
+    if (providedTimelineData && providedTimelineData.length > 0) {
+      setLoading(false);
+      return;
+    }
     
     setLoading(true);
     
     try {
+      console.log(`Fetching timeline data for ${year} ${make} ${model}`);
       const token = getToken();
       const response = await fetch(`/api/car-timeline`, {
         method: 'POST',
@@ -39,59 +68,95 @@ export default function CarTimeline({ year, make, model, isPremium, onTimelineLo
       });
       
       if (!response.ok) {
-        throw new Error('Failed to fetch timeline data');
+        console.warn(`Timeline API response: ${response.status}`);
+        if (response.status === 403) {
+          throw new Error(t('timeline.premiumRequired') || 'Premium required for timeline data');
+        }
+        throw new Error(t('timeline.fetchError') || 'Failed to fetch timeline data');
       }
       
       const data = await response.json();
-      const timeline = data.timeline || [];
-      setTimelineData(timeline);
+      
+      if (!data.timeline) {
+        console.warn('Timeline data missing in API response');
+        setTimelineData([]);
+      } else {
+        console.log(`Received ${data.timeline.length} timeline items`);
+        setTimelineData(data.timeline || []);
+      }
+      
       setLastFetched({ year, make, model });
       
       // Call the callback with the timeline data if provided
       if (onTimelineLoaded && typeof onTimelineLoaded === 'function') {
-        onTimelineLoaded(timeline);
+        onTimelineLoaded(data.timeline || []);
       }
     } catch (err) {
-      setError(err.message);
+      console.error('Error fetching timeline data:', err);
+      setError(err.message || 'Error fetching timeline data');
+      // Important: Set empty timeline data so we don't keep showing loading
+      setTimelineData([]);
     } finally {
+      // Always set loading to false when done, regardless of result
       setLoading(false);
     }
-  }, [year, make, model, isPremium, getToken, onTimelineLoaded, lastFetched]);
+  }, [year, make, model, isPremium, getToken, onTimelineLoaded, lastFetched, providedTimelineData, t]);
 
   useEffect(() => {
+    // If we have provided timeline data, don't fetch
+    if (providedTimelineData && providedTimelineData.length > 0) {
+      setLoading(false);
+      return;
+    }
+    
     // Only fetch when all fields have values and user has stopped typing (debounce)
     if (year && make && model && isPremium) {
       const debounceTimer = setTimeout(() => {
         fetchTimeline();
-      }, 1000); // 1 second debounce
+      }, 800); // 800ms debounce
       
       return () => clearTimeout(debounceTimer);
+    } else {
+      // Important: If we don't have enough data to fetch, don't remain in loading state
+      setLoading(false);
     }
-  }, [year, make, model, isPremium, fetchTimeline]);
+  }, [year, make, model, isPremium, fetchTimeline, providedTimelineData]);
 
   if (!isPremium) {
     return (
       <div className="premium-prompt">
-        <p>{t('timeline.upgradePrompt')}</p>
+        <p>{t('timeline.upgradePrompt') || 'Upgrade to premium to view the vehicle timeline.'}</p>
       </div>
     );
   }
 
-  if (loading && !timelineData.length) {
-    return <div className="loading">{t('timeline.loading')}</div>;
+  // Important: Add a timeout to prevent infinite loading
+  useEffect(() => {
+    if (loading) {
+      const timeoutId = setTimeout(() => {
+        console.log('Timeline fetch timeout - forcing loading state to end');
+        setLoading(false);
+      }, 10000); // 10 second timeout
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [loading]);
+
+  if (loading) {
+    return <div className="loading">{t('timeline.loading') || 'Loading timeline data...'}</div>;
   }
 
   if (error && !timelineData.length) {
     return <div className="error">{error}</div>;
   }
 
-  if (timelineData.length === 0) {
-    return <div className="no-data">{t('timeline.noData')}</div>;
+  if (!timelineData || timelineData.length === 0) {
+    return <div className="no-data">{t('timeline.noData') || 'No timeline data available for this vehicle.'}</div>;
   }
 
   return (
     <div className="car-timeline">
-      <h3>{t('timeline.title')}</h3>
+      <h3>{t('timeline.title') || 'Vehicle Timeline'}</h3>
       <div className="timeline-container">
         {timelineData.map((event, index) => (
           <div key={index} className="timeline-event">
@@ -106,7 +171,7 @@ export default function CarTimeline({ year, make, model, isPremium, onTimelineLo
               )}
               {event.engineeringChanges && event.engineeringChanges.length > 0 && (
                 <div className="engineering-changes">
-                  <h5>{t('timeline.engineeringChanges')}</h5>
+                  <h5>{t('timeline.engineeringChanges') || 'Engineering Changes'}</h5>
                   <ul>
                     {event.engineeringChanges.map((change, idx) => (
                       <li key={idx}>{change}</li>
@@ -122,6 +187,12 @@ export default function CarTimeline({ year, make, model, isPremium, onTimelineLo
       <style jsx>{`
         .car-timeline {
           margin: 2rem 0;
+        }
+        
+        h3 {
+          margin-top: 0;
+          margin-bottom: 1.5rem;
+          color: #333;
         }
         
         .timeline-container {
