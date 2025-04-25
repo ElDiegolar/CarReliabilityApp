@@ -1,4 +1,4 @@
-// pages/search.js - Enhanced version with fixed timeline handling
+// pages/search.js - Using only the CarTimeline component
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -18,9 +18,6 @@ export default function Search() {
 
   const apiRequestInProgress = useRef(false);
   const hasAutoSubmitted = useRef(false);
-  
-  // Track if timeline fetch has been attempted
-  const timelineFetchAttempted = useRef(false);
 
   const [formData, setFormData] = useState({
     year: '',
@@ -35,61 +32,8 @@ export default function Search() {
   const [subscription, setSubscription] = useState(null);
   const [isPremium, setIsPremium] = useState(false);
   const [timelineData, setTimelineData] = useState([]);
-  const [timelineLoading, setTimelineLoading] = useState(false);
-  const [timelineError, setTimelineError] = useState('');
-  const [savedTimelineData, setSavedTimelineData] = useState(null);
   const [showSearchForm, setShowSearchForm] = useState(true);
   const [carImageUrl, setCarImageUrl] = useState(null);
-
-  // Dedicated function for timeline fetching with proper error handling
-  const fetchTimelineData = async (year, make, model) => {
-    if (!isPremium || !year || !make || !model || timelineFetchAttempted.current) return null;
-    
-    timelineFetchAttempted.current = true;
-    setTimelineLoading(true);
-    setTimelineError('');
-    
-    try {
-      console.log(`Fetching timeline data for ${year} ${make} ${model}`);
-      const token = getToken();
-      
-      if (!token) {
-        throw new Error('Authentication required');
-      }
-      
-      const response = await fetch('/api/car-timeline', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ year, make, model })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch timeline data');
-      }
-      
-      const data = await response.json();
-      console.log('Timeline API response:', data);
-      
-      if (data.timeline && Array.isArray(data.timeline)) {
-        console.log(`Received ${data.timeline.length} timeline items`);
-        setTimelineData(data.timeline);
-        return data.timeline;
-      } else {
-        console.warn('Timeline data format is invalid:', data);
-        throw new Error('Invalid timeline data format');
-      }
-    } catch (err) {
-      console.error('Error fetching timeline:', err);
-      setTimelineError(err.message || 'Failed to load timeline data');
-      return null;
-    } finally {
-      setTimelineLoading(false);
-    }
-  };
 
   const fetchCarImage = async (year, make, model) => {
     try {
@@ -123,6 +67,12 @@ export default function Search() {
     return null;
   };
 
+  // Handler for receiving timeline data from the CarTimeline component
+  const handleTimelineLoaded = (data) => {
+    console.log(`Received ${data.length} timeline items from CarTimeline component`);
+    setTimelineData(data);
+  };
+
   // Load vehicle data from URL parameters or saved vehicle
   useEffect(() => {
     const loadSavedVehicle = async () => {
@@ -152,8 +102,6 @@ export default function Search() {
             if (vehicle.timeline_data && Array.isArray(vehicle.timeline_data) && vehicle.timeline_data.length > 0) {
               console.log(`Loaded ${vehicle.timeline_data.length} timeline items from saved vehicle`);
               setTimelineData(vehicle.timeline_data);
-              setSavedTimelineData(vehicle.timeline_data);
-              timelineFetchAttempted.current = true;
             }
 
             // Handle car image if available
@@ -229,20 +177,6 @@ export default function Search() {
     checkSubscription();
   }, [user, getToken]);
 
-  // Fetch timeline data when results are available and user is premium
-  useEffect(() => {
-    const loadTimelineDataIfNeeded = async () => {
-      if (results && isPremium && !timelineFetchAttempted.current) {
-        // If we don't have timeline data yet, fetch it
-        if (timelineData.length === 0 && !savedTimelineData) {
-          await fetchTimelineData(formData.year, formData.make, formData.model);
-        }
-      }
-    };
-    
-    loadTimelineDataIfNeeded();
-  }, [results, isPremium, formData]);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -250,11 +184,8 @@ export default function Search() {
   const resetSearch = () => {
     setResults(null);
     setTimelineData([]);
-    setSavedTimelineData(null);
-    setTimelineError('');
     setCarImageUrl(null);
     setShowSearchForm(true);
-    timelineFetchAttempted.current = false;
     router.replace('/search', undefined, { shallow: true });
     setFormData({ year: '', make: '', model: '', mileage: '' });
     hasAutoSubmitted.current = false;
@@ -267,12 +198,10 @@ export default function Search() {
     apiRequestInProgress.current = true;
     setLoading(true);
     setError('');
-    timelineFetchAttempted.current = false;
 
     if (!isAutoSubmit) {
       setResults(null);
       setTimelineData([]);
-      setSavedTimelineData(null);
       setCarImageUrl(null);
     }
 
@@ -326,8 +255,6 @@ export default function Search() {
           }
         }, undefined, { shallow: true });
       }
-      
-      // After getting results, we'll let the useEffect handle timeline fetching
     } catch (err) {
       console.error('Error fetching reliability data:', err);
       setError(err.message || 'Something went wrong');
@@ -335,35 +262,6 @@ export default function Search() {
       apiRequestInProgress.current = false;
       setLoading(false);
     }
-  };
-
-  // Generate mock timeline data for testing
-  const getMockTimelineData = () => {
-    const baseYear = parseInt(formData.year || 2000);
-    return [
-      {
-        year: formData.year,
-        title: `${formData.make} ${formData.model} Released`,
-        description: `The ${formData.year} ${formData.make} ${formData.model} was released to the public with several new features.`
-      },
-      {
-        year: (baseYear + 2).toString(),
-        title: 'Minor Update',
-        description: `${formData.make} released a minor update to address some issues with the ${formData.model}.`
-      },
-      {
-        year: (baseYear + 5).toString(),
-        title: 'Major Redesign',
-        description: `${formData.make} completely redesigned the ${formData.model} with improved reliability.`
-      }
-    ];
-  };
-
-  const handleUseMockData = () => {
-    const mockData = getMockTimelineData();
-    setTimelineData(mockData);
-    setTimelineError('');
-    setTimelineLoading(false);
   };
 
   return (
@@ -435,55 +333,28 @@ export default function Search() {
               <SaveSearchButton
                 vehicleData={results}
                 searchParams={formData}
-                timelineData={savedTimelineData || timelineData}
+                timelineData={timelineData}
                 savedId={savedId}
               />
             )}
             <DownloadPdfButton
               vehicleData={results}
               searchParams={formData}
-              timelineData={savedTimelineData || timelineData}
+              timelineData={timelineData}
             />
           </div>
 
-          {/* Timeline Section */}
+          {/* Use CarTimeline component */}
           {isPremium && (
-            <div className="timeline-section">
-              <h3>{t('timeline.title') || 'Vehicle Timeline'}</h3>
-              
-              {timelineLoading ? (
-                <div className="timeline-loading">
-                  <div className="loading-spinner"></div>
-                  <p>{t('timeline.loading') || 'Loading timeline data...'}</p>
-                </div>
-              ) : timelineError ? (
-                <div className="timeline-error">
-                  <p>{timelineError}</p>
-                  <button onClick={handleUseMockData} className="mock-data-button">
-                    {t('timeline.useSampleData') || 'Use Sample Data'}
-                  </button>
-                </div>
-              ) : timelineData.length > 0 ? (
-                <div className="timeline">
-                  {timelineData.map((item, index) => (
-                    <div key={index} className="timeline-item">
-                      <div className="timeline-marker"></div>
-                      <div className="timeline-content">
-                        <div className="timeline-date">{item.year || item.date}</div>
-                        <h4 className="timeline-title">{item.title}</h4>
-                        <p className="timeline-description">{item.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="timeline-empty">
-                  <p>{t('timeline.noData') || 'No timeline data available for this vehicle.'}</p>
-                  <button onClick={handleUseMockData} className="mock-data-button">
-                    {t('timeline.useSampleData') || 'Use Sample Data'}
-                  </button>
-                </div>
-              )}
+            <div className="timeline-container">
+              <CarTimeline 
+                year={formData.year}
+                make={formData.make}
+                model={formData.model}
+                isPremium={isPremium}
+                timelineData={timelineData}
+                onTimelineLoaded={handleTimelineLoaded}
+              />
             </div>
           )}
 
@@ -649,7 +520,7 @@ export default function Search() {
           gap: 1rem;
         }
         
-        .reset-button, .mock-data-button {
+        .reset-button {
           padding: 0.75rem 1.5rem;
           font-size: 1rem;
           border-radius: 8px;
@@ -660,7 +531,7 @@ export default function Search() {
           transition: background-color 0.2s;
         }
         
-        .reset-button:hover, .mock-data-button:hover {
+        .reset-button:hover {
           background-color: #e5e5e5;
         }
         
@@ -770,7 +641,11 @@ export default function Search() {
           flex-wrap: wrap;
         }
 
-        .categories, .common-issues, .analysis, .timeline-section {
+        .timeline-container {
+          margin-bottom: 2rem;
+        }
+
+        .categories, .common-issues, .analysis {
           background-color: #fff;
           border-radius: 12px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -778,7 +653,7 @@ export default function Search() {
           margin-bottom: 2rem;
         }
         
-        .categories h3, .common-issues h3, .analysis h3, .timeline-section h3 {
+        .categories h3, .common-issues h3, .analysis h3 {
           margin-top: 0;
           margin-bottom: 1.5rem;
           color: #333;
@@ -846,21 +721,6 @@ export default function Search() {
           display: block;
           margin-bottom: 0.75rem;
           color: #333;
-          font-size: 1rem;
-      }
-
-
-
-
-
-
-
-
-
-          .common-issues li strong {
-          display: block;
-          margin-bottom: 0.75rem;
-          color: #333;
           font-size: 1.1rem;
         }
         
@@ -893,84 +753,6 @@ export default function Search() {
 
         .upgrade-button:hover {
           background-color: #0060df;
-        }
-
-        /* Timeline specific styles */
-        .timeline-loading, .timeline-empty, .timeline-error {
-          padding: 2rem;
-          text-align: center;
-          color: #666;
-        }
-        
-        .loading-spinner {
-          width: 30px;
-          height: 30px;
-          border: 3px solid #f3f3f3;
-          border-top: 3px solid #0070f3;
-          border-radius: 50%;
-          margin: 0 auto 1rem;
-          animation: spin 1s linear infinite;
-        }
-        
-        .timeline {
-          position: relative;
-          padding-left: 2rem;
-          margin-top: 2rem;
-        }
-        
-        .timeline::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 2px;
-          background-color: #e0e0e0;
-        }
-        
-        .timeline-item {
-          position: relative;
-          margin-bottom: 2rem;
-        }
-        
-        .timeline-item:last-child {
-          margin-bottom: 0;
-        }
-        
-        .timeline-marker {
-          position: absolute;
-          left: -2rem;
-          top: 0;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background-color: #0070f3;
-          transform: translateX(-50%);
-          z-index: 1;
-        }
-        
-        .timeline-content {
-          background-color: #f9fafb;
-          border-radius: 8px;
-          padding: 1.5rem;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-        
-        .timeline-date {
-          font-size: 0.875rem;
-          color: #666;
-          margin-bottom: 0.5rem;
-        }
-        
-        .timeline-title {
-          margin: 0 0 0.75rem;
-          color: #333;
-        }
-        
-        .timeline-description {
-          margin: 0;
-          color: #444;
-          line-height: 1.5;
         }
 
         .search-actions {
