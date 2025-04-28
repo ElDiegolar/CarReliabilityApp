@@ -1,0 +1,21 @@
+{
+    "version": 2,
+    "functions": {
+        "api/car-reliability.js": {
+            "maxDuration": 60
+        },
+        "api/car-timeline.js": {
+            "maxDuration": 60
+        }
+    },
+    "routes": [
+        {
+            "src": "/api/car-reliability",
+            "dest": "/api/car-reliability.js"
+        },
+        {
+            "src": "/api/car-timeline",
+            "dest": "/api/car-timeline.js"
+        }
+    ]
+}
