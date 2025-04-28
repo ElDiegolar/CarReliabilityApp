@@ -1,4 +1,4 @@
-// pages/search.js - Using only the CarTimeline component
+// pages/search.js - Using integrated timeline data from car-reliability API
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -35,44 +35,6 @@ export default function Search() {
   const [showSearchForm, setShowSearchForm] = useState(true);
   const [carImageUrl, setCarImageUrl] = useState(null);
 
-  const fetchCarImage = async (year, make, model) => {
-    try {
-      // Skip image fetching if we don't have an API key configured
-      if (!process.env.NEXT_PUBLIC_SERPER_API_KEY) {
-        console.log('Serper API key not configured, skipping image fetch');
-        return null;
-      }
-      
-      const response = await fetch('https://google.serper.dev/images', {
-        method: 'POST',
-        headers: {
-          'X-API-KEY': process.env.NEXT_PUBLIC_SERPER_API_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ q: `${year} ${make} ${model}` })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch car image');
-      }
-      
-      const data = await response.json();
-      if (data.images && data.images.length > 0) {
-        setCarImageUrl(data.images[0].imageUrl);
-        return data.images[0].imageUrl;
-      }
-    } catch (err) {
-      console.error('Failed to fetch car image:', err);
-    }
-    return null;
-  };
-
-  // Handler for receiving timeline data from the CarTimeline component
-  const handleTimelineLoaded = (data) => {
-    console.log(`Received ${data.length} timeline items from CarTimeline component`);
-    setTimelineData(data);
-  };
-
   // Load vehicle data from URL parameters or saved vehicle
   useEffect(() => {
     const loadSavedVehicle = async () => {
@@ -107,8 +69,6 @@ export default function Search() {
             // Handle car image if available
             if (vehicle.reliability_data.imageUrl) {
               setCarImageUrl(vehicle.reliability_data.imageUrl);
-            } else {
-              fetchCarImage(vehicle.year, vehicle.make, vehicle.model);
             }
 
             setShowSearchForm(false);
@@ -233,14 +193,28 @@ export default function Search() {
       const data = await res.json();
       console.log('Received reliability data:', data);
       
-      if (isPremium) data.isPremium = true;
-      setResults(data);
+      // Check for timeline data in the response
+      if (data.timeline && Array.isArray(data.timeline)) {
+        console.log(`Received ${data.timeline.length} timeline items from API`);
+        setTimelineData(data.timeline);
+        
+        // Remove timeline from data before setting results to maintain backward compatibility
+        const { timeline, ...reliabilityData } = data;
+        setResults(reliabilityData);
+      } else {
+        setResults(data);
+      }
+      
+      // Apply premium flag if user is premium
+      if (isPremium && results) {
+        setResults(prev => ({ ...prev, isPremium: true }));
+      }
+      
       setShowSearchForm(false);
 
-      // Fetch car image
-      const imageUrl = await fetchCarImage(formData.year, formData.make, formData.model);
-      if (imageUrl) {
-        setResults(prev => ({ ...prev, imageUrl }));
+      // Set car image URL if provided in the response
+      if (data.imageUrl) {
+        setCarImageUrl(data.imageUrl);
       }
 
       // Update URL if not auto-submitted
@@ -344,8 +318,6 @@ export default function Search() {
             />
           </div>
 
-          
-
           {/* Category Scores */}
           <div className="categories">
             <h3>{t('search.categoryScores') || 'Category Scores'}</h3>
@@ -391,34 +363,34 @@ export default function Search() {
 
           {/* Common Issues - Only show for premium users and if there are issues */}
           {results.isPremium && results.commonIssues && results.commonIssues.length > 0 && (
-  <div className="common-issues">
-    <h3>{t('search.commonIssues') || 'Common Issues'}</h3>
-    <ul>
-      {results.commonIssues.map((issue, index) => {
-        const { description, costToFix, occurrence, mileage } = issue;
+            <div className="common-issues">
+              <h3>{t('search.commonIssues') || 'Common Issues'}</h3>
+              <ul>
+                {results.commonIssues.map((issue, index) => {
+                  const { description, costToFix, occurrence, mileage } = issue;
 
-        // Skip if any of the fields are undefined
-        if (
-          description === undefined ||
-          costToFix === undefined ||
-          occurrence === undefined ||
-          mileage === undefined
-        ) {
-          return null;
-        }
+                  // Skip if any of the fields are undefined
+                  if (
+                    description === undefined ||
+                    costToFix === undefined ||
+                    occurrence === undefined ||
+                    mileage === undefined
+                  ) {
+                    return null;
+                  }
 
-        return (
-          <li key={index}>
-            <strong>{description}</strong>
-            <div>{t('search.costToFix') || 'Cost to Fix'}: {costToFix}</div>
-            <div>{t('search.occurrence') || 'Occurrence'}: {occurrence}</div>
-            <div>{t('search.typicalMileage') || 'Typical Mileage'}: {mileage}</div>
-          </li>
-        );
-      })}
-    </ul>
-  </div>
-)}
+                  return (
+                    <li key={index}>
+                      <strong>{description}</strong>
+                      <div>{t('search.costToFix') || 'Cost to Fix'}: {costToFix}</div>
+                      <div>{t('search.occurrence') || 'Occurrence'}: {occurrence}</div>
+                      <div>{t('search.typicalMileage') || 'Typical Mileage'}: {mileage}</div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
 
           {/* AI Analysis */}
           <div className="analysis">
@@ -434,16 +406,18 @@ export default function Search() {
               </div>
             )}
           </div>
-          {/* Use CarTimeline component */}
-          {isPremium && (
-            <div className="timeline-container">
+          
+          {/* Use CarTimeline component with the data we already have */}
+          {isPremium && timelineData && timelineData.length > 0 && (
+            <div className="timeline-section">
+              <h3>{t('search.timeline') || 'Vehicle Timeline'}</h3>
               <CarTimeline 
                 year={formData.year}
                 make={formData.make}
                 model={formData.model}
                 isPremium={isPremium}
                 timelineData={timelineData}
-                onTimelineLoaded={handleTimelineLoaded}
+                // No need for onTimelineLoaded since we already have the data
               />
             </div>
           )}
@@ -501,6 +475,22 @@ export default function Search() {
           border-radius: 12px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
           margin-bottom: 2rem;
+        }
+        
+        .timeline-section {
+          background-color: #fff;
+          border-radius: 12px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+          padding: 2rem;
+          margin-bottom: 2rem;
+        }
+        
+        .timeline-section h3 {
+          margin-top: 0;
+          margin-bottom: 1.5rem;
+          color: #333;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 0.75rem;
         }
 
         .form-group {
@@ -654,10 +644,6 @@ export default function Search() {
           margin-bottom: 2rem;
           justify-content: center;
           flex-wrap: wrap;
-        }
-
-        .timeline-container {
-          margin-bottom: 2rem;
         }
 
         .categories, .common-issues, .analysis {

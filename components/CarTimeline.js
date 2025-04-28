@@ -1,179 +1,205 @@
 // components/CarTimeline.js
-import { useState, useEffect, useCallback } from 'react';
-import { useTranslation } from 'next-i18next';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import Link from 'next/link';
 
-export default function CarTimeline({ year, make, model, isPremium, onTimelineLoaded, timelineData: providedTimelineData }) {
-  const { t } = useTranslation('common');
-  const { getToken } = useAuth();
-  const [timelineData, setTimelineData] = useState(providedTimelineData || []);
-  const [loading, setLoading] = useState(providedTimelineData ? false : true);
+export default function CarTimeline({ 
+  year, 
+  make, 
+  model, 
+  isPremium, 
+  timelineData = [],
+  onTimelineLoaded = null
+}) {
+  const [timeline, setTimeline] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [lastFetched, setLastFetched] = useState({ year: '', make: '', model: '' });
-  
-  // Use provided timeline data if available
-  useEffect(() => {
-    if (providedTimelineData && Array.isArray(providedTimelineData) && providedTimelineData.length > 0) {
-      setTimelineData(providedTimelineData);
-      setLoading(false);
-      
-      // Call the callback with the timeline data if provided
-      if (onTimelineLoaded && typeof onTimelineLoaded === 'function') {
-        onTimelineLoaded(providedTimelineData);
-      }
-    }
-  }, [providedTimelineData, onTimelineLoaded]);
+  const { getToken } = useAuth();
 
-  // Memoized fetch function with debounce logic
-  const fetchTimeline = useCallback(async () => {
-    if (!isPremium) {
-      setLoading(false);
+  useEffect(() => {
+    // If we already have timeline data passed from the parent, use it
+    if (timelineData && timelineData.length > 0) {
+      setTimeline(timelineData);
+      if (onTimelineLoaded) onTimelineLoaded(timelineData);
       return;
     }
-    
-    // Skip if any required field is empty
-    if (!year || !make || !model) {
-      setLoading(false);
-      return;
-    }
-    
-    // Skip if we've already fetched for these exact parameters
-    if (lastFetched.year === year && lastFetched.make === make && lastFetched.model === model) {
-      setLoading(false);
-      return;
-    }
-    
-    // Skip if we already have timeline data from props
-    if (providedTimelineData && providedTimelineData.length > 0) {
-      setLoading(false);
-      return;
-    }
-    
-    setLoading(true);
-    
-    try {
-      console.log(`Fetching timeline data for ${year} ${make} ${model}`);
-      const token = getToken();
-      const response = await fetch(`/api/car-timeline`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({
-          year,
-          make,
-          model
-        }),
-      });
+
+    // Otherwise, load the timeline data
+    const loadTimelineData = async () => {
+      if (!year || !make || !model || !isPremium) return;
       
-      if (!response.ok) {
-        console.warn(`Timeline API response: ${response.status}`);
-        if (response.status === 403) {
-          throw new Error(t('timeline.premiumRequired') || 'Premium required for timeline data');
+      setLoading(true);
+      setError('');
+      
+      try {
+        const token = getToken();
+        
+        // This endpoint is now just a fallback in case we need it separately
+        const response = await fetch('/api/car-timeline', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ year, make, model })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load timeline data');
         }
-        throw new Error(t('timeline.fetchError') || 'Failed to fetch timeline data');
+        
+        const data = await response.json();
+        
+        if (data.timeline && Array.isArray(data.timeline)) {
+          setTimeline(data.timeline);
+          if (onTimelineLoaded) onTimelineLoaded(data.timeline);
+        }
+      } catch (err) {
+        console.error('Error loading timeline:', err);
+        setError(err.message || 'Failed to load vehicle timeline');
+      } finally {
+        setLoading(false);
       }
-      
-      const data = await response.json();
-      
-      if (!data.timeline) {
-        console.warn('Timeline data missing in API response');
-        setTimelineData([]);
-      } else {
-        console.log(`Received ${data.timeline.length} timeline items`);
-        setTimelineData(data.timeline || []);
-      }
-      
-      setLastFetched({ year, make, model });
-      
-      // Call the callback with the timeline data if provided
-      if (onTimelineLoaded && typeof onTimelineLoaded === 'function') {
-        onTimelineLoaded(data.timeline || []);
-      }
-    } catch (err) {
-      console.error('Error fetching timeline data:', err);
-      setError(err.message || 'Error fetching timeline data');
-      // Important: Set empty timeline data so we don't keep showing loading
-      setTimelineData([]);
-    } finally {
-      // Always set loading to false when done, regardless of result
-      setLoading(false);
-    }
-  }, [year, make, model, isPremium, getToken, onTimelineLoaded, lastFetched, providedTimelineData, t]);
-
-  useEffect(() => {
-    // If we have provided timeline data, don't fetch
-    if (providedTimelineData && providedTimelineData.length > 0) {
-      setLoading(false);
-      return;
-    }
+    };
     
-    // Only fetch when all fields have values and user has stopped typing (debounce)
-    if (year && make && model && isPremium) {
-      const debounceTimer = setTimeout(() => {
-        fetchTimeline();
-      }, 800); // 800ms debounce
-      
-      return () => clearTimeout(debounceTimer);
-    } else {
-      // Important: If we don't have enough data to fetch, don't remain in loading state
-      setLoading(false);
+    // Only load if we don't already have data and the user is premium
+    if (isPremium && (!timelineData || timelineData.length === 0)) {
+      loadTimelineData();
     }
-  }, [year, make, model, isPremium, fetchTimeline, providedTimelineData]);
+  }, [year, make, model, isPremium, timelineData, getToken, onTimelineLoaded]);
 
+  // If not premium or there's no data to show yet, show upgrade prompt
   if (!isPremium) {
     return (
-      <div className="premium-prompt">
-        <p>{t('timeline.upgradePrompt') || 'Upgrade to premium to view the vehicle timeline.'}</p>
+      <div className="upgrade-container">
+        <h3>Vehicle Timeline</h3>
+        <p>Upgrade to premium to see the complete design and engineering history of this vehicle.</p>
+        <Link href="/pricing" className="upgrade-button">
+          Go Premium
+        </Link>
+        <style jsx>{`
+          .upgrade-container {
+            background-color: #f0f7ff;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 2rem;
+          }
+          
+          h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #333;
+          }
+          
+          p {
+            color: #555;
+            margin-bottom: 1.5rem;
+          }
+          
+          .upgrade-button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #0070f3;
+            color: white;
+            border-radius: 6px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s;
+          }
+          
+          .upgrade-button:hover {
+            background-color: #0060df;
+          }
+        `}</style>
       </div>
     );
   }
 
-  // Important: Add a timeout to prevent infinite loading
-  useEffect(() => {
-    if (loading) {
-      const timeoutId = setTimeout(() => {
-        console.log('Timeline fetch timeout - forcing loading state to end');
-        setLoading(false);
-      }, 10000); // 10 second timeout
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [loading]);
-
   if (loading) {
-    return <div className="loading">{t('timeline.loading') || 'Loading timeline data...'}</div>;
+    return (
+      <div className="timeline-loading">
+        <div className="timeline-spinner"></div>
+        <p>Loading vehicle timeline...</p>
+        <style jsx>{`
+          .timeline-loading {
+            padding: 2rem;
+            text-align: center;
+          }
+          
+          .timeline-spinner {
+            margin: 0 auto 1rem;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0070f3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+          
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          
+          p {
+            color: #666;
+          }
+        `}</style>
+      </div>
+    );
   }
 
-  if (error && !timelineData.length) {
-    return <div className="error">{error}</div>;
+  if (error) {
+    return (
+      <div className="timeline-error">
+        <p>Unable to load timeline data. Please try again later.</p>
+        <style jsx>{`
+          .timeline-error {
+            background-color: #fff5f5;
+            color: #e53e3e;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+          }
+        `}</style>
+      </div>
+    );
   }
 
-  if (!timelineData || timelineData.length === 0) {
-    return <div className="no-data">{t('timeline.noData') || 'No timeline data available for this vehicle.'}</div>;
+  if (!timeline || timeline.length === 0) {
+    return (
+      <div className="timeline-empty">
+        <p>No timeline data available for this vehicle.</p>
+        <style jsx>{`
+          .timeline-empty {
+            background-color: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            color: #666;
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (
-    <div className="car-timeline">
-      <h3>{t('timeline.title') || 'Vehicle Timeline'}</h3>
-      <div className="timeline-container">
-        {timelineData.map((event, index) => (
-          <div key={index} className="timeline-event">
-            <div className="timeline-year">{event.year}</div>
+    <div className="timeline-container">
+      <div className="timeline">
+        {timeline.map((item, index) => (
+          <div key={index} className={`timeline-item ${index % 2 === 0 ? 'left' : 'right'}`}>
             <div className="timeline-content">
-              <h4>{event.title}</h4>
-              <p>{event.description}</p>
-              {event.imageUrl && (
-                <div className="timeline-image">
-                  <img src={event.imageUrl} alt={event.title} />
-                </div>
-              )}
-              {event.engineeringChanges && event.engineeringChanges.length > 0 && (
+              <div className="timeline-year">{item.year}</div>
+              <h4 className="timeline-title">{item.title}</h4>
+              <p className="timeline-description">{item.description}</p>
+              
+              {item.engineeringChanges && item.engineeringChanges.length > 0 && (
                 <div className="engineering-changes">
-                  <h5>{t('timeline.engineeringChanges') || 'Engineering Changes'}</h5>
+                  <h5>Engineering Changes:</h5>
                   <ul>
-                    {event.engineeringChanges.map((change, idx) => (
+                    {item.engineeringChanges.map((change, idx) => (
                       <li key={idx}>{change}</li>
                     ))}
                   </ul>
@@ -183,79 +209,108 @@ export default function CarTimeline({ year, make, model, isPremium, onTimelineLo
           </div>
         ))}
       </div>
-
+      
       <style jsx>{`
-        .car-timeline {
-          margin: 2rem 0;
-        }
-        
-        h3 {
-          margin-top: 0;
-          margin-bottom: 1.5rem;
-          color: #333;
-        }
-        
         .timeline-container {
+          padding: 1rem 0;
+        }
+        
+        .timeline {
           position: relative;
-          padding-left: 2rem;
-          margin-left: 1rem;
-          border-left: 2px solid #0070f3;
+          max-width: 1200px;
+          margin: 0 auto;
         }
         
-        .timeline-event {
-          position: relative;
-          margin-bottom: 2rem;
-          padding-bottom: 1rem;
-        }
-        
-        .timeline-event:last-child {
-          margin-bottom: 0;
-        }
-        
-        .timeline-year {
+        .timeline::after {
+          content: '';
           position: absolute;
-          left: -3.5rem;
-          background-color: #0070f3;
-          color: white;
-          padding: 0.5rem;
-          border-radius: 4px;
-          font-weight: bold;
+          width: 4px;
+          background-color: #e0e0e0;
+          top: 0;
+          bottom: 0;
+          left: 50%;
+          margin-left: -2px;
+        }
+        
+        .timeline-item {
+          padding: 10px 40px;
+          position: relative;
+          width: 50%;
+          box-sizing: border-box;
+        }
+        
+        .timeline-item::after {
+          content: '';
+          position: absolute;
+          width: 20px;
+          height: 20px;
+          background-color: white;
+          border: 4px solid #0070f3;
+          top: 20px;
+          border-radius: 50%;
+          z-index: 1;
+        }
+        
+        .left {
+          left: 0;
+        }
+        
+        .right {
+          left: 50%;
+        }
+        
+        .left::after {
+          right: -10px;
+        }
+        
+        .right::after {
+          left: -10px;
         }
         
         .timeline-content {
-          background-color: #f5f5f5;
-          padding: 1.5rem;
+          padding: 20px;
+          background-color: white;
           border-radius: 8px;
-          margin-left: 1rem;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          position: relative;
+          border-left: 4px solid #0070f3;
         }
         
-        .timeline-content h4 {
-          margin-top: 0;
+        .timeline-year {
+          display: inline-block;
+          background-color: #0070f3;
+          color: white;
+          padding: 0.35rem 0.75rem;
+          border-radius: 16px;
+          font-weight: 500;
+          font-size: 0.9rem;
           margin-bottom: 0.75rem;
-          color: #0070f3;
         }
         
-        .timeline-image {
-          margin: 1rem 0;
-          text-align: center;
+        .timeline-title {
+          margin: 0.5rem 0;
+          color: #333;
+          font-size: 1.2rem;
         }
         
-        .timeline-image img {
-          max-width: 100%;
-          border-radius: 4px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        .timeline-description {
+          color: #555;
+          line-height: 1.5;
+          margin-bottom: 1rem;
         }
         
         .engineering-changes {
-          margin-top: 1rem;
-          background-color: #e5f1ff;
+          background-color: #f5f9ff;
           padding: 1rem;
-          border-radius: 4px;
+          border-radius: 6px;
+          margin-top: 1rem;
         }
         
         .engineering-changes h5 {
           margin-top: 0;
-          margin-bottom: 0.75rem;
+          margin-bottom: 0.5rem;
+          color: #0070f3;
+          font-size: 1rem;
         }
         
         .engineering-changes ul {
@@ -263,20 +318,34 @@ export default function CarTimeline({ year, make, model, isPremium, onTimelineLo
           padding-left: 1.5rem;
         }
         
-        .loading, .error, .no-data, .premium-prompt {
-          padding: 1.5rem;
-          border-radius: 8px;
-          text-align: center;
-          background-color: #f5f5f5;
+        .engineering-changes li {
+          margin-bottom: 0.5rem;
+          color: #444;
         }
         
-        .error {
-          background-color: #fff5f5;
-          color: #e53e3e;
-        }
-        
-        .premium-prompt {
-          background-color: #fffbea;
+        /* Mobile view */
+        @media screen and (max-width: 768px) {
+          .timeline::after {
+            left: 31px;
+          }
+          
+          .timeline-item {
+            width: 100%;
+            padding-left: 70px;
+            padding-right: 25px;
+          }
+          
+          .timeline-item::after {
+            left: 22px;
+          }
+          
+          .left::after, .right::after {
+            left: 22px;
+          }
+          
+          .right {
+            left: 0;
+          }
         }
       `}</style>
     </div>

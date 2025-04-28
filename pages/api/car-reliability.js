@@ -1,6 +1,7 @@
-// pages/api/car-reliability.js - Car reliability data API route
+// pages/api/car-reliability.js - Car reliability data API route with integrated timeline
 import { Configuration, OpenAIApi } from 'openai';
 import { query } from '../../lib/database';
+import { ensureTimelineTable, getCachedTimeline, saveTimelineData } from '../../lib/timeline-utils';
 
 // OpenAI configuration
 const configuration = new Configuration({
@@ -197,6 +198,80 @@ export default async function handler(req, res) {
       };
     }
     
+    // Add image URL for the car
+    reliabilityData.imageUrl = `https://source.unsplash.com/featured/?${make},${model}`;
+    
+    // Now, if user is premium, get or generate timeline data
+    let timelineData = [];
+    
+    if (isPremium) {
+      try {
+        // Ensure the timeline table exists
+        await ensureTimelineTable();
+        
+        // Check for cached timeline data
+        const cachedTimeline = await getCachedTimeline(year, make, model);
+        
+        if (cachedTimeline) {
+          console.log(`Using cached timeline data for ${year} ${make} ${model}`);
+          timelineData = cachedTimeline;
+        } else {
+          console.log(`Generating new timeline data for ${year} ${make} ${model}`);
+          // Generate timeline data using OpenAI
+          const timelinePrompt = `
+            Create a design history timeline for the ${year} ${make} ${model} car. 
+            For each significant version or generation, include:
+            1. The year of introduction
+            2. Key design changes
+            3. Engineering modifications that could affect reliability
+            4. Notable features or innovations
+
+            Format the response as a JSON array with objects containing:
+            {
+              "year": "YYYY",
+              "title": "Brief title of the change",
+              "description": "Detailed description",
+              "engineeringChanges": ["list of specific engineering changes"],
+              "imageUrl": null
+            }
+
+            Start from the first generation up to the ${year} model. Include at least 3-5 major milestones.
+            Return ONLY the JSON array with no additional text.
+          `;
+
+          const timelineCompletion = await openai.createChatCompletion({
+            model: "gpt-4o",
+            messages: [
+              { role: "system", content: "You are an automotive expert assistant that provides accurate historical vehicle information. Return all responses as properly formatted JSON." },
+              { role: "user", content: timelinePrompt }
+            ],
+            temperature: 0.2,
+          });
+
+          const timelineResponseText = timelineCompletion.data.choices[0].message.content.trim();
+          
+          try {
+            const jsonMatch = timelineResponseText.match(/```json\n([\s\S]*)\n```/) ||
+                              timelineResponseText.match(/```\n([\s\S]*)\n```/) ||
+                              [null, timelineResponseText];
+
+            timelineData = JSON.parse(jsonMatch[1]);
+
+            // Cache the timeline data
+            await saveTimelineData(year, make, model, timelineData);
+          } catch (parseError) {
+            console.error("Error parsing timeline JSON response:", parseError);
+            // Don't fail the whole request if timeline parsing fails
+            timelineData = [];
+          }
+        }
+      } catch (timelineError) {
+        console.error('Timeline generation error:', timelineError.message);
+        // Don't fail the whole request if timeline generation fails
+        timelineData = [];
+      }
+    }
+    
     // Log the search with results
     if (user_id && reliabilityData) {
       try {
@@ -230,10 +305,16 @@ export default async function handler(req, res) {
       }
     }
 
-    // Return the data to the client
+    // Log if we're including timeline data
+    if (isPremium && timelineData.length > 0) {
+      console.log(`Including ${timelineData.length} timeline items in response`);
+    }
     
-    reliabilityData.imageUrl = `https://source.unsplash.com/featured/?${make},${model}`;
-    res.json(reliabilityData);
+    // Return both the reliability data and timeline data to the client
+    res.json({
+      ...reliabilityData,
+      timeline: isPremium ? timelineData : []
+    });
   } catch (error) {
     console.error('General API Error:', error);
     res.status(500).json({ 

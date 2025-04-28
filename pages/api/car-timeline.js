@@ -1,7 +1,12 @@
-// pages/api/car-timeline.js
-import { query } from '../../lib/database';
+// pages/api/car-timeline.js - Fallback API for getting timeline separately
 import { withAuth } from '../../lib/auth';
+import { 
+  getCachedTimeline, 
+  saveTimelineData, 
+  ensureTimelineTable 
+} from '../../lib/timeline-utils';
 import { Configuration, OpenAIApi } from 'openai';
+import { query } from '../../lib/database';
 
 // OpenAI configuration
 const configuration = new Configuration({
@@ -37,17 +42,19 @@ async function handler(req, res) {
       return res.status(403).json({ error: 'Premium subscription required' });
     }
 
-    // Check if we already have cached timeline data
-    const cachedResult = await query(`
-      SELECT timeline_data FROM car_timelines 
-      WHERE year = $1 AND make = $2 AND model = $3
-    `, [year, make, model]);
+    // Ensure timeline table exists
+    await ensureTimelineTable();
 
-    if (cachedResult.rows.length > 0) {
-      return res.json({ timeline: cachedResult.rows[0].timeline_data });
+    // Check for cached timeline data
+    const cachedTimeline = await getCachedTimeline(year, make, model);
+    
+    if (cachedTimeline) {
+      console.log(`Using cached timeline data for ${year} ${make} ${model}`);
+      return res.json({ timeline: cachedTimeline });
     }
 
     // Generate timeline data using OpenAI
+    console.log(`Generating new timeline data for ${year} ${make} ${model}`);
     const prompt = `
       Create a design history timeline for the ${year} ${make} ${model} car. 
       For each significant version or generation, include:
@@ -88,12 +95,8 @@ async function handler(req, res) {
 
       timelineData = JSON.parse(jsonMatch[1]);
 
-      await query(`
-        INSERT INTO car_timelines (year, make, model, timeline_data) 
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (year, make, model) 
-        DO UPDATE SET timeline_data = $4
-      `, [year, make, model, JSON.stringify(timelineData)]);
+      // Cache the timeline data
+      await saveTimelineData(year, make, model, timelineData);
     } catch (parseError) {
       console.error("Error parsing JSON response:", parseError);
       return res.status(500).json({
