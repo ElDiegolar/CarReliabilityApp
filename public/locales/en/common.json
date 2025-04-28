@@ -122,7 +122,8 @@
     "viewSavedVehicles": "View Saved Vehicles",
     "saveSearch": "Save This Vehicle",
     "saved": "Vehicle Saved!",
-    "saving": "Saving Vehicle..."
+    "saving": "Saving Vehicle...",
+    "timeline": "View Design History & Engineering Timeline"
   },
   "buttons": {
     "generating": "Generating PDF...",

@@ -122,7 +122,8 @@
     "viewSavedVehicles": "Voir les véhicules enregistrés",
     "saveSearch": "Enregistrer ce véhicule",
     "saved": "Véhicule enregistré !",
-    "saving": "Enregistrement du véhicule..."
+    "saving": "Enregistrement du véhicule...",
+    "timeLine": "Voir l'historique du design et la chronologie de l'ingénierie"
   },
   "buttons": {
     "generating": "Génération du PDF...",

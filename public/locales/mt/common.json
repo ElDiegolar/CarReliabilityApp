@@ -120,7 +120,8 @@
     "viewSavedVehicles": "Ara l-Vetturi Salvati",
     "saveSearch": "Salva Din il-Vettura",
     "saved": "Vettura Salvata!",
-    "saving": "Qed tiġi salvata l-Vettura..."
+    "saving": "Qed tiġi salvata l-Vettura...",
+    "timeLine": "Voir l'historique du design et la chronologie de l'ingénierie"
   },
   "buttons": {
     "generating": "Qed jiġi ġġenerat PDF...",

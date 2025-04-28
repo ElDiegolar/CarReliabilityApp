@@ -122,7 +122,8 @@
     "viewSavedVehicles": "Gespeicherte Fahrzeuge anzeigen",
     "saveSearch": "Dieses Fahrzeug speichern",
     "saved": "Fahrzeug gespeichert!",
-    "saving": "Fahrzeug wird gespeichert..."
+    "saving": "Fahrzeug wird gespeichert...",
+    "timeline": "Designgeschichte und Ingenieurzeitachse anzeigen"
   },
   "buttons": {
     "generating": "PDF wird generiert...",

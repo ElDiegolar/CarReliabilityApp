@@ -122,7 +122,8 @@
     "viewSavedVehicles": "Ver Vehículos Guardados",
     "saveSearch": "Guardar Este Vehículo",
     "saved": "¡Vehículo Guardado!",
-    "saving": "Guardando Vehículo..."
+    "saving": "Guardando Vehículo...",
+    "timeLine": "Ver historial de diseño y cronología de ingeniería"
   },
   "buttons": {
     "generating": "Generando PDF...",
