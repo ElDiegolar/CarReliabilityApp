@@ -1,10 +1,10 @@
 {
     "version": 2,
     "functions": {
-        "api/car-reliability.js": {
+        "pages/api/car-reliability.js": {
             "maxDuration": 60
         },
-        "api/car-timeline.js": {
+        "pages/api/car-timeline.js": {
             "maxDuration": 60
         }
     },
