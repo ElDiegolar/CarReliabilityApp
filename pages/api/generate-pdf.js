@@ -9,6 +9,25 @@ export const config = {
   },
 };
 
+// Helper function to strip emoji characters
+function stripEmoji(text) {
+  if (typeof text !== 'string') return text;
+  // Remove emojis using regex
+  return text.replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Emoticons
+    .replace(/[\u{2600}-\u{26FF}]/gu, '') // Miscellaneous symbols
+    .replace(/[\u{2700}-\u{27BF}]/gu, '') // Dingbats
+    .replace(/[\u{1F100}-\u{1F1FF}]/gu, '') // Enclosed characters
+    .replace(/[\u{1F200}-\u{1F2FF}]/gu, '') // Enclosed ideographic supplement
+    .replace(/[\u{1F000}-\u{1F02F}]/gu, '') // Mahjong tiles
+    .replace(/[\u{1F0A0}-\u{1F0FF}]/gu, '') // Playing cards
+    .replace(/[\u{20A0}-\u{20CF}]/gu, '') // Currency symbols
+    .replace(/[\u{2190}-\u{21FF}]/gu, '') // Arrows
+    .replace(/[\u{2300}-\u{23FF}]/gu, '') // Miscellaneous Technical
+    .replace(/[\u{2460}-\u{24FF}]/gu, '') // Enclosed alphanumerics
+    .replace(/[\u{25A0}-\u{25FF}]/gu, '') // Geometric shapes
+    .replace(/[\u{2B00}-\u{2BFF}]/gu, ''); // Miscellaneous symbols and arrows
+}
+
 export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
@@ -21,6 +40,42 @@ export default async function handler(req, res) {
     // Validate required fields
     if (!year || !make || !model || !mileage || !reliability_data) {
       return res.status(400).json({ error: 'Missing required vehicle information' });
+    }
+
+    // Strip emojis from all text inputs
+    const cleanData = {
+      year: stripEmoji(String(year)),
+      make: stripEmoji(String(make)),
+      model: stripEmoji(String(model)),
+      mileage: mileage,
+      reliability_data: {...reliability_data},
+      timeline_data: timeline_data ? [...timeline_data] : null,
+      imageUrl: imageUrl
+    };
+
+    // Clean the reliability data
+    if (cleanData.reliability_data.aiAnalysis) {
+      cleanData.reliability_data.aiAnalysis = stripEmoji(cleanData.reliability_data.aiAnalysis);
+    }
+    
+    if (cleanData.reliability_data.commonIssues) {
+      cleanData.reliability_data.commonIssues = cleanData.reliability_data.commonIssues.map(issue => ({
+        ...issue,
+        description: stripEmoji(issue.description),
+        costToFix: stripEmoji(issue.costToFix),
+        occurrence: stripEmoji(issue.occurrence),
+        mileage: stripEmoji(issue.mileage)
+      }));
+    }
+
+    // Clean timeline data
+    if (cleanData.timeline_data) {
+      cleanData.timeline_data = cleanData.timeline_data.map(event => ({
+        ...event,
+        title: stripEmoji(event.title),
+        description: stripEmoji(event.description),
+        engineeringChanges: event.engineeringChanges ? event.engineeringChanges.map(change => stripEmoji(change)) : []
+      }));
     }
 
     // Initialize PDF document
@@ -83,7 +138,7 @@ export default async function handler(req, res) {
       borderWidth: 1,
     });
     
-    page.drawText(`${year} ${make} ${model}`, {
+    page.drawText(`${cleanData.year} ${cleanData.make} ${cleanData.model}`, {
       x: margin,
       y: currentY,
       size: headerSize - 4,
@@ -93,7 +148,7 @@ export default async function handler(req, res) {
     
     currentY -= lineHeight + 4;
     
-    page.drawText(`Mileage: ${mileage.toLocaleString()} miles`, {
+    page.drawText(`Mileage: ${cleanData.mileage.toLocaleString()} miles`, {
       x: margin,
       y: currentY,
       size: textSize,
@@ -150,12 +205,12 @@ export default async function handler(req, res) {
     });
     
     // The actual score
-    page.drawText(`${reliability_data.overallScore}`, {
+    page.drawText(`${cleanData.reliability_data.overallScore}`, {
       x: scoreBoxX + 55,
       y: scoreBoxY + 35,
       size: 32,
       font: helveticaBoldFont,
-      color: getScoreColor(reliability_data.overallScore),
+      color: getScoreColor(cleanData.reliability_data.overallScore),
     });
     
     page.drawText(`/100`, {
@@ -286,29 +341,29 @@ export default async function handler(req, res) {
     currentY -= lineHeight * 1.5;
     
     // Engine
-    drawCategoryScore(page, margin, currentY, 'Engine', reliability_data.categories.engine, helveticaFont, helveticaBoldFont);
+    drawCategoryScore(page, margin, currentY, 'Engine', cleanData.reliability_data.categories.engine, helveticaFont, helveticaBoldFont);
     currentY -= lineHeight + 4;
     
     // Transmission
-    drawCategoryScore(page, margin, currentY, 'Transmission', reliability_data.categories.transmission, helveticaFont, helveticaBoldFont);
+    drawCategoryScore(page, margin, currentY, 'Transmission', cleanData.reliability_data.categories.transmission, helveticaFont, helveticaBoldFont);
     currentY -= lineHeight + 4;
     
     // Check if full report with all categories is available
-    if (reliability_data.isPremium) {
+    if (cleanData.reliability_data.isPremium) {
       // Electrical System
-      drawCategoryScore(page, margin, currentY, 'Electrical System', reliability_data.categories.electricalSystem, helveticaFont, helveticaBoldFont);
+      drawCategoryScore(page, margin, currentY, 'Electrical System', cleanData.reliability_data.categories.electricalSystem, helveticaFont, helveticaBoldFont);
       currentY -= lineHeight + 4;
       
       // Brakes
-      drawCategoryScore(page, margin, currentY, 'Brakes', reliability_data.categories.brakes, helveticaFont, helveticaBoldFont);
+      drawCategoryScore(page, margin, currentY, 'Brakes', cleanData.reliability_data.categories.brakes, helveticaFont, helveticaBoldFont);
       currentY -= lineHeight + 4;
       
       // Suspension
-      drawCategoryScore(page, margin, currentY, 'Suspension', reliability_data.categories.suspension, helveticaFont, helveticaBoldFont);
+      drawCategoryScore(page, margin, currentY, 'Suspension', cleanData.reliability_data.categories.suspension, helveticaFont, helveticaBoldFont);
       currentY -= lineHeight + 4;
       
       // Fuel System
-      drawCategoryScore(page, margin, currentY, 'Fuel System', reliability_data.categories.fuelSystem, helveticaFont, helveticaBoldFont);
+      drawCategoryScore(page, margin, currentY, 'Fuel System', cleanData.reliability_data.categories.fuelSystem, helveticaFont, helveticaBoldFont);
       currentY -= lineHeight * 2;
     } else {
       // For free users, add note about premium
@@ -324,7 +379,7 @@ export default async function handler(req, res) {
     }
     
     // Common issues section if premium
-    if (reliability_data.isPremium && reliability_data.commonIssues && reliability_data.commonIssues.length > 0) {
+    if (cleanData.reliability_data.isPremium && cleanData.reliability_data.commonIssues && cleanData.reliability_data.commonIssues.length > 0) {
       page.drawText(`Common Issues`, {
         x: margin,
         y: currentY,
@@ -336,7 +391,7 @@ export default async function handler(req, res) {
       currentY -= lineHeight * 1.5;
       
       // Loop through common issues
-      for (const issue of reliability_data.commonIssues) {
+      for (const issue of cleanData.reliability_data.commonIssues) {
         // Add subtle background for each issue
         const issueBoxY = currentY - (lineHeight * 3.5);
         page.drawRectangle({
@@ -397,7 +452,7 @@ export default async function handler(req, res) {
           currentY = height - 50;
         }
       }
-    } else if (!reliability_data.isPremium) {
+    } else if (!cleanData.reliability_data.isPremium) {
       page.drawText(`Common Issues`, {
         x: margin,
         y: currentY,
@@ -431,8 +486,8 @@ export default async function handler(req, res) {
     currentY -= lineHeight * 1.5;
     
     // AI analysis text - we need to wrap this text
-    const analysisText = reliability_data.isPremium 
-      ? reliability_data.aiAnalysis 
+    const analysisText = cleanData.reliability_data.isPremium 
+      ? cleanData.reliability_data.aiAnalysis 
       : 'Upgrade to premium for detailed reliability analysis.';
     
     // Split analysis text into multiple lines
@@ -445,7 +500,7 @@ export default async function handler(req, res) {
         y: currentY,
         size: textSize,
         font: helveticaFont,
-        color: reliability_data.isPremium ? rgb(0.2, 0.2, 0.3) : rgb(0.4, 0.4, 0.8),
+        color: cleanData.reliability_data.isPremium ? rgb(0.2, 0.2, 0.3) : rgb(0.4, 0.4, 0.8),
       });
       
       currentY -= lineHeight;
@@ -458,7 +513,7 @@ export default async function handler(req, res) {
     }
 
     // Add timeline section if premium and timeline data exists
-    if (reliability_data.isPremium && timeline_data && timeline_data.length > 0) {
+    if (cleanData.reliability_data.isPremium && cleanData.timeline_data && cleanData.timeline_data.length > 0) {
       // Add a new page for the timeline
       page = pdfDoc.addPage([612, 792]);
       currentY = height - 50;
@@ -482,7 +537,7 @@ export default async function handler(req, res) {
       
       currentY -= lineHeight * 2;
       
-      page.drawText(`${year} ${make} ${model} Evolution Timeline`, {
+      page.drawText(`${cleanData.year} ${cleanData.make} ${cleanData.model} Evolution Timeline`, {
         x: margin,
         y: currentY,
         size: subheaderSize,
@@ -493,7 +548,7 @@ export default async function handler(req, res) {
       currentY -= lineHeight * 2;
       
       // Draw timeline events
-      for (const event of timeline_data) {
+      for (const event of cleanData.timeline_data) {
         // Check if we need a new page
         if (currentY < 180) {
           page = pdfDoc.addPage([612, 792]);
@@ -531,7 +586,7 @@ export default async function handler(req, res) {
         });
         
         // Draw vertical line (timeline connector)
-        if (timeline_data.indexOf(event) < timeline_data.length - 1) {
+        if (cleanData.timeline_data.indexOf(event) < cleanData.timeline_data.length - 1) {
           page.drawLine({
             start: { x: bubbleX + (bubbleSize / 2), y: bubbleY - (bubbleSize / 2) },
             end: { x: bubbleX + (bubbleSize / 2), y: bubbleY - (bubbleSize * 2.5) },
@@ -601,7 +656,7 @@ export default async function handler(req, res) {
         // Add spacing between timeline events
         currentY -= lineHeight * 1.5;
       }
-    } else if (reliability_data.isPremium && (!timeline_data || timeline_data.length === 0)) {
+    } else if (cleanData.reliability_data.isPremium && (!cleanData.timeline_data || cleanData.timeline_data.length === 0)) {
       // If premium but no timeline data
       currentY -= lineHeight * 2;
       
@@ -622,7 +677,7 @@ export default async function handler(req, res) {
         font: helveticaFont,
         color: rgb(0.5, 0.5, 0.5),
       });
-    } else if (!reliability_data.isPremium) {
+    } else if (!cleanData.reliability_data.isPremium) {
       // For free users, mention timeline is a premium feature
       currentY -= lineHeight * 2;
       
