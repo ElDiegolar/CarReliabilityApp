@@ -37,82 +37,142 @@ export default async function handler(req, res) {
     // Set some initial variables for positioning
     let currentY = height - 50;
     const margin = 50;
-    const textSize = 12;
-    const headerSize = 18;
-    const subheaderSize = 14;
-    const lineHeight = 20;
+    const textSize = 11;
+    const headerSize = 24;
+    const subheaderSize = 16;
+    const lineHeight = 18;
+    
+    // Add decorative header bar
+    page.drawRectangle({
+      x: 0,
+      y: height - 70,
+      width: width,
+      height: 70,
+      color: rgb(0.98, 0.98, 0.98),
+    });
+    
+    // Add subtle brand accent line
+    page.drawRectangle({
+      x: 0,
+      y: height - 70,
+      width: width,
+      height: 3,
+      color: rgb(0, 0.4, 0.8),
+    });
     
     // Add header
     page.drawText(`Vehicle Reliability Report`, {
       x: margin,
       y: currentY,
-      size: 24,
+      size: headerSize,
       font: helveticaBoldFont,
-      color: rgb(0, 0.3, 0.7),
+      color: rgb(0.1, 0.1, 0.2),
     });
     
     currentY -= 40;
     
-    // Vehicle info section
+    // Vehicle info section with subtle background
+    const vehicleInfoBoxY = currentY - 40;
+    page.drawRectangle({
+      x: margin - 10,
+      y: vehicleInfoBoxY - 20,
+      width: width - 2 * margin + 20,
+      height: 80,
+      color: rgb(0.96, 0.97, 0.99),
+      borderColor: rgb(0.8, 0.85, 0.9),
+      borderWidth: 1,
+    });
+    
     page.drawText(`${year} ${make} ${model}`, {
       x: margin,
       y: currentY,
-      size: headerSize,
+      size: headerSize - 4,
       font: helveticaBoldFont,
+      color: rgb(0.1, 0.1, 0.2),
     });
     
-    currentY -= lineHeight;
+    currentY -= lineHeight + 4;
     
     page.drawText(`Mileage: ${mileage.toLocaleString()} miles`, {
       x: margin,
       y: currentY,
       size: textSize,
       font: helveticaFont,
+      color: rgb(0.3, 0.3, 0.4),
     });
     
-    currentY -= lineHeight * 2;
+    currentY -= lineHeight * 1.5;
     
-    // Draw colored reliability score box
-    const scoreBoxWidth = 150;
-    const scoreBoxHeight = 80;
+    // Draw modern reliability score box with gradient effect (simulated)
+    const scoreBoxWidth = 180;
+    const scoreBoxHeight = 100;
     const scoreBoxX = width - margin - scoreBoxWidth;
-    const scoreBoxY = height - 150;
+    const scoreBoxY = currentY - 20;
     
-    // Background of score box
+    // Background shadow for depth
+    page.drawRectangle({
+      x: scoreBoxX - 2,
+      y: scoreBoxY - 2,
+      width: scoreBoxWidth + 4,
+      height: scoreBoxHeight + 4,
+      color: rgb(0.85, 0.85, 0.85),
+      borderColor: rgb(0.7, 0.7, 0.7),
+      borderWidth: 0.5,
+    });
+    
+    // Main background of score box
     page.drawRectangle({
       x: scoreBoxX,
       y: scoreBoxY,
       width: scoreBoxWidth,
       height: scoreBoxHeight,
-      color: rgb(0.95, 0.95, 0.95),
-      borderColor: rgb(0, 0.3, 0.7),
+      color: rgb(1, 1, 1),
+      borderColor: rgb(0.8, 0.85, 0.9),
       borderWidth: 2,
+    });
+    
+    // Decorative top bar
+    page.drawRectangle({
+      x: scoreBoxX,
+      y: scoreBoxY + scoreBoxHeight - 4,
+      width: scoreBoxWidth,
+      height: 4,
+      color: rgb(0, 0.4, 0.8),
     });
     
     // Score label
     page.drawText(`Overall Score`, {
-      x: scoreBoxX + 25,
-      y: scoreBoxY + scoreBoxHeight - 25,
-      size: subheaderSize,
+      x: scoreBoxX + 30,
+      y: scoreBoxY + scoreBoxHeight - 35,
+      size: subheaderSize - 2,
       font: helveticaBoldFont,
-      color: rgb(0, 0.3, 0.7),
+      color: rgb(0.2, 0.2, 0.3),
     });
     
     // The actual score
-    page.drawText(`${reliability_data.overallScore}/100`, {
-      x: scoreBoxX + 40,
-      y: scoreBoxY + 25,
-      size: 24,
+    page.drawText(`${reliability_data.overallScore}`, {
+      x: scoreBoxX + 55,
+      y: scoreBoxY + 35,
+      size: 32,
       font: helveticaBoldFont,
       color: getScoreColor(reliability_data.overallScore),
     });
     
-    // Date of report
-    page.drawText(`Report Date: ${new Date().toLocaleDateString()}`, {
+    page.drawText(`/100`, {
+      x: scoreBoxX + 120,
+      y: scoreBoxY + 35,
+      size: subheaderSize,
+      font: helveticaBoldFont,
+      color: rgb(0.4, 0.4, 0.5),
+    });
+    
+    // Date of report with icon placeholder
+    page.drawText(`📅 Report Generated: ${new Date().toLocaleDateString()}`, {
       x: margin,
-      y: currentY,
-      size: textSize,
+      y: height - 170,
+      size: textSize - 1,
       font: helveticaFont,
+      color: rgb(0.5, 0.5, 0.5),
     });
     
     currentY -= lineHeight * 2;
@@ -179,17 +239,29 @@ export default async function handler(req, res) {
         const scale = imgWidth / embeddedImage.width;
         const imgHeight = embeddedImage.height * scale;
         
-        // Draw the image
-        currentY -= 20; // Add some spacing
+        // Draw the image with rounded corners effect (using border)
+        const imageY = currentY - imgHeight;
+        
+        // Border around image
+        page.drawRectangle({
+          x: margin - 2,
+          y: imageY - 2,
+          width: imgWidth + 4,
+          height: imgHeight + 4,
+          color: rgb(1, 1, 1),
+          borderColor: rgb(0.85, 0.85, 0.85),
+          borderWidth: 2,
+        });
+        
         page.drawImage(embeddedImage, {
           x: margin,
-          y: currentY - imgHeight,
+          y: imageY,
           width: imgWidth,
           height: imgHeight,
         });
         
         // Update the current Y position to be below the image
-        currentY -= imgHeight + 20;
+        currentY -= imgHeight + 30;
         
         console.log("Successfully embedded image in PDF");
       } catch (err) {
@@ -202,37 +274,38 @@ export default async function handler(req, res) {
       }
     }
     
-    // Category scores section
+    // Category scores section with modern styling
     page.drawText(`Category Scores`, {
       x: margin,
       y: currentY,
       size: subheaderSize,
       font: helveticaBoldFont,
+      color: rgb(0.1, 0.1, 0.2),
     });
     
     currentY -= lineHeight * 1.5;
     
     // Engine
     drawCategoryScore(page, margin, currentY, 'Engine', reliability_data.categories.engine, helveticaFont, helveticaBoldFont);
-    currentY -= lineHeight;
+    currentY -= lineHeight + 4;
     
     // Transmission
     drawCategoryScore(page, margin, currentY, 'Transmission', reliability_data.categories.transmission, helveticaFont, helveticaBoldFont);
-    currentY -= lineHeight;
+    currentY -= lineHeight + 4;
     
     // Check if full report with all categories is available
     if (reliability_data.isPremium) {
       // Electrical System
       drawCategoryScore(page, margin, currentY, 'Electrical System', reliability_data.categories.electricalSystem, helveticaFont, helveticaBoldFont);
-      currentY -= lineHeight;
+      currentY -= lineHeight + 4;
       
       // Brakes
       drawCategoryScore(page, margin, currentY, 'Brakes', reliability_data.categories.brakes, helveticaFont, helveticaBoldFont);
-      currentY -= lineHeight;
+      currentY -= lineHeight + 4;
       
       // Suspension
       drawCategoryScore(page, margin, currentY, 'Suspension', reliability_data.categories.suspension, helveticaFont, helveticaBoldFont);
-      currentY -= lineHeight;
+      currentY -= lineHeight + 4;
       
       // Fuel System
       drawCategoryScore(page, margin, currentY, 'Fuel System', reliability_data.categories.fuelSystem, helveticaFont, helveticaBoldFont);
@@ -240,12 +313,12 @@ export default async function handler(req, res) {
     } else {
       // For free users, add note about premium
       currentY -= lineHeight;
-      page.drawText(`Upgrade to premium for detailed category breakdown scores.`, {
+      page.drawText(`✨ Upgrade to premium for detailed category breakdown scores.`, {
         x: margin + 20,
         y: currentY,
         size: textSize,
         font: helveticaFont,
-        color: rgb(0.5, 0.5, 0.5),
+        color: rgb(0.4, 0.4, 0.8),
       });
       currentY -= lineHeight * 2;
     }
@@ -257,46 +330,63 @@ export default async function handler(req, res) {
         y: currentY,
         size: subheaderSize,
         font: helveticaBoldFont,
+        color: rgb(0.1, 0.1, 0.2),
       });
       
       currentY -= lineHeight * 1.5;
       
       // Loop through common issues
       for (const issue of reliability_data.commonIssues) {
+        // Add subtle background for each issue
+        const issueBoxY = currentY - (lineHeight * 3.5);
+        page.drawRectangle({
+          x: margin - 5,
+          y: issueBoxY - 5,
+          width: width - 2 * margin + 10,
+          height: lineHeight * 3.5 + 10,
+          color: rgb(0.98, 0.98, 0.99),
+          borderColor: rgb(0.9, 0.9, 0.95),
+          borderWidth: 1,
+        });
+        
         // Issue description
         page.drawText(`• ${issue.description}`, {
           x: margin,
           y: currentY,
           size: textSize,
           font: helveticaBoldFont,
+          color: rgb(0.8, 0.2, 0.2),
         });
         
         currentY -= lineHeight;
         
         // Issue details
-        page.drawText(`   Cost to Fix: ${issue.costToFix}`, {
+        page.drawText(`   💰 Cost to Fix: ${issue.costToFix}`, {
           x: margin,
           y: currentY,
           size: textSize,
           font: helveticaFont,
+          color: rgb(0.3, 0.3, 0.4),
         });
         
         currentY -= lineHeight;
         
-        page.drawText(`   Occurrence: ${issue.occurrence}`, {
+        page.drawText(`   📊 Occurrence: ${issue.occurrence}`, {
           x: margin,
           y: currentY,
           size: textSize,
           font: helveticaFont,
+          color: rgb(0.3, 0.3, 0.4),
         });
         
         currentY -= lineHeight;
         
-        page.drawText(`   Typical Mileage: ${issue.mileage}`, {
+        page.drawText(`   🔄 Typical Mileage: ${issue.mileage}`, {
           x: margin,
           y: currentY,
           size: textSize,
           font: helveticaFont,
+          color: rgb(0.3, 0.3, 0.4),
         });
         
         currentY -= lineHeight * 1.5;
@@ -313,16 +403,17 @@ export default async function handler(req, res) {
         y: currentY,
         size: subheaderSize,
         font: helveticaBoldFont,
+        color: rgb(0.1, 0.1, 0.2),
       });
       
       currentY -= lineHeight * 1.5;
       
-      page.drawText(`Upgrade to premium for detailed common issues information.`, {
+      page.drawText(`✨ Upgrade to premium for detailed common issues information.`, {
         x: margin + 20,
         y: currentY,
         size: textSize,
         font: helveticaFont,
-        color: rgb(0.5, 0.5, 0.5),
+        color: rgb(0.4, 0.4, 0.8),
       });
       
       currentY -= lineHeight * 2;
@@ -334,6 +425,7 @@ export default async function handler(req, res) {
       y: currentY,
       size: subheaderSize,
       font: helveticaBoldFont,
+      color: rgb(0.1, 0.1, 0.2),
     });
     
     currentY -= lineHeight * 1.5;
@@ -341,7 +433,7 @@ export default async function handler(req, res) {
     // AI analysis text - we need to wrap this text
     const analysisText = reliability_data.isPremium 
       ? reliability_data.aiAnalysis 
-      : 'Upgrade to premium for detailed reliability analysis.';
+      : '✨ Upgrade to premium for detailed reliability analysis.';
     
     // Split analysis text into multiple lines
     const analysisLines = splitTextToLines(analysisText, width - 2 * margin, textSize, helveticaFont);
@@ -353,6 +445,7 @@ export default async function handler(req, res) {
         y: currentY,
         size: textSize,
         font: helveticaFont,
+        color: reliability_data.isPremium ? rgb(0.2, 0.2, 0.3) : rgb(0.4, 0.4, 0.8),
       });
       
       currentY -= lineHeight;
@@ -370,13 +463,21 @@ export default async function handler(req, res) {
       page = pdfDoc.addPage([612, 792]);
       currentY = height - 50;
       
-      // Timeline header
+      // Timeline header with background
+      page.drawRectangle({
+        x: 0,
+        y: height - 70,
+        width: width,
+        height: 70,
+        color: rgb(0.96, 0.97, 0.99),
+      });
+      
       page.drawText(`Design History & Engineering Timeline`, {
         x: margin,
         y: currentY,
-        size: headerSize,
+        size: headerSize - 4,
         font: helveticaBoldFont,
-        color: rgb(0, 0.3, 0.7),
+        color: rgb(0.1, 0.1, 0.2),
       });
       
       currentY -= lineHeight * 2;
@@ -386,6 +487,7 @@ export default async function handler(req, res) {
         y: currentY,
         size: subheaderSize,
         font: helveticaBoldFont,
+        color: rgb(0.3, 0.3, 0.4),
       });
       
       currentY -= lineHeight * 2;
@@ -393,39 +495,58 @@ export default async function handler(req, res) {
       // Draw timeline events
       for (const event of timeline_data) {
         // Check if we need a new page
-        if (currentY < 150) {
+        if (currentY < 180) {
           page = pdfDoc.addPage([612, 792]);
           currentY = height - 50;
         }
         
-        // Year bubble
-        const bubbleSize = 30;
-        const bubbleX = margin;
+        // Year bubble with modern styling
+        const bubbleSize = 35;
+        const bubbleX = margin + 5;
         const bubbleY = currentY - (bubbleSize / 2);
         
-        // Draw year bubble
+        // Draw outer circle (border effect)
+        page.drawCircle({
+          x: bubbleX + (bubbleSize / 2),
+          y: bubbleY,
+          size: (bubbleSize / 2) + 2,
+          color: rgb(0.9, 0.9, 0.95),
+        });
+        
+        // Draw inner circle (main)
         page.drawCircle({
           x: bubbleX + (bubbleSize / 2),
           y: bubbleY,
           size: bubbleSize / 2,
-          color: rgb(0, 0.3, 0.7),
+          color: rgb(0, 0.4, 0.8),
         });
         
         // Year text in bubble
         page.drawText(event.year.toString(), {
-          x: bubbleX + (event.year.toString().length === 4 ? 8 : 12),
-          y: bubbleY - 4,
-          size: 10,
+          x: bubbleX + (event.year.toString().length === 4 ? 9 : 14),
+          y: bubbleY - 5,
+          size: 12,
           font: helveticaBoldFont,
           color: rgb(1, 1, 1),
         });
         
+        // Draw vertical line (timeline connector)
+        if (timeline_data.indexOf(event) < timeline_data.length - 1) {
+          page.drawLine({
+            start: { x: bubbleX + (bubbleSize / 2), y: bubbleY - (bubbleSize / 2) },
+            end: { x: bubbleX + (bubbleSize / 2), y: bubbleY - (bubbleSize * 2.5) },
+            thickness: 2,
+            color: rgb(0.8, 0.85, 0.9),
+          });
+        }
+        
         // Event title
         page.drawText(event.title, {
-          x: margin + bubbleSize + 10,
+          x: margin + bubbleSize + 15,
           y: currentY,
-          size: subheaderSize,
+          size: subheaderSize - 2,
           font: helveticaBoldFont,
+          color: rgb(0.1, 0.1, 0.2),
         });
         
         currentY -= lineHeight * 1.5;
@@ -433,17 +554,18 @@ export default async function handler(req, res) {
         // Event description - wrap text
         const descriptionLines = splitTextToLines(
           event.description,
-          width - 2 * margin - bubbleSize - 10,
+          width - 2 * margin - bubbleSize - 15,
           textSize,
           helveticaFont
         );
         
         for (const line of descriptionLines) {
           page.drawText(line, {
-            x: margin + bubbleSize + 10,
+            x: margin + bubbleSize + 15,
             y: currentY,
             size: textSize,
             font: helveticaFont,
+            color: rgb(0.2, 0.2, 0.3),
           });
           
           currentY -= lineHeight;
@@ -454,20 +576,22 @@ export default async function handler(req, res) {
           currentY -= lineHeight / 2;
           
           page.drawText(`Engineering Changes:`, {
-            x: margin + bubbleSize + 10,
+            x: margin + bubbleSize + 15,
             y: currentY,
             size: textSize,
             font: helveticaBoldFont,
+            color: rgb(0.3, 0.3, 0.4),
           });
           
           currentY -= lineHeight;
           
           for (const change of event.engineeringChanges) {
             page.drawText(`• ${change}`, {
-              x: margin + bubbleSize + 20,
+              x: margin + bubbleSize + 25,
               y: currentY,
               size: textSize,
               font: helveticaFont,
+              color: rgb(0.2, 0.2, 0.3),
             });
             
             currentY -= lineHeight;
@@ -475,7 +599,7 @@ export default async function handler(req, res) {
         }
         
         // Add spacing between timeline events
-        currentY -= lineHeight;
+        currentY -= lineHeight * 1.5;
       }
     } else if (reliability_data.isPremium && (!timeline_data || timeline_data.length === 0)) {
       // If premium but no timeline data
@@ -486,6 +610,7 @@ export default async function handler(req, res) {
         y: currentY,
         size: subheaderSize,
         font: helveticaBoldFont,
+        color: rgb(0.1, 0.1, 0.2),
       });
       
       currentY -= lineHeight * 1.5;
@@ -495,6 +620,7 @@ export default async function handler(req, res) {
         y: currentY,
         size: textSize,
         font: helveticaFont,
+        color: rgb(0.5, 0.5, 0.5),
       });
     } else if (!reliability_data.isPremium) {
       // For free users, mention timeline is a premium feature
@@ -505,21 +631,24 @@ export default async function handler(req, res) {
         y: currentY,
         size: subheaderSize,
         font: helveticaBoldFont,
+        color: rgb(0.1, 0.1, 0.2),
       });
       
       currentY -= lineHeight * 1.5;
       
-      page.drawText(`Upgrade to premium to access the complete design history and engineering timeline.`, {
+      page.drawText(`✨ Upgrade to premium to access the complete design history and engineering timeline.`, {
         x: margin,
         y: currentY,
         size: textSize,
         font: helveticaFont,
-        color: rgb(0.5, 0.5, 0.5),
+        color: rgb(0.4, 0.4, 0.8),
       });
     }
     
     // Add disclaimer at the bottom of the first page
-    page.drawText('Disclaimer: This report is based on aggregated data and may not represent your specific vehicle. Always consult a qualified mechanic.', {
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+    firstPage.drawText('Disclaimer: This report is based on aggregated data and may not represent your specific vehicle. Always consult a qualified mechanic.', {
       x: margin,
       y: 50,
       size: 8,
@@ -528,12 +657,12 @@ export default async function handler(req, res) {
     });
     
     // Add footer with powered by info
-    page.drawText('Powered by Verida.com', {
+    firstPage.drawText('Powered by Verida.com', {
       x: margin,
       y: 30,
       size: 10,
       font: helveticaBoldFont,
-      color: rgb(0, 0.3, 0.7),
+      color: rgb(0, 0.4, 0.8),
     });
     
     // Serialize the PDF to bytes
@@ -553,19 +682,19 @@ export default async function handler(req, res) {
 // Helper function to get RGB color based on score
 function getScoreColor(score) {
   if (score >= 80) {
-    return rgb(0, 0.7, 0); // Green for high scores
+    return rgb(0, 0.7, 0.2); // Green for high scores
   } else if (score >= 60) {
     return rgb(0.9, 0.6, 0); // Orange for medium scores
   } else {
-    return rgb(0.9, 0, 0); // Red for low scores
+    return rgb(0.9, 0.1, 0); // Red for low scores
   }
 }
 
 // Helper function to draw category score with bar
 function drawCategoryScore(page, x, y, category, score, regularFont, boldFont) {
-  const barWidth = 150;
-  const barHeight = 10;
-  const scoreBarX = x + 230;
+  const barWidth = 160;
+  const barHeight = 12;
+  const scoreBarX = x + 240;
   
   // Category name
   page.drawText(`${category}:`, {
@@ -573,26 +702,28 @@ function drawCategoryScore(page, x, y, category, score, regularFont, boldFont) {
     y: y,
     size: 12,
     font: boldFont,
+    color: rgb(0.2, 0.2, 0.3),
   });
   
   // Score number
   page.drawText(`${score}/100`, {
-    x: x + 170,
+    x: x + 180,
     y: y,
     size: 12,
     font: regularFont,
+    color: rgb(0.3, 0.3, 0.4),
   });
   
-  // Background bar (gray)
+  // Background bar (light gray)
   page.drawRectangle({
     x: scoreBarX,
     y: y - 2,
     width: barWidth,
     height: barHeight,
-    color: rgb(0.9, 0.9, 0.9),
+    color: rgb(0.94, 0.94, 0.96),
   });
   
-  // Score bar (colored based on score)
+  // Score bar (colored based on score) with subtle gradient effect
   const scoreWidth = (barWidth * score) / 100;
   page.drawRectangle({
     x: scoreBarX,
@@ -600,6 +731,16 @@ function drawCategoryScore(page, x, y, category, score, regularFont, boldFont) {
     width: scoreWidth,
     height: barHeight,
     color: getScoreColor(score),
+  });
+  
+  // Add subtle border around the entire bar
+  page.drawRectangle({
+    x: scoreBarX,
+    y: y - 2,
+    width: barWidth,
+    height: barHeight,
+    borderColor: rgb(0.85, 0.85, 0.88),
+    borderWidth: 1,
   });
 }
 

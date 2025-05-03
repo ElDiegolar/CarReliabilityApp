@@ -84,6 +84,10 @@
     "upgradeForMore": "Passez à l'offre supérieure pour plus de véhicules enregistrés"
   },
   "search": {
+    "yearPlaceholder": "Entrez l'année",
+    "makePlaceholder": "Entrez la marque",
+    "modelPlaceholder": "Entrez le modèle",
+    "mileagePlaceholder": "Entrez le kilométrage",
     "showForm": "Modifier la recherche",
     "reset": "Réinitialiser",
     "goPremium": "Passer au Premium",

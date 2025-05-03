@@ -84,6 +84,10 @@
     "upgradeForMore": "Upgraden Sie für mehr gespeicherte Fahrzeuge"
   },
   "search": {
+    "yearPlaceholder": "Jahr eingeben",
+    "makePlaceholder": "Marke eingeben",
+    "modelPlaceholder": "Modell eingeben",
+    "mileagePlaceholder": "Kilometerstand eingeben",
     "showForm": "Suche ändern",
     "reset": "Zurücksetzen",
     "goPremium": "Zu Premium wechseln",

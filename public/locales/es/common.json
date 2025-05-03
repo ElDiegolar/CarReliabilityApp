@@ -83,7 +83,10 @@
     "limitedPlan": "Tu plan permite guardar hasta {{limit}} vehículos",
     "upgradeForMore": "Actualiza para guardar más vehículos"
   },
-  "search": {
+  "search": {"yearPlaceholder": "Introduce el año",
+    "makePlaceholder": "Introduce la marca",
+    "modelPlaceholder": "Introduce el modelo",
+    "mileagePlaceholder": "Introduce el kilometraje",
     "showForm": "Modificar Búsqueda",
     "reset": "Restablecer",
     "goPremium": "Hazte Premium",

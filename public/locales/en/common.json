@@ -84,6 +84,10 @@
     "upgradeForMore": "Upgrade for more saved vehicles"
   },
   "search": {
+    "yearPlaceholder": "Enter Year",
+    "makePlaceholder": "Enter Make",
+    "modelPlaceholder": "Enter Model",
+    "mileagePlaceholder": "Enter Mileage",
     "showForm": "Modify Search",
     "reset": "Reset",
     "goPremium": "Go Premium",
