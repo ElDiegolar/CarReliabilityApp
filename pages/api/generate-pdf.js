@@ -166,8 +166,8 @@ export default async function handler(req, res) {
       color: rgb(0.4, 0.4, 0.5),
     });
     
-    // Date of report with icon placeholder
-    page.drawText(`📅 Report Generated: ${new Date().toLocaleDateString()}`, {
+    // Date of report
+    page.drawText(`Report Generated: ${new Date().toLocaleDateString()}`, {
       x: margin,
       y: height - 170,
       size: textSize - 1,
@@ -313,7 +313,7 @@ export default async function handler(req, res) {
     } else {
       // For free users, add note about premium
       currentY -= lineHeight;
-      page.drawText(`✨ Upgrade to premium for detailed category breakdown scores.`, {
+      page.drawText(`Upgrade to premium for detailed category breakdown scores.`, {
         x: margin + 20,
         y: currentY,
         size: textSize,
@@ -361,7 +361,7 @@ export default async function handler(req, res) {
         currentY -= lineHeight;
         
         // Issue details
-        page.drawText(`   💰 Cost to Fix: ${issue.costToFix}`, {
+        page.drawText(`   Cost to Fix: ${issue.costToFix}`, {
           x: margin,
           y: currentY,
           size: textSize,
@@ -371,7 +371,7 @@ export default async function handler(req, res) {
         
         currentY -= lineHeight;
         
-        page.drawText(`   📊 Occurrence: ${issue.occurrence}`, {
+        page.drawText(`   Occurrence: ${issue.occurrence}`, {
           x: margin,
           y: currentY,
           size: textSize,
@@ -381,7 +381,7 @@ export default async function handler(req, res) {
         
         currentY -= lineHeight;
         
-        page.drawText(`   🔄 Typical Mileage: ${issue.mileage}`, {
+        page.drawText(`   Typical Mileage: ${issue.mileage}`, {
           x: margin,
           y: currentY,
           size: textSize,
@@ -408,7 +408,7 @@ export default async function handler(req, res) {
       
       currentY -= lineHeight * 1.5;
       
-      page.drawText(`✨ Upgrade to premium for detailed common issues information.`, {
+      page.drawText(`Upgrade to premium for detailed common issues information.`, {
         x: margin + 20,
         y: currentY,
         size: textSize,
@@ -433,7 +433,7 @@ export default async function handler(req, res) {
     // AI analysis text - we need to wrap this text
     const analysisText = reliability_data.isPremium 
       ? reliability_data.aiAnalysis 
-      : '✨ Upgrade to premium for detailed reliability analysis.';
+      : 'Upgrade to premium for detailed reliability analysis.';
     
     // Split analysis text into multiple lines
     const analysisLines = splitTextToLines(analysisText, width - 2 * margin, textSize, helveticaFont);
@@ -636,7 +636,7 @@ export default async function handler(req, res) {
       
       currentY -= lineHeight * 1.5;
       
-      page.drawText(`✨ Upgrade to premium to access the complete design history and engineering timeline.`, {
+      page.drawText(`Upgrade to premium to access the complete design history and engineering timeline.`, {
         x: margin,
         y: currentY,
         size: textSize,
