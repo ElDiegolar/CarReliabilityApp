@@ -322,7 +322,7 @@ const handleExportPdf = async () => {
           {/* Add a PDF export button for premium users */}
           {vehicles.length > 0 && vehicles.some(v => v.reliability_data?.isPremium) && (
             <div className="export-section">
-              <button className="export-button" onClick={handleExportPdf()} disabled={exporting}>
+              <button className="export-button" onClick={()=> handleExportPdf()} disabled={exporting}>
                 {t('comparison.exportPdf', 'Export Comparison as PDF')}
               </button>
               <p className="premium-note">{t('comparison.premiumFeature', 'Premium feature')}</p>
