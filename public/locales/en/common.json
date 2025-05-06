@@ -92,7 +92,11 @@
     "exportPdf": "Export Comparison as PDF",
     "premiumFeature": "Premium feature",
     "authRequired": "Authentication required",
-    "fetchFailed": "Failed to fetch comparison data"
+    "fetchFailed": "Failed to fetch comparison data",
+    "generating": "Generating PDF...",
+    "exportFailed": "Failed to generate PDF",
+    "exportError": "An error occurred during export",
+    "premiumRequired": "PDF export requires a premium subscription",
   },
   "savedVehicles": {
     "showComparison": "Compare Vehicles",

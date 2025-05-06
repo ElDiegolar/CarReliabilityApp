@@ -15,6 +15,7 @@ export default function VehicleComparison() {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false);
   
   useEffect(() => {
     const fetchVehiclesForComparison = async () => {
@@ -61,6 +62,62 @@ export default function VehicleComparison() {
     fetchVehiclesForComparison();
   }, [router.isReady, router.query, getToken, t]);
   
+const handleExportPdf = async () => {
+    if (vehicles.length === 0) return;
+    
+    setExporting(true); // Add this state:
+
+    try {
+      const token = getToken();
+      
+      if (!token) {
+        throw new Error(t('comparison.authRequired'));
+      }
+      
+      const response = await fetch('/api/generate-comparison-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          vehicleIds: vehicles.map(v => v.id)
+        }),
+        responseType: 'blob'
+      });
+      
+      if (response.status === 403) {
+        alert(t('comparison.premiumRequired', 'PDF export requires a premium subscription'));
+        setExporting(false);
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error(t('comparison.exportFailed', 'Failed to generate PDF'));
+      }
+      
+      // Get the PDF blob
+      const blob = await response.blob();
+      
+      // Create a download link and trigger it
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'vehicle-comparison-report.pdf';
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Error exporting PDF:', err);
+      alert(err.message || t('comparison.exportError', 'An error occurred during export'));
+    } finally {
+      setExporting(false);
+    }
+  };
   return (
     <ProtectedRoute>
       <Layout title={t('comparison.title', 'Vehicle Comparison')}>
@@ -265,7 +322,7 @@ export default function VehicleComparison() {
           {/* Add a PDF export button for premium users */}
           {vehicles.length > 0 && vehicles.some(v => v.reliability_data?.isPremium) && (
             <div className="export-section">
-              <button className="export-button" onClick={() => alert('PDF Export would be implemented here')}>
+              <button className="export-button" onClick={handleExportPdf()} disabled={exporting}>
                 {t('comparison.exportPdf', 'Export Comparison as PDF')}
               </button>
               <p className="premium-note">{t('comparison.premiumFeature', 'Premium feature')}</p>
@@ -286,9 +343,14 @@ export default function VehicleComparison() {
   
   .back-link {
     display: inline-block;
-    margin-bottom: 2rem;
-    color: #0070f3;
-    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
   }
   
   .back-link:hover {

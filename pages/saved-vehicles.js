@@ -368,7 +368,7 @@ export default function SavedVehicles() {
           }
           
           .toggle-button::before {
-            content: "\\2B";  /* Unicode plus symbol */
+            
             margin-right: 0.5rem;
             font-size: 1.2rem;
             line-height: 1;
@@ -381,7 +381,6 @@ export default function SavedVehicles() {
           }
           
           .toggle-button.active::before {
-            content: "\\2212";  /* Unicode minus symbol */
           }
           
           .toggle-button:hover {
