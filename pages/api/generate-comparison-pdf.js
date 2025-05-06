@@ -75,6 +75,17 @@ async function handler(req, res) {
     const headerSize = 18;
     const subheaderSize = 14;
     const lineHeight = 20;
+    const minSpaceRequired = 100; // Minimum space required at bottom of page
+
+    // Helper function to check if we need a new page and create one if necessary
+    const ensureSpace = (spaceNeeded) => {
+      if (currentY - spaceNeeded < minSpaceRequired) {
+        page = pdfDoc.addPage([612, 792]);
+        currentY = height - 50;
+        return true;
+      }
+      return false;
+    };
     
     // Add header
     page.drawText(`Vehicle Comparison Report`, {
@@ -98,6 +109,8 @@ async function handler(req, res) {
     currentY -= lineHeight * 2;
     
     // Add vehicle names
+    ensureSpace(lineHeight * (vehicles.length + 2));
+    
     page.drawText('Comparing:', {
       x: margin,
       y: currentY,
@@ -128,9 +141,9 @@ async function handler(req, res) {
     // Helper function to draw a table cell
     const drawTableCell = (text, x, y, isHeader = false, align = 'left', color = rgb(0, 0, 0)) => {
       const font = isHeader ? helveticaBoldFont : helveticaFont;
-      const actualX = align === 'center' ? x + colWidth / 2 - font.widthOfTextAtSize(text, textSize) / 2 : x;
+      const actualX = align === 'center' ? x + colWidth / 2 - font.widthOfTextAtSize(text.toString(), textSize) / 2 : x;
       
-      page.drawText(text, {
+      page.drawText(text.toString(), {
         x: actualX,
         y: y,
         size: textSize,
@@ -170,7 +183,9 @@ async function handler(req, res) {
       });
     };
     
-    // Draw table headers
+    // Draw "Basic Information" section
+    ensureSpace(lineHeight * 4);
+    
     currentY -= lineHeight;
     drawSectionHeader('Basic Information', currentY);
     currentY -= lineHeight * 1.5;
@@ -185,6 +200,8 @@ async function handler(req, res) {
     drawRowDivider(currentY + lineHeight / 2);
     
     // Draw mileage row
+    ensureSpace(lineHeight * 2);
+    
     currentY -= lineHeight / 2;
     drawTableCell('Mileage', margin, currentY);
     vehicles.forEach((vehicle, index) => {
@@ -194,7 +211,9 @@ async function handler(req, res) {
     currentY -= lineHeight;
     drawRowDivider(currentY + lineHeight / 2);
     
-    // Draw reliability scores section
+    // Draw "Reliability Scores" section
+    ensureSpace(lineHeight * 4);
+    
     currentY -= lineHeight;
     drawSectionHeader('Reliability Scores', currentY);
     currentY -= lineHeight * 1.5;
@@ -218,6 +237,8 @@ async function handler(req, res) {
     drawRowDivider(currentY + lineHeight / 2);
     
     // Engine Score
+    ensureSpace(lineHeight * 2);
+    
     currentY -= lineHeight / 2;
     drawTableCell('Engine', margin, currentY);
     vehicles.forEach((vehicle, index) => {
@@ -237,6 +258,8 @@ async function handler(req, res) {
     drawRowDivider(currentY + lineHeight / 2);
     
     // Transmission Score
+    ensureSpace(lineHeight * 2);
+    
     currentY -= lineHeight / 2;
     drawTableCell('Transmission', margin, currentY);
     vehicles.forEach((vehicle, index) => {
@@ -264,6 +287,8 @@ async function handler(req, res) {
     ];
     
     for (const category of premiumCategories) {
+      ensureSpace(lineHeight * 2);
+      
       currentY -= lineHeight / 2;
       drawTableCell(category.name, margin, currentY);
       
@@ -282,92 +307,141 @@ async function handler(req, res) {
       
       currentY -= lineHeight;
       drawRowDivider(currentY + lineHeight / 2);
-      
-      // If we're running out of space, add a new page
-      if (currentY < 150) {
-        page = pdfDoc.addPage([612, 792]);
-        currentY = height - 50;
-      }
     }
     
-    // Common Issues section
-    currentY -= lineHeight;
+    // Common Issues section - always start on a new page for better organization
+    page = pdfDoc.addPage([612, 792]);
+    currentY = height - 50;
+    
     drawSectionHeader('Common Issues', currentY);
     currentY -= lineHeight * 1.5;
     
-    // Draw each vehicle's common issues
-    let maxIssuesHeight = 0;
-    
-    vehicles.forEach((vehicle, index) => {
-      const startY = currentY;
-      const x = margin + colWidth * index;
+    // Estimate how much space we need for each vehicle's issues
+    const issuesSpaceNeeded = vehicles.reduce((maxHeight, vehicle) => {
+      // Base height for vehicle name
+      let vehicleHeight = lineHeight * 2;
       
+      // Add height for each issue
+      if (vehicle.reliability_data?.commonIssues?.length > 0) {
+        vehicleHeight += vehicle.reliability_data.commonIssues.reduce((issueHeight, issue) => {
+          // Estimate wrapped text height
+          const issueText = `• ${issue.description}`;
+          const wrappedLines = wrapText(issueText, colWidth - 20, textSize, helveticaFont);
+          
+          // Height for the issue description
+          let height = wrappedLines.length * lineHeight * 0.9;
+          
+          // Add height for cost if present
+          if (issue.costToFix) {
+            height += lineHeight * 0.8;
+          }
+          
+          // Add spacing between issues
+          height += lineHeight * 0.2;
+          
+          return issueHeight + height;
+        }, 0);
+      } else {
+        // Height for "No common issues" message
+        vehicleHeight += lineHeight;
+      }
+      
+      return Math.max(maxHeight, vehicleHeight);
+    }, 0);
+    
+    // Check if we need a new page for all the issues
+    if (currentY - issuesSpaceNeeded < minSpaceRequired) {
+      page = pdfDoc.addPage([612, 792]);
+      currentY = height - 50;
+      drawSectionHeader('Common Issues', currentY);
+      currentY -= lineHeight * 1.5;
+    }
+    
+    // Draw each vehicle's common issues in columns
+    const columnStartY = currentY;
+    
+    for (let vehicleIndex = 0; vehicleIndex < vehicles.length; vehicleIndex++) {
+      const vehicle = vehicles[vehicleIndex];
+      let columnY = columnStartY;
+      const columnX = margin + colWidth * vehicleIndex;
+      
+      // Draw vehicle name
       page.drawText(`${vehicle.year} ${vehicle.make} ${vehicle.model}:`, {
-        x,
-        y: currentY,
+        x: columnX,
+        y: columnY,
         size: textSize,
         font: helveticaBoldFont,
       });
       
-      currentY -= lineHeight;
+      columnY -= lineHeight;
       
+      // Check if we need to continue on a new page
+      if (columnY < minSpaceRequired) {
+        page = pdfDoc.addPage([612, 792]);
+        columnY = height - 50;
+      }
+      
+      // Draw issues or "No issues" message
       if (vehicle.reliability_data?.commonIssues?.length > 0) {
-        vehicle.reliability_data.commonIssues.forEach((issue, i) => {
+        for (const issue of vehicle.reliability_data.commonIssues) {
+          // Format and wrap issue text
           const issueText = `• ${issue.description}`;
           const wrappedLines = wrapText(issueText, colWidth - 20, textSize, helveticaFont);
           
-          wrappedLines.forEach((line, lineIndex) => {
+          // Draw each line of the wrapped text
+          for (const line of wrappedLines) {
+            // Check if we need to continue on a new page
+            if (columnY < minSpaceRequired) {
+              page = pdfDoc.addPage([612, 792]);
+              columnY = height - 50;
+            }
+            
             page.drawText(line, {
-              x,
-              y: currentY,
-              size: textSize - 1, // Slightly smaller text for issues
+              x: columnX,
+              y: columnY,
+              size: textSize - 1,
               font: helveticaFont,
             });
             
-            currentY -= lineHeight * 0.9; // Slightly reduced line spacing
-          });
+            columnY -= lineHeight * 0.9;
+          }
           
+          // Add cost if present
           if (issue.costToFix) {
+            // Check if we need to continue on a new page
+            if (columnY < minSpaceRequired) {
+              page = pdfDoc.addPage([612, 792]);
+              columnY = height - 50;
+            }
+            
             page.drawText(`  Cost: ${issue.costToFix}`, {
-              x,
-              y: currentY,
+              x: columnX,
+              y: columnY,
               size: textSize - 1,
               font: helveticaFont,
               color: rgb(0.4, 0.4, 0.4),
             });
             
-            currentY -= lineHeight * 0.8;
+            columnY -= lineHeight * 0.8;
           }
           
           // Add space between issues
-          currentY -= lineHeight * 0.2;
-        });
+          columnY -= lineHeight * 0.2;
+        }
       } else {
         page.drawText('No common issues reported', {
-          x,
-          y: currentY,
+          x: columnX,
+          y: columnY,
           size: textSize - 1,
           font: helveticaFont,
           color: rgb(0.5, 0.5, 0.5),
         });
         
-        currentY -= lineHeight;
+        columnY -= lineHeight;
       }
-      
-      // Calculate this column's height
-      const columnHeight = startY - currentY;
-      if (columnHeight > maxIssuesHeight) {
-        maxIssuesHeight = columnHeight;
-      }
-      
-      // Reset Y position for next vehicle
-      currentY = startY;
-    });
+    }
     
-    // Move down by the tallest column
-    currentY -= maxIssuesHeight + lineHeight;
-    
-    // Add footer
+    // Add footer to the last page
     page.drawText('This comparison report was generated automatically. Data should be verified with a qualified mechanic.', {
       x: width / 2 - 240,
       y: 30,
