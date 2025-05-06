@@ -61,7 +61,7 @@ export default function ComparisonSelector({ vehicles }) {
       <button 
         className="compare-button" 
         disabled={selectedVehicles.length === 0}
-        onClick={handleCompare}
+        onClick={() => handleCompare()}
       >
         {t('comparison.compareSelected', 'Compare Selected')}
       </button>
