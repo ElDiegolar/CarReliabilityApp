@@ -1,4 +1,4 @@
-// pages/saved-vehicles.js
+// pages/saved-vehicles.js (updated with ComparisonSelector)
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -7,6 +7,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Layout from '../components/Layout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
+import ComparisonSelector from '../components/ComparisonSelector'; // Import the new component
 
 export default function SavedVehicles() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function SavedVehicles() {
   const [error, setError] = useState('');
   const [subscription, setSubscription] = useState({ plan: 'free', limit: 5 });
   const [deleteId, setDeleteId] = useState(null);
+  const [showComparison, setShowComparison] = useState(false); // New state for toggling comparison
 
   useEffect(() => {
     const fetchSavedVehicles = async () => {
@@ -123,51 +125,70 @@ export default function SavedVehicles() {
               </Link>
             </div>
           ) : (
-            <div className="vehicles-list">
-              <div className="vehicle-header">
-                <div className="vehicle-col">{t('savedVehicles.vehicle')}</div>
-                <div className="mileage-col">{t('savedVehicles.mileage')}</div>
-                <div className="saved-col">{t('savedVehicles.saved')}</div>
-                <div className="score-col">{t('savedVehicles.score')}</div>
-                <div className="actions-col">{t('savedVehicles.actions')}</div>
+            <>
+              {/* Add toggle for comparison mode */}
+              <div className="comparison-toggle">
+                <button 
+                  className={`toggle-button ${showComparison ? 'active' : ''}`}
+                  onClick={() => setShowComparison(!showComparison)}
+                >
+                  {showComparison ? 
+                    t('savedVehicles.hideComparison', 'Hide Comparison Tool') : 
+                    t('savedVehicles.showComparison', 'Compare Vehicles')}
+                </button>
               </div>
               
-              {vehicles.map((vehicle) => (
-                <div key={vehicle.id} className="vehicle-item">
-                  <div className="vehicle-col">
-                    <span className="year">{vehicle.year}</span>
-                    <span className="make">{vehicle.make}</span>
-                    <span className="model">{vehicle.model}</span>
-                  </div>
-                  <div className="mileage-col">
-                    {vehicle.mileage ? vehicle.mileage.toLocaleString() : '0'} {t('savedVehicles.miles')}
-                  </div>
-                  <div className="saved-col">
-                    {formatDate(vehicle.saved_at)}
-                  </div>
-                  <div className="score-col">
-                    <div className="score-badge">
-                      {vehicle.reliability_data?.overallScore || 'N/A'}
+              {/* Show ComparisonSelector when in comparison mode */}
+              {showComparison && vehicles.length > 0 && (
+                <ComparisonSelector vehicles={vehicles} />
+              )}
+            
+              <div className="vehicles-list">
+                <div className="vehicle-header">
+                  <div className="vehicle-col">{t('savedVehicles.vehicle')}</div>
+                  <div className="mileage-col">{t('savedVehicles.mileage')}</div>
+                  <div className="saved-col">{t('savedVehicles.saved')}</div>
+                  <div className="score-col">{t('savedVehicles.score')}</div>
+                  <div className="actions-col">{t('savedVehicles.actions')}</div>
+                </div>
+                
+                {vehicles.map((vehicle) => (
+                  <div key={vehicle.id} className="vehicle-item">
+                    <div className="vehicle-col">
+                      <span className="year">{vehicle.year}</span>
+                      <span className="make">{vehicle.make}</span>
+                      <span className="model">{vehicle.model}</span>
+                    </div>
+                    <div className="mileage-col">
+                      {vehicle.mileage ? vehicle.mileage.toLocaleString() : '0'} {t('savedVehicles.miles')}
+                    </div>
+                    <div className="saved-col">
+                      {formatDate(vehicle.saved_at)}
+                    </div>
+                    <div className="score-col">
+                      <div className="score-badge">
+                        {vehicle.reliability_data?.overallScore || 'N/A'}
+                      </div>
+                    </div>
+                    <div className="actions-col">
+                      <Link 
+                        href={`/search?year=${vehicle.year}&make=${vehicle.make}&model=${vehicle.model}&mileage=${vehicle.mileage || 0}&fromSaved=true&savedId=${vehicle.id}`}
+                        className="action-button view"
+                      >
+                        {t('savedVehicles.view')}
+                      </Link>
+                      <button 
+                        className="action-button delete"
+                        onClick={() => handleDelete(vehicle.id)}
+                        disabled={deleteId === vehicle.id}
+                      >
+                        {deleteId === vehicle.id ? t('savedVehicles.deleting') : t('savedVehicles.delete')}
+                      </button>
                     </div>
                   </div>
-                  <div className="actions-col">
-                    <Link 
-                      href={`/search?year=${vehicle.year}&make=${vehicle.make}&model=${vehicle.model}&mileage=${vehicle.mileage || 0}&fromSaved=true&savedId=${vehicle.id}`}
-                      className="action-button view"
-                    >
-                      {t('savedVehicles.view')}
-                    </Link>
-                    <button 
-                      className="action-button delete"
-                      onClick={() => handleDelete(vehicle.id)}
-                      disabled={deleteId === vehicle.id}
-                    >
-                      {deleteId === vehicle.id ? t('savedVehicles.deleting') : t('savedVehicles.delete')}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
         
@@ -240,6 +261,26 @@ export default function SavedVehicles() {
           
           .button.primary:hover {
             background-color: #0060df;
+          }
+          
+          .comparison-toggle {
+            margin-bottom: 1.5rem;
+            text-align: right;
+          }
+          
+          .toggle-button {
+            padding: 0.6rem 1rem;
+            background-color: #f5f5f5;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+          }
+          
+          .toggle-button.active {
+            background-color: #0070f3;
+            color: white;
           }
           
           .vehicles-list {
