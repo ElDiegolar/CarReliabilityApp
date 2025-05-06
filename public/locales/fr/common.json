@@ -9,7 +9,7 @@
     "title": "Nos fonctionnalités",
     "reliabilityScores": {
       "title": "Scores de fiabilité",
-      "description": "Obtenez des scores de fiabilité complets pour les moteurs, transmissions, systèmes électriques et plus encore."
+      "description": "Obtenez des scores de fiabilité complets pour les moteurs, les transmissions, les systèmes électriques, et plus encore."
     },
     "commonIssues": {
       "title": "Problèmes courants",
@@ -17,11 +17,11 @@
     },
     "expertAnalysis": {
       "title": "Analyse d'experts",
-      "description": "Accédez à une analyse détaillée, assistée par IA, de la fiabilité de chaque véhicule par rapport à des modèles similaires."
+      "description": "Accédez à une analyse détaillée alimentée par l'IA de la fiabilité de chaque véhicule par rapport à des modèles similaires."
     },
     "premiumData": {
       "title": "Données Premium",
-      "description": "Abonnez-vous pour des rapports détaillés, des informations sur les rappels et des analyses approfondies de fiabilité."
+      "description": "Abonnez-vous pour des rapports détaillés, des informations sur les rappels et des aperçus détaillés de la fiabilité."
     }
   },
   "howItWorks": {
@@ -33,7 +33,7 @@
       },
       {
         "title": "Obtenez des résultats instantanés",
-        "description": "Notre IA analyse les données de multiples sources pour fournir des informations précises sur la fiabilité."
+        "description": "Notre IA analyse les données de plusieurs sources pour fournir des informations précises sur la fiabilité."
       },
       {
         "title": "Prenez des décisions éclairées",
@@ -46,22 +46,61 @@
     "register": "S'inscrire",
     "createAccount": "Créer un compte",
     "loggingIn": "Connexion en cours...",
-    "creatingAccount": "Création de compte en cours...",
+    "creatingAccount": "Création du compte en cours...",
     "email": "Email",
     "password": "Mot de passe",
     "confirmPassword": "Confirmer le mot de passe",
     "noAccount": "Vous n'avez pas de compte ?",
     "haveAccount": "Vous avez déjà un compte ?",
-    "redirectNotice": "Vous serez redirigé après",
+    "redirectNotice": "Vous serez redirigé après la",
     "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
-    "authFailed": "Échec d'authentification",
+    "authFailed": "Échec de l'authentification",
     "emailRequired": "L'email est requis",
     "passwordRequired": "Le mot de passe est requis",
     "confirmPasswordRequired": "La confirmation du mot de passe est requise",
     "invalidEmail": "Veuillez entrer une adresse email valide",
     "passwordTooShort": "Le mot de passe doit comporter au moins 6 caractères"
   },
+  "comparison": {
+    "title": "Comparaison de véhicules",
+    "compareVehicles": "Comparer les véhicules",
+    "selectUpToThree": "Sélectionnez jusqu'à 3 véhicules à comparer",
+    "selectedCount": "Sélectionnés",
+    "compareSelected": "Comparer les sélectionnés",
+    "selectAtLeastOne": "Veuillez sélectionner au moins un véhicule à comparer",
+    "loading": "Chargement des données de comparaison...",
+    "backToSaved": "Retour aux véhicules enregistrés",
+    "noVehicles": "Aucun véhicule trouvé pour la comparaison",
+    "selectVehicles": "Sélectionner des véhicules",
+    "criteria": "Critères",
+    "basicInfo": "Informations de base",
+    "mileage": "Kilométrage",
+    "miles": "miles",
+    "reliabilityScores": "Scores de fiabilité",
+    "overallScore": "Score global",
+    "engine": "Moteur",
+    "transmission": "Transmission",
+    "electrical": "Système électrique",
+    "brakes": "Freins",
+    "suspension": "Suspension",
+    "fuelSystem": "Système de carburant",
+    "commonIssues": "Problèmes courants",
+    "reportedIssues": "Problèmes signalés",
+    "actions": "Actions",
+    "viewDetails": "Voir les détails",
+    "viewReport": "Voir le rapport complet",
+    "exportPdf": "Exporter la comparaison en PDF",
+    "premiumFeature": "Fonctionnalité premium",
+    "authRequired": "Authentification requise",
+    "fetchFailed": "Échec de récupération des données de comparaison",
+    "generating": "Génération du PDF en cours...",
+    "exportFailed": "Échec de génération du PDF",
+    "exportError": "Une erreur s'est produite lors de l'exportation",
+    "premiumRequired": "L'exportation PDF nécessite un abonnement premium"
+  },
   "savedVehicles": {
+    "showComparison": "Comparer les véhicules",
+    "hideComparison": "Masquer l'outil de comparaison",
     "title": "Véhicules enregistrés",
     "saving": "Enregistrement...",
     "saved": "Enregistré !",
@@ -81,7 +120,7 @@
     "miles": "miles",
     "invalidDate": "Date invalide",
     "limitedPlan": "Votre forfait vous permet d'enregistrer jusqu'à {{limit}} véhicules",
-    "upgradeForMore": "Passez à l'offre supérieure pour plus de véhicules enregistrés"
+    "upgradeForMore": "Passez à la version supérieure pour plus de véhicules enregistrés"
   },
   "search": {
     "yearPlaceholder": "Entrez l'année",
@@ -90,8 +129,8 @@
     "mileagePlaceholder": "Entrez le kilométrage",
     "showForm": "Modifier la recherche",
     "reset": "Réinitialiser",
-    "goPremium": "Passer au Premium",
-    "title": "Rechercher la fiabilité du véhicule",
+    "goPremium": "Passer à Premium",
+    "title": "Rechercher la fiabilité d'un véhicule",
     "premiumUser": "Utilisateur Premium",
     "year": "Année",
     "make": "Marque",
@@ -110,15 +149,15 @@
     "brakes": "Freins",
     "suspension": "Suspension",
     "fuelSystem": "Système de carburant",
-    "upgradeFull": "Passez au premium pour des analyses complètes par catégorie",
+    "upgradeFull": "Passez à Premium pour des analyses complètes par catégorie",
     "searchSection": "Recherche",
     "commonIssues": "Problèmes courants",
     "costToFix": "Coût de réparation",
     "occurrence": "Occurrence",
     "typicalMileage": "Kilométrage typique",
     "analysis": "Analyse",
-    "upgradePrompt": "Passez au premium pour une analyse IA complète et des rapports détaillés.",
-    "searchError": "Échec de la récupération des données de fiabilité",
+    "upgradePrompt": "Passez à Premium pour une analyse IA complète et des rapports détaillés.",
+    "searchError": "Échec de récupération des données de fiabilité",
     "requiredFields": "L'année, la marque, le modèle et le kilométrage sont requis",
     "noResults": "Aucun résultat trouvé pour ce véhicule",
     "loadingMessage": "Recherche de fiabilité en cours...",
@@ -127,7 +166,7 @@
     "saveSearch": "Enregistrer ce véhicule",
     "saved": "Véhicule enregistré !",
     "saving": "Enregistrement du véhicule...",
-    "timeLine": "Voir l'historique du design et la chronologie de l'ingénierie"
+    "timeline": "Voir l'historique de conception et la chronologie technique"
   },
   "buttons": {
     "generating": "Génération du PDF...",
@@ -146,8 +185,8 @@
     "noExpiration": "Pas d'expiration",
     "manageSubscription": "Gérer l'abonnement",
     "noSubscription": "Vous n'avez pas d'abonnement actif.",
-    "upgradePrompt": "Passez au premium pour un accès complet à toutes les données de fiabilité et fonctionnalités.",
-    "upgradePremium": "Passer au Premium",
+    "upgradePrompt": "Passez à Premium pour un accès complet à toutes les données de fiabilité et fonctionnalités.",
+    "upgradePremium": "Passer à Premium",
     "accountSettings": "Paramètres du compte",
     "changePassword": "Changer le mot de passe",
     "deleteAccount": "Supprimer le compte",
@@ -155,7 +194,7 @@
     "statusActive": "Actif",
     "statusInactive": "Inactif",
     "statusExpired": "Expiré",
-    "statusPastDue": "En retard de paiement",
+    "statusPastDue": "En retard",
     "statusCancelled": "Annulé",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée.",
     "passwordChanged": "Mot de passe changé avec succès",
@@ -188,12 +227,12 @@
   },
   "searchHistory": {
     "title": "Historique de recherche",
-    "noSearches": "Vous n'avez pas encore recherché de véhicules",
+    "noSearches": "Vous n'avez encore recherché aucun véhicule",
     "loading": "Chargement de votre historique de recherche...",
     "loadFailed": "Échec du chargement de l'historique de recherche",
     "authRequired": "Vous devez être connecté pour voir votre historique de recherche",
     "limitedPlan": "Votre forfait vous permet de voir jusqu'à {{limit}} recherches récentes",
-    "upgradeProfessional": "Passez au Professionnel pour un historique illimité",
+    "upgradeProfessional": "Passez à Professionnel pour un historique illimité",
     "searchNow": "Rechercher maintenant",
     "vehicle": "Véhicule",
     "score": "Score",
@@ -210,9 +249,9 @@
   "history": {
     "title": "Votre historique de recherche",
     "limitNote": "Votre forfait actuel permet jusqu'à {limit} recherches récentes.",
-    "upgradeLink": "Passez au Professionnel pour un historique de recherche illimité",
+    "upgradeLink": "Passez à Professionnel pour un historique de recherche illimité",
     "loading": "Chargement de l'historique de recherche...",
-    "noSearches": "Vous n'avez pas encore recherché de véhicules.",
+    "noSearches": "Vous n'avez encore recherché aucun véhicule.",
     "searchNow": "Rechercher maintenant",
     "vehicle": "Véhicule",
     "mileage": "Kilométrage",
@@ -233,24 +272,24 @@
       "accessToken": "Votre jeton d'accès premium :",
       "tokenTip": "Vous pouvez utiliser ce jeton pour accéder aux fonctionnalités premium depuis d'autres appareils.",
       "viewProfile": "Voir le profil",
-      "startSearching": "Commencer à rechercher"
+      "startSearching": "Commencer à chercher"
     },
     "cancel": {
       "title": "Paiement annulé",
       "message": "Votre paiement a été annulé et vous n'avez pas été débité. Si vous avez des questions ou des préoccupations, veuillez contacter notre équipe d'assistance.",
       "viewPlans": "Voir les forfaits",
-      "continueSearching": "Continuer à rechercher",
+      "continueSearching": "Continuer à chercher",
       "needHelp": "Besoin d'aide ?",
       "supportMessage": "Si vous avez rencontré des problèmes pendant le processus de paiement, notre équipe d'assistance est disponible pour vous aider.",
       "contactSupport": "Contacter l'assistance"
     },
     "failure": {
-      "title": "Échec de la vérification du paiement",
+      "title": "Échec de vérification du paiement",
       "contactPrompt": "Veuillez contacter notre équipe d'assistance pour obtenir de l'aide.",
       "goToProfile": "Aller au profil"
     },
     "checkout": {
-      "title": "Finaliser votre abonnement",
+      "title": "Finalisez votre abonnement",
       "processing": "Traitement de votre demande...",
       "redirecting": "Redirection vers le paiement sécurisé...",
       "cardInfo": "Informations de carte",
@@ -286,7 +325,7 @@
     "authRequired": "Authentification requise",
     "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
     "connectionError": "Erreur de connexion. Veuillez vérifier votre connexion internet.",
-    "serverError": "Erreur de serveur. Veuillez réessayer plus tard.",
+    "serverError": "Erreur du serveur. Veuillez réessayer plus tard.",
     "permissionDenied": "Permission refusée. Vous n'avez pas accès à cette ressource.",
     "notFound": "Ressource non trouvée."
   },
@@ -297,7 +336,7 @@
     "info": "Information",
     "loginSuccess": "Connexion réussie !",
     "logoutSuccess": "Vous avez été déconnecté avec succès.",
-    "registerSuccess": "Inscription réussie ! Bienvenue sur Car Reliability."
+    "registerSuccess": "Inscription réussie ! Bienvenue chez Car Reliability."
   },
   "common": {
     "warning": "Avertissement",
@@ -320,12 +359,12 @@
     "typicalMileage": "Kilométrage typique",
     "disclaimer": "Avertissement : Ce rapport est basé sur des données agrégées et peut ne pas représenter votre véhicule spécifique. Consultez toujours un mécanicien qualifié.",
     "poweredBy": "Propulsé par CarReliability.com",
-    "premiumPrompt": "Passez au premium pour des informations détaillées",
-    "generateFailed": "Échec de la génération du PDF. Veuillez réessayer."
+    "premiumPrompt": "Passez à Premium pour des informations détaillées",
+    "generateFailed": "Échec de génération du PDF. Veuillez réessayer."
   },
   "pricing": {
     "title": "Choisissez votre forfait",
-    "description": "Accédez aux données de fiabilité des véhicules dont vous avez besoin avec nos forfaits d'abonnement flexibles",
+    "description": "Accédez aux données de fiabilité des véhicules dont vous avez besoin avec nos formules d'abonnement flexibles",
     "per": "par",
     "subscribeNow": "S'abonner maintenant",
     "processing": "Traitement en cours...",
@@ -335,19 +374,19 @@
       "badge": "Le plus populaire",
       "features": [
         "Scores de fiabilité complets",
-        "Données de tous les systèmes de véhicules",
+        "Données sur tous les systèmes du véhicule",
         "Problèmes courants avec coûts de réparation",
         "Support prioritaire",
         "Historique de recherche limité"
       ],
-      "cta": "Passer au Premium"
+      "cta": "Passer à Premium"
     },
     "professional": {
       "title": "Professionnel",
       "period": "mois",
       "features": [
         "Tout ce qui est inclus dans Premium",
-        "Analyse de véhicules par lots",
+        "Analyse de véhicules par lot",
         "Outils de comparaison",
         "Analyse de la valeur marchande",
         "Intégration concessionnaire",
@@ -355,7 +394,7 @@
         "Accès API",
         "Support prioritaire 24/7"
       ],
-      "cta": "Passer au Professionnel"
+      "cta": "Passer à Professionnel"
     },
     "free": {
       "title": "Gratuit",
@@ -405,12 +444,12 @@
     }
   },
   "timeline": {
-    "sectionTitle": "Historique de conception et chronologie d'ingénierie",
+    "sectionTitle": "Historique de conception et chronologie technique",
     "title": "Chronologie d'évolution du modèle",
     "loading": "Chargement des données de chronologie...",
     "noData": "Aucune donnée de chronologie disponible pour ce véhicule",
-    "upgradePrompt": "Passez au premium pour voir la chronologie de conception et d'ingénierie de ce véhicule",
-    "engineeringChanges": "Modifications d'ingénierie",
+    "upgradePrompt": "Passez à Premium pour voir l'historique de conception et la chronologie technique de ce véhicule",
+    "engineeringChanges": "Modifications techniques",
     "generationIntro": "Introduction de génération",
     "redesign": "Refonte",
     "refresh": "Rafraîchissement",

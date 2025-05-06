@@ -3,33 +3,33 @@
     "title": "Erhalten Sie zuverlässige Informationen über Ihr Fahrzeug vor dem Kauf!",
     "description": "Detaillierte Fahrzeugzuverlässigkeitsdaten, häufige Probleme und Expertenanalysen.",
     "search": "Fahrzeug suchen",
-    "signup": "Für Premium anmelden"
+    "signup": "Für Premium registrieren"
   },
   "features": {
     "title": "Unsere Funktionen",
     "reliabilityScores": {
-      "title": "Zuverlässigkeitswerte",
-      "description": "Erhalten Sie umfassende Zuverlässigkeitswerte für Motoren, Getriebe, elektrische Systeme und mehr."
+      "title": "Zuverlässigkeitsbewertungen",
+      "description": "Erhalten Sie umfassende Zuverlässigkeitsbewertungen für Motoren, Getriebe, elektrische Systeme und mehr."
     },
     "commonIssues": {
       "title": "Häufige Probleme",
-      "description": "Informieren Sie sich über häufige Probleme, geschätzte Reparaturkosten und wann diese typischerweise auftreten."
+      "description": "Erfahren Sie mehr über häufige Probleme, geschätzte Reparaturkosten und wann sie typischerweise auftreten."
     },
     "expertAnalysis": {
       "title": "Expertenanalyse",
-      "description": "Zugriff auf detaillierte, KI-gestützte Analysen der Zuverlässigkeit jedes Fahrzeugs im Vergleich zu ähnlichen Modellen."
+      "description": "Zugriff auf detaillierte KI-gestützte Analyse der Zuverlässigkeit jedes Fahrzeugs im Vergleich zu ähnlichen Modellen."
     },
     "premiumData": {
       "title": "Premium-Daten",
-      "description": "Abonnieren Sie für detaillierte Berichte, Rückrufinformationen und ausführliche Zuverlässigkeitseinblicke."
+      "description": "Abonnieren Sie für ausführliche Berichte, Rückrufinformationen und detaillierte Zuverlässigkeitseinblicke."
     }
   },
   "howItWorks": {
     "title": "So funktioniert es",
     "steps": [
       {
-        "title": "Fahrzeugdetails eingeben",
-        "description": "Geben Sie Jahr, Marke, Modell und Kilometerstand des Fahrzeugs an, das Sie recherchieren möchten."
+        "title": "Fahrzeugdaten eingeben",
+        "description": "Geben Sie das Jahr, die Marke, das Modell und den Kilometerstand des Fahrzeugs ein, das Sie recherchieren möchten."
       },
       {
         "title": "Sofortige Ergebnisse erhalten",
@@ -37,7 +37,7 @@
       },
       {
         "title": "Informierte Entscheidungen treffen",
-        "description": "Nutzen Sie die Zuverlässigkeitsdaten, um bessere Entscheidungen beim Kauf, Verkauf oder der Wartung von Fahrzeugen zu treffen."
+        "description": "Nutzen Sie die Zuverlässigkeitsdaten, um bessere Entscheidungen beim Kauf, Verkauf oder bei der Wartung von Fahrzeugen zu treffen."
       }
     ]
   },
@@ -52,7 +52,7 @@
     "confirmPassword": "Passwort bestätigen",
     "noAccount": "Noch kein Konto?",
     "haveAccount": "Bereits ein Konto?",
-    "redirectNotice": "Sie werden nach der Anmeldung zurückgeleitet",
+    "redirectNotice": "Sie werden nach der Anmeldung weitergeleitet",
     "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
     "authFailed": "Authentifizierung fehlgeschlagen",
     "emailRequired": "E-Mail ist erforderlich",
@@ -61,7 +61,46 @@
     "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
     "passwordTooShort": "Passwort muss mindestens 6 Zeichen lang sein"
   },
+  "comparison": {
+    "title": "Fahrzeugvergleich",
+    "compareVehicles": "Fahrzeuge vergleichen",
+    "selectUpToThree": "Wählen Sie bis zu 3 Fahrzeuge zum Vergleich aus",
+    "selectedCount": "Ausgewählt",
+    "compareSelected": "Ausgewählte vergleichen",
+    "selectAtLeastOne": "Bitte wählen Sie mindestens ein Fahrzeug zum Vergleich aus",
+    "loading": "Vergleichsdaten werden geladen...",
+    "backToSaved": "Zurück zu gespeicherten Fahrzeugen",
+    "noVehicles": "Keine Fahrzeuge für den Vergleich gefunden",
+    "selectVehicles": "Fahrzeuge auswählen",
+    "criteria": "Kriterien",
+    "basicInfo": "Grundinformationen",
+    "mileage": "Kilometerstand",
+    "miles": "Meilen",
+    "reliabilityScores": "Zuverlässigkeitswerte",
+    "overallScore": "Gesamtwertung",
+    "engine": "Motor",
+    "transmission": "Getriebe",
+    "electrical": "Elektrisches System",
+    "brakes": "Bremsen",
+    "suspension": "Federung",
+    "fuelSystem": "Kraftstoffsystem",
+    "commonIssues": "Häufige Probleme",
+    "reportedIssues": "Gemeldete Probleme",
+    "actions": "Aktionen",
+    "viewDetails": "Details anzeigen",
+    "viewReport": "Vollständigen Bericht anzeigen",
+    "exportPdf": "Vergleich als PDF exportieren",
+    "premiumFeature": "Premium-Funktion",
+    "authRequired": "Authentifizierung erforderlich",
+    "fetchFailed": "Fehler beim Abrufen der Vergleichsdaten",
+    "generating": "PDF wird generiert...",
+    "exportFailed": "PDF-Generierung fehlgeschlagen",
+    "exportError": "Beim Export ist ein Fehler aufgetreten",
+    "premiumRequired": "PDF-Export erfordert ein Premium-Abonnement"
+  },
   "savedVehicles": {
+    "showComparison": "Fahrzeuge vergleichen",
+    "hideComparison": "Vergleichswerkzeug ausblenden",
     "title": "Gespeicherte Fahrzeuge",
     "saving": "Wird gespeichert...",
     "saved": "Gespeichert!",
@@ -70,18 +109,18 @@
     "loading": "Gespeicherte Fahrzeuge werden geladen...",
     "noVehicles": "Sie haben noch keine Fahrzeuge gespeichert",
     "authRequired": "Sie müssen angemeldet sein, um Ihre gespeicherten Fahrzeuge anzuzeigen",
-    "loadFailed": "Laden der gespeicherten Fahrzeuge fehlgeschlagen",
+    "loadFailed": "Fehler beim Laden der gespeicherten Fahrzeuge",
     "vehicle": "Fahrzeug",
     "mileage": "Kilometerstand",
     "score": "Zuverlässigkeit",
     "actions": "Aktionen",
-    "view": "Ansehen",
+    "view": "Anzeigen",
     "delete": "Löschen",
     "deleting": "Wird gelöscht...",
     "miles": "Meilen",
     "invalidDate": "Ungültiges Datum",
     "limitedPlan": "Ihr Plan erlaubt Ihnen, bis zu {{limit}} Fahrzeuge zu speichern",
-    "upgradeForMore": "Upgraden Sie für mehr gespeicherte Fahrzeuge"
+    "upgradeForMore": "Upgrade für mehr gespeicherte Fahrzeuge"
   },
   "search": {
     "yearPlaceholder": "Jahr eingeben",
@@ -102,32 +141,32 @@
     "searchButton": "Suchen",
     "searching": "Suche läuft...",
     "resultsFor": "Ergebnisse für",
-    "overallScore": "Gesamtzuverlässigkeitswert",
-    "categoryScores": "Kategoriewerte",
+    "overallScore": "Gesamtzuverlässigkeitsbewertung",
+    "categoryScores": "Kategoriebewertungen",
     "engine": "Motor",
     "transmission": "Getriebe",
     "electrical": "Elektrisches System",
     "brakes": "Bremsen",
     "suspension": "Federung",
     "fuelSystem": "Kraftstoffsystem",
-    "upgradeFull": "Upgraden Sie auf Premium für vollständige Kategorieaufschlüsselungen",
+    "upgradeFull": "Upgrade auf Premium für vollständige Kategorieaufschlüsselungen",
     "searchSection": "Suche",
     "commonIssues": "Häufige Probleme",
     "costToFix": "Reparaturkosten",
     "occurrence": "Häufigkeit",
     "typicalMileage": "Typischer Kilometerstand",
     "analysis": "Analyse",
-    "upgradePrompt": "Upgraden Sie auf Premium für vollständige KI-Analyse und detaillierte Berichte.",
+    "upgradePrompt": "Upgrade auf Premium für vollständige KI-Analyse und detaillierte Berichte.",
     "searchError": "Fehler beim Abrufen der Zuverlässigkeitsdaten",
     "requiredFields": "Jahr, Marke, Modell und Kilometerstand sind erforderlich",
     "noResults": "Keine Ergebnisse für dieses Fahrzeug gefunden",
-    "loadingMessage": "Suche nach Zuverlässigkeit...",
+    "loadingMessage": "Zuverlässigkeit wird gesucht...",
     "viewSearchHistory": "Suchverlauf anzeigen",
     "viewSavedVehicles": "Gespeicherte Fahrzeuge anzeigen",
     "saveSearch": "Dieses Fahrzeug speichern",
     "saved": "Fahrzeug gespeichert!",
     "saving": "Fahrzeug wird gespeichert...",
-    "timeline": "Designgeschichte und Ingenieurzeitachse anzeigen"
+    "timeline": "Design-Historie & Technik-Chronologie anzeigen"
   },
   "buttons": {
     "generating": "PDF wird generiert...",
@@ -143,10 +182,10 @@
     "plan": "Plan",
     "status": "Status",
     "renewalDate": "Verlängerungsdatum",
-    "noExpiration": "Kein Ablauf",
+    "noExpiration": "Kein Ablaufdatum",
     "manageSubscription": "Abonnement verwalten",
     "noSubscription": "Sie haben kein aktives Abonnement.",
-    "upgradePrompt": "Upgraden Sie auf Premium für vollen Zugriff auf alle Zuverlässigkeitsdaten und Funktionen.",
+    "upgradePrompt": "Upgrade auf Premium für vollen Zugriff auf alle Zuverlässigkeitsdaten und Funktionen.",
     "upgradePremium": "Auf Premium upgraden",
     "accountSettings": "Kontoeinstellungen",
     "changePassword": "Passwort ändern",
@@ -173,7 +212,7 @@
     "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
     "loginRequired": "Sie müssen angemeldet sein, um Ihr Passwort zu ändern",
     "changeFailed": "Passwortänderung fehlgeschlagen",
-    "changing": "Änderung läuft...",
+    "changing": "Wird geändert...",
     "changePassword": "Passwort ändern"
   },
   "deleteModal": {
@@ -183,7 +222,7 @@
     "typeDeleteToConfirm": "Geben Sie DELETE ein, um zu bestätigen",
     "loginRequired": "Sie müssen angemeldet sein, um Ihr Konto zu löschen",
     "deleteFailed": "Kontolöschung fehlgeschlagen",
-    "deleting": "Löschung läuft...",
+    "deleting": "Wird gelöscht...",
     "deleteAccount": "Mein Konto löschen"
   },
   "searchHistory": {
@@ -193,10 +232,10 @@
     "loadFailed": "Fehler beim Laden des Suchverlaufs",
     "authRequired": "Sie müssen angemeldet sein, um Ihren Suchverlauf anzuzeigen",
     "limitedPlan": "Ihr Plan erlaubt Ihnen, bis zu {{limit}} aktuelle Suchen anzuzeigen",
-    "upgradeProfessional": "Upgraden Sie auf Professionell für unbegrenzten Verlauf",
+    "upgradeProfessional": "Upgrade auf Professional für unbegrenzten Verlauf",
     "searchNow": "Jetzt suchen",
     "vehicle": "Fahrzeug",
-    "score": "Wert",
+    "score": "Bewertung",
     "mileage": "Kilometerstand",
     "date": "Datum",
     "actions": "Aktionen",
@@ -210,7 +249,7 @@
   "history": {
     "title": "Ihr Suchverlauf",
     "limitNote": "Ihr aktueller Plan erlaubt bis zu {limit} aktuelle Suchen.",
-    "upgradeLink": "Upgraden Sie auf Professionell für unbegrenzten Suchverlauf",
+    "upgradeLink": "Upgrade auf Professional für unbegrenzten Suchverlauf",
     "loading": "Suchverlauf wird geladen...",
     "noSearches": "Sie haben noch keine Fahrzeuge gesucht.",
     "searchNow": "Jetzt suchen",
@@ -236,23 +275,23 @@
       "startSearching": "Mit der Suche beginnen"
     },
     "cancel": {
-      "title": "Zahlung abgebrochen",
-      "message": "Ihre Zahlung wurde abgebrochen und Ihnen wurde nichts berechnet. Falls Sie Fragen oder Bedenken haben, kontaktieren Sie bitte unser Support-Team.",
+      "title": "Zahlung storniert",
+      "message": "Ihre Zahlung wurde storniert und Ihnen wurde nichts berechnet. Wenn Sie Fragen oder Bedenken haben, kontaktieren Sie bitte unser Support-Team.",
       "viewPlans": "Pläne anzeigen",
       "continueSearching": "Weiter suchen",
-      "needHelp": "Brauchen Sie Hilfe?",
-      "supportMessage": "Falls Sie während des Zahlungsvorgangs Probleme hatten, steht Ihnen unser Support-Team zur Verfügung.",
+      "needHelp": "Benötigen Sie Hilfe?",
+      "supportMessage": "Wenn Sie während des Zahlungsvorgangs auf Probleme gestoßen sind, steht Ihnen unser Support-Team zur Verfügung.",
       "contactSupport": "Support kontaktieren"
     },
     "failure": {
       "title": "Zahlungsüberprüfung fehlgeschlagen",
-      "contactPrompt": "Bitte kontaktieren Sie unser Support-Team für Hilfe.",
+      "contactPrompt": "Bitte kontaktieren Sie unser Support-Team für Unterstützung.",
       "goToProfile": "Zum Profil gehen"
     },
     "checkout": {
-      "title": "Abonnement abschließen",
+      "title": "Schließen Sie Ihr Abonnement ab",
       "processing": "Ihre Anfrage wird bearbeitet...",
-      "redirecting": "Weiterleitung zur sicheren Zahlung...",
+      "redirecting": "Weiterleitung zur sicheren Bezahlung...",
       "cardInfo": "Karteninformationen",
       "cardNumber": "Kartennummer",
       "expiryDate": "Ablaufdatum",
@@ -261,7 +300,7 @@
       "billingAddress": "Rechnungsadresse",
       "subscribe": "Jetzt abonnieren",
       "securePayment": "Sichere Zahlung",
-      "termsAgreement": "Durch das Abonnieren stimmen Sie unseren Nutzungsbedingungen und Datenschutzrichtlinien zu."
+      "termsAgreement": "Mit dem Abonnement stimmen Sie unseren Nutzungsbedingungen und der Datenschutzrichtlinie zu."
     }
   },
   "nav": {
@@ -310,9 +349,9 @@
     "downloadPdf": "PDF-Bericht herunterladen",
     "generating": "PDF wird generiert...",
     "pdfTitle": "Fahrzeugzuverlässigkeitsbericht",
-    "generatedOn": "Generiert am",
-    "overallScore": "Gesamtpunktzahl",
-    "categoryScores": "Kategoriepunktzahlen",
+    "generatedOn": "Erstellt am",
+    "overallScore": "Gesamtbewertung",
+    "categoryScores": "Kategoriebewertungen",
     "commonIssues": "Häufige Probleme",
     "analysis": "Zuverlässigkeitsanalyse",
     "costToFix": "Reparaturkosten",
@@ -320,42 +359,42 @@
     "typicalMileage": "Typischer Kilometerstand",
     "disclaimer": "Haftungsausschluss: Dieser Bericht basiert auf aggregierten Daten und repräsentiert möglicherweise nicht Ihr spezifisches Fahrzeug. Konsultieren Sie immer einen qualifizierten Mechaniker.",
     "poweredBy": "Powered by CarReliability.com",
-    "premiumPrompt": "Upgraden Sie auf Premium für detaillierte Informationen",
+    "premiumPrompt": "Upgrade auf Premium für detaillierte Informationen",
     "generateFailed": "PDF-Generierung fehlgeschlagen. Bitte versuchen Sie es erneut."
   },
   "pricing": {
     "title": "Wählen Sie Ihren Plan",
-    "description": "Zugriff auf die benötigten Fahrzeugzuverlässigkeitsdaten mit unseren flexiblen Abonnementplänen",
+    "description": "Greifen Sie mit unseren flexiblen Abonnementplänen auf die benötigten Fahrzeugzuverlässigkeitsdaten zu",
     "per": "pro",
     "subscribeNow": "Jetzt abonnieren",
-    "processing": "Wird bearbeitet...",
+    "processing": "Verarbeitung...",
     "premium": {
       "title": "Premium",
       "period": "Monat",
       "badge": "Am beliebtesten",
       "features": [
-        "Umfassende Zuverlässigkeitswerte",
-        "Daten aller Fahrzeugsysteme",
+        "Umfassende Zuverlässigkeitsbewertungen",
+        "Daten zu allen Fahrzeugsystemen",
         "Häufige Probleme mit Reparaturkosten",
-        "Vorrangiger Support",
+        "Prioritäts-Support",
         "Begrenzter Suchverlauf"
       ],
-      "cta": "Premium wählen"
+      "cta": "Premium werden"
     },
     "professional": {
-      "title": "Professionell",
+      "title": "Professional",
       "period": "Monat",
       "features": [
         "Alles in Premium",
         "Batch-Fahrzeuganalyse",
-        "Vergleichstools",
+        "Vergleichswerkzeuge",
         "Marktwertanalyse",
         "Händlerintegration",
         "Unbegrenzter Suchverlauf",
-        "API-Zugriff",
-        "24/7 vorrangiger Support"
+        "API-Zugang",
+        "24/7 Prioritäts-Support"
       ],
-      "cta": "Professionell wählen"
+      "cta": "Professional werden"
     },
     "free": {
       "title": "Kostenlos",
@@ -405,11 +444,11 @@
     }
   },
   "timeline": {
-    "sectionTitle": "Design-Geschichte und Entwicklungs-Timeline",
-    "title": "Modell-Entwicklungs-Timeline",
-    "loading": "Timeline-Daten werden geladen...",
-    "noData": "Keine Timeline-Daten für dieses Fahrzeug verfügbar",
-    "upgradePrompt": "Upgraden Sie auf Premium, um die Design- und Entwicklungs-Timeline dieses Fahrzeugs zu sehen",
+    "sectionTitle": "Design-Historie & Technik-Chronologie",
+    "title": "Modell-Evolutionschronologie",
+    "loading": "Chronologiedaten werden geladen...",
+    "noData": "Keine Chronologiedaten für dieses Fahrzeug verfügbar",
+    "upgradePrompt": "Upgrade auf Premium, um die Design- und Technik-Chronologie dieses Fahrzeugs zu sehen",
     "engineeringChanges": "Technische Änderungen",
     "generationIntro": "Generationseinführung",
     "redesign": "Neugestaltung",

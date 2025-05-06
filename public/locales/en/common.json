@@ -96,7 +96,7 @@
     "generating": "Generating PDF...",
     "exportFailed": "Failed to generate PDF",
     "exportError": "An error occurred during export",
-    "premiumRequired": "PDF export requires a premium subscription",
+    "premiumRequired": "PDF export requires a premium subscription"
   },
   "savedVehicles": {
     "showComparison": "Compare Vehicles",
