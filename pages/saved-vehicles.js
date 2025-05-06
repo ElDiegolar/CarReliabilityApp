@@ -193,249 +193,280 @@ export default function SavedVehicles() {
         </div>
         
         <style jsx>{`
-          .saved-vehicles-container {
-            max-width: 900px;
-            margin: 0 auto;
-          }
-          
-          h1 {
-            margin-bottom: 2rem;
-          }
-          
-          .subscription-note {
-            background-color: #f0f7ff;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-          }
-          
-          .subscription-note p {
-            margin: 0;
-            color: #0070f3;
-          }
-          
-          .upgrade-link {
-            color: #0070f3;
-            text-decoration: underline;
-            font-weight: 500;
-          }
-          
-          .loading, .error, .empty-state {
-            padding: 2rem;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 1rem;
-          }
-          
-          .loading {
-            background-color: #f5f5f5;
-          }
-          
-          .error {
-            background-color: #fff5f5;
-            color: #e53e3e;
-          }
-          
-          .empty-state {
-            background-color: #f5f5f5;
-            padding: 3rem;
-          }
-          
-          .button {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            font-weight: 500;
-            margin-top: 1rem;
-            transition: all 0.2s;
-          }
-          
-          .button.primary {
-            background-color: #0070f3;
-            color: white;
-          }
-          
-          .button.primary:hover {
-            background-color: #0060df;
-          }
-          
-          .comparison-toggle {
-            margin-bottom: 1.5rem;
-            text-align: right;
-          }
-          
-          .toggle-button {
-            padding: 0.6rem 1rem;
-            background-color: #f5f5f5;
-            border: none;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-          }
-          
-          .toggle-button.active {
-            background-color: #0070f3;
-            color: white;
-          }
-          
-          .vehicles-list {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-          }
-          
-          .vehicle-header {
-            display: flex;
-            padding: 1rem;
-            background-color: #f5f5f5;
-            font-weight: bold;
-            border-bottom: 1px solid #eaeaea;
-          }
-          
-          .vehicle-item {
-            display: flex;
-            padding: 1rem;
-            border-bottom: 1px solid #eaeaea;
-            transition: background-color 0.2s;
-          }
-          
-          .vehicle-item:last-child {
-            border-bottom: none;
-          }
-          
-          .vehicle-item:hover {
-            background-color: #f9fafb;
-          }
-          
-          .vehicle-col {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-          }
-          
-          .mileage-col {
-            flex: 1;
-            display: flex;
-            align-items: center;
-          }
-          
-          .saved-col {
-            flex: 1.5;
-            display: flex;
-            align-items: center;
-          }
-          
-          .score-col {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          
-          .actions-col {
-            flex: 1.5;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 0.5rem;
-          }
-          
-          .year {
-            font-weight: bold;
-          }
-          
-          .make {
-            margin-top: 0.25rem;
-          }
-          
-          .model {
-            margin-top: 0.25rem;
-            color: #666;
-          }
-          
-          .score-badge {
-            background-color: #0070f3;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-          }
-          
-          .action-button {
-            display: inline-block;
-            padding: 0.5rem 0.75rem;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            transition: background-color 0.2s;
-            cursor: pointer;
-            border: none;
-          }
-          
-          .action-button.view {
-            background-color: #f5f5f5;
-            color: #0070f3;
-            text-decoration: none;
-          }
-          
-          .action-button.view:hover {
-            background-color: #e5f1ff;
-          }
-          
-          .action-button.delete {
-            background-color: #fff5f5;
-            color: #e53e3e;
-          }
-          
-          .action-button.delete:hover {
-            background-color: #fee2e2;
-          }
-          
-          .action-button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-          }
-          
-          @media (max-width: 768px) {
-            .vehicle-header {
-              display: none;
-            }
-            
-            .vehicle-item {
-              flex-direction: column;
-              padding: 1rem;
-            }
-            
-            .vehicle-col, .mileage-col, .saved-col, .score-col, .actions-col {
-              width: 100%;
-              padding: 0.5rem 0;
-            }
-            
-            .score-col {
-              justify-content: flex-start;
-            }
-            
-            .actions-col {
-              justify-content: flex-start;
-              margin-top: 0.5rem;
-            }
-            
-            .subscription-note {
-              flex-direction: column;
-              text-align: center;
-            }
-            
-            .subscription-note p {
-              margin-bottom: 1rem;
-            }
-          }
-        `}</style>
+  .saved-vehicles-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  h1 {
+    margin-bottom: 2rem;
+  }
+  
+  .subscription-note {
+    background-color: #f0f7ff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .subscription-note p {
+    margin: 0;
+    color: #0070f3;
+  }
+  
+  .upgrade-link {
+    color: #0070f3;
+    text-decoration: underline;
+    font-weight: 500;
+  }
+  
+  .loading, .error, .empty-state {
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .loading {
+    background-color: #f5f5f5;
+  }
+  
+  .error {
+    background-color: #fff5f5;
+    color: #e53e3e;
+  }
+  
+  .empty-state {
+    background-color: #f5f5f5;
+    padding: 3rem;
+  }
+  
+  .button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    margin-top: 1rem;
+    transition: all 0.2s;
+  }
+  
+  .button.primary {
+    background-color: #0070f3;
+    color: white;
+  }
+  
+  .button.primary:hover {
+    background-color: #0060df;
+  }
+  
+  .comparison-toggle {
+    margin-bottom: 1.5rem;
+    text-align: right;
+  }
+  
+  .toggle-button {
+    padding: 0.7rem 1.2rem;
+    background-color: #f5f5f5;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .toggle-button::before {
+    content: "\\2B";  /* Unicode plus symbol */
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  
+  .toggle-button.active {
+    background-color: #0070f3;
+    color: white;
+    border-color: #0070f3;
+  }
+  
+  .toggle-button.active::before {
+    content: "\\2212";  /* Unicode minus symbol */
+  }
+  
+  .toggle-button:hover {
+    background-color: ${showComparison ? '#0060df' : '#e5e5e5'};
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, ${showComparison ? '0.1' : '0.05'});
+  }
+  
+  .vehicles-list {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+  
+  .vehicle-header {
+    display: flex;
+    padding: 1rem;
+    background-color: #f5f5f5;
+    font-weight: bold;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  .vehicle-item {
+    display: flex;
+    padding: 1rem;
+    border-bottom: 1px solid #eaeaea;
+    transition: background-color 0.2s;
+  }
+  
+  .vehicle-item:last-child {
+    border-bottom: none;
+  }
+  
+  .vehicle-item:hover {
+    background-color: #f9fafb;
+  }
+  
+  .vehicle-col {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mileage-col {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  
+  .saved-col {
+    flex: 1.5;
+    display: flex;
+    align-items: center;
+  }
+  
+  .score-col {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .actions-col {
+    flex: 1.5;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .year {
+    font-weight: bold;
+  }
+  
+  .make {
+    margin-top: 0.25rem;
+  }
+  
+  .model {
+    margin-top: 0.25rem;
+    color: #666;
+  }
+  
+  .score-badge {
+    background-color: #0070f3;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+  
+  .action-button {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .action-button.view {
+    background-color: #f5f5f5;
+    color: #0070f3;
+    text-decoration: none;
+  }
+  
+  .action-button.view:hover {
+    background-color: #e5f1ff;
+  }
+  
+  .action-button.delete {
+    background-color: #fff5f5;
+    color: #e53e3e;
+  }
+  
+  .action-button.delete:hover {
+    background-color: #fee2e2;
+  }
+  
+  .action-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  @media (max-width: 768px) {
+    .vehicle-header {
+      display: none;
+    }
+    
+    .vehicle-item {
+      flex-direction: column;
+      padding: 1rem;
+    }
+    
+    .vehicle-col, .mileage-col, .saved-col, .score-col, .actions-col {
+      width: 100%;
+      padding: 0.5rem 0;
+    }
+    
+    .score-col {
+      justify-content: flex-start;
+    }
+    
+    .actions-col {
+      justify-content: flex-start;
+      margin-top: 0.5rem;
+    }
+    
+    .subscription-note {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .subscription-note p {
+      margin-bottom: 1rem;
+    }
+    
+    .comparison-toggle {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .toggle-button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+`}</style>
       </Layout>
     </ProtectedRoute>
   );

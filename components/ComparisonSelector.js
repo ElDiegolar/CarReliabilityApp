@@ -67,79 +67,125 @@ export default function ComparisonSelector({ vehicles }) {
       </button>
       
       <style jsx>{`
-        .comparison-selector {
-          background-color: #f0f7ff;
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-bottom: 2rem;
-        }
-        
-        .selection-instructions {
-          margin-bottom: 1rem;
-          text-align: center;
-        }
-        
-        .selection-instructions h3 {
-          margin-top: 0;
-          color: #0070f3;
-        }
-        
-        .selection-item {
-          display: flex;
-          align-items: center;
-          padding: 0.75rem;
-          border-radius: 6px;
-          margin-bottom: 0.5rem;
-          cursor: pointer;
-          background-color: white;
-          transition: all 0.2s;
-        }
-        
-        .selection-item:hover {
-          background-color: #f9f9f9;
-        }
-        
-        .selection-item.selected {
-          background-color: #e5f1ff;
-          border: 1px solid #0070f3;
-        }
-        
-        .selection-item input {
-          margin-right: 1rem;
-        }
-        
-        .vehicle-info {
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .year {
-          font-weight: bold;
-        }
-        
-        .compare-button {
-          display: block;
-          width: 100%;
-          padding: 0.75rem;
-          background-color: #0070f3;
-          color: white;
-          border: none;
-          border-radius: 6px;
-          margin-top: 1rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: background-color 0.2s;
-        }
-        
-        .compare-button:hover {
-          background-color: #0060df;
-        }
-        
-        .compare-button:disabled {
-          background-color: #ccc;
-          cursor: not-allowed;
-        }
-      `}</style>
+  .comparison-selector {
+    background-color: #f0f7ff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .selection-instructions {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 112, 243, 0.2);
+    padding-bottom: 1rem;
+  }
+  
+  .selection-instructions h3 {
+    margin-top: 0;
+    color: #0070f3;
+    font-size: 1.2rem;
+  }
+  
+  .selection-instructions p {
+    margin: 0.5rem 0;
+    color: #4a5568;
+  }
+  
+  .selection-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    background-color: white;
+    transition: all 0.2s;
+    border: 1px solid #edf2f7;
+  }
+  
+  .selection-item:hover {
+    background-color: #f9f9f9;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .selection-item.selected {
+    background-color: #e5f1ff;
+    border: 1px solid #0070f3;
+  }
+  
+  .selection-item input {
+    margin-right: 1rem;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  .vehicle-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .year {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #2d3748;
+  }
+  
+  .make-model {
+    margin-top: 0.25rem;
+    color: #4a5568;
+  }
+  
+  .compare-button {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    margin-top: 1.5rem;
+    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 112, 243, 0.2);
+  }
+  
+  .compare-button:hover {
+    background-color: #0060df;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 112, 243, 0.3);
+  }
+  
+  .compare-button:active {
+    transform: translateY(0);
+  }
+  
+  .compare-button:disabled {
+    background-color: #cbd5e0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  @media (max-width: 640px) {
+    .comparison-selector {
+      padding: 1rem;
+    }
+    
+    .selection-item {
+      padding: 0.6rem 0.75rem;
+    }
+    
+    .year {
+      font-size: 1rem;
+    }
+  }
+`}</style>
     </div>
   );
 }

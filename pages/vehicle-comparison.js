@@ -273,206 +273,242 @@ export default function VehicleComparison() {
           )}
         </div>
         
-        <style jsx>{`
-          .comparison-container {
-            max-width: 1000px;
-            margin: 0 auto;
-          }
-          
-          h1 {
-            margin-bottom: 1rem;
-          }
-          
-          .back-link {
-            display: inline-block;
-            margin-bottom: 2rem;
-            color: #0070f3;
-            text-decoration: none;
-          }
-          
-          .back-link:hover {
-            text-decoration: underline;
-          }
-          
-          .loading, .error, .empty-state {
-            padding: 2rem;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 1rem;
-          }
-          
-          .loading {
-            background-color: #f5f5f5;
-          }
-          
-          .error {
-            background-color: #fff5f5;
-            color: #e53e3e;
-          }
-          
-          .empty-state {
-            background-color: #f5f5f5;
-            padding: 3rem;
-          }
-          
-          .button {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            font-weight: 500;
-            margin-top: 1rem;
-            transition: all 0.2s;
-          }
-          
-          .button.primary {
-            background-color: #0070f3;
-            color: white;
-          }
-          
-          .comparison-table-container {
-            overflow-x: auto;
-            margin-bottom: 2rem;
-          }
-          
-          .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-          }
-          
-          .comparison-table th,
-          .comparison-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #eaeaea;
-          }
-          
-          .comparison-table th {
-            background-color: #f5f5f5;
-            font-weight: 600;
-          }
-          
-          .comparison-table th:first-child,
-          .comparison-table td:first-child {
-            background-color: #f9f9f9;
-            font-weight: 500;
-            white-space: nowrap;
-            position: sticky;
-            left: 0;
-            border-right: 1px solid #eaeaea;
-          }
-          
-          .section-header td {
-            background-color: #e5f1ff;
-            color: #0070f3;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-          }
-          
-          .score-cell {
-            text-align: center;
-          }
-          
-          .score-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-weight: bold;
-            color: white;
-          }
-          
-          .score-high {
-            background-color: #38a169;
-          }
-          
-          .score-medium {
-            background-color: #dd6b20;
-          }
-          
-          .score-low {
-            background-color: #e53e3e;
-          }
-          
-          .premium-locked {
-            color: #718096;
-            font-style: italic;
-            font-size: 0.9rem;
-          }
-          
-          .issues-list {
-            padding-left: 1.2rem;
-            margin: 0;
-          }
-          
-          .issues-list li {
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-          }
-          
-          .more-issues {
-            color: #718096;
-            font-style: italic;
-          }
-          
-          .action-link {
-            display: inline-block;
-            padding: 0.5rem 0.75rem;
-            background-color: #f5f5f5;
-            color: #0070f3;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: background-color 0.2s;
-          }
-          
-          .action-link:hover {
-            background-color: #e5f1ff;
-          }
-          
-          .export-section {
-            margin-top: 2rem;
-            text-align: center;
-          }
-          
-          .export-button {
-            padding: 0.75rem 1.5rem;
-            background-color: #0070f3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-          }
-          
-          .export-button:hover {
-            background-color: #0060df;
-          }
-          
-          .premium-note {
-            margin-top: 0.5rem;
-            font-size: 0.85rem;
-            color: #718096;
-          }
-          
-          @media (max-width: 768px) {
-            .comparison-container {
-              padding: 0 1rem;
-            }
-            
-            .comparison-table th,
-            .comparison-table td {
-              padding: 0.75rem 0.5rem;
-              font-size: 0.9rem;
-            }
-            
-            .back-link {
-              margin-bottom: 1.5rem;
-            }
-          }
-        `}</style>
+      
+<style jsx>{`
+  .comparison-container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  h1 {
+    margin-bottom: 1rem;
+  }
+  
+  .back-link {
+    display: inline-block;
+    margin-bottom: 2rem;
+    color: #0070f3;
+    text-decoration: none;
+  }
+  
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  
+  .loading, .error, .empty-state {
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .loading {
+    background-color: #f5f5f5;
+  }
+  
+  .error {
+    background-color: #fff5f5;
+    color: #e53e3e;
+  }
+  
+  .empty-state {
+    background-color: #f5f5f5;
+    padding: 3rem;
+  }
+  
+  .button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    margin-top: 1rem;
+    transition: all 0.2s;
+  }
+  
+  .button.primary {
+    background-color: #0070f3;
+    color: white;
+  }
+  
+  .comparison-table-container {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    table-layout: fixed; /* Add fixed table layout */
+  }
+  
+  .comparison-table th,
+  .comparison-table td {
+    padding: 1rem;
+    text-align: center; /* Center align all cells */
+    border-bottom: 1px solid #eaeaea;
+    vertical-align: middle; /* Vertically center content */
+  }
+  
+  .comparison-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+  }
+  
+  .comparison-table th:first-child,
+  .comparison-table td:first-child {
+    background-color: #f9f9f9;
+    font-weight: 500;
+    width: 25%; /* Fixed width for first column */
+    text-align: left; /* Left align first column */
+    position: sticky;
+    left: 0;
+    border-right: 1px solid #eaeaea;
+    z-index: 1; /* Ensure it stays above other cells when scrolling */
+  }
+  
+  .comparison-table th:not(:first-child),
+  .comparison-table td:not(:first-child) {
+    width: calc(75% / 3); /* Equal distribution for vehicle columns */
+  }
+  
+  .section-header td {
+    background-color: #e5f1ff;
+    color: #0070f3;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    text-align: left; /* Left align section headers */
+  }
+  
+  .score-cell {
+    text-align: center;
+  }
+  
+  .score-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    min-width: 70px; /* Standardize badge width */
+    border-radius: 20px;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .score-high {
+    background-color: #38a169;
+  }
+  
+  .score-medium {
+    background-color: #dd6b20;
+  }
+  
+  .score-low {
+    background-color: #e53e3e;
+  }
+  
+  .premium-locked {
+    color: #718096;
+    font-style: italic;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    background-color: #f7fafc;
+    border-radius: 4px;
+    display: inline-block;
+    min-width: 100px; /* Standardize width */
+  }
+  
+  .issues-list {
+    padding-left: 1.2rem;
+    margin: 0;
+    text-align: left; /* Left align lists */
+  }
+  
+  .issues-list li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .more-issues {
+    color: #718096;
+    font-style: italic;
+  }
+  
+  .action-link {
+    display: inline-block;
+    padding: 0.5rem 0.75rem;
+    min-width: 120px; /* Standardize button width */
+    background-color: #f5f5f5;
+    color: #0070f3;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    text-align: center;
+  }
+  
+  .action-link:hover {
+    background-color: #e5f1ff;
+  }
+  
+  .export-section {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  
+  .export-button {
+    padding: 0.75rem 1.5rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .export-button:hover {
+    background-color: #0060df;
+  }
+  
+  .premium-note {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #718096;
+  }
+  
+  @media (max-width: 768px) {
+    .comparison-container {
+      padding: 0 1rem;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .comparison-table th:first-child,
+    .comparison-table td:first-child {
+      width: 120px; /* Smaller width on mobile */
+    }
+    
+    .back-link {
+      margin-bottom: 1.5rem;
+    }
+    
+    .score-badge {
+      padding: 0.35rem 0.5rem;
+      min-width: 50px; /* Smaller on mobile */
+      font-size: 0.8rem;
+    }
+    
+    .action-link {
+      min-width: auto;
+      padding: 0.4rem 0.5rem;
+      font-size: 0.8rem;
+    }
+  }
+`}</style>
       </Layout>
     </ProtectedRoute>
   );
