@@ -1,4 +1,4 @@
-// pages/search.js - Using integrated timeline data from car-reliability API
+
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';

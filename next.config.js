@@ -36,7 +36,7 @@ const nextConfig = {
     // Available on both client and server
     apiUrl: process.env.NODE_ENV === 'development'
       ? 'http://localhost:3000/api' // Development API URL
-      : 'https://car-reliability-app.vercel.app/api', // Production API URL
+      : 'https://www.lemnaed.com/api', // Production API URL
   },
 };
 

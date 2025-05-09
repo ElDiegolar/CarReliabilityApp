@@ -36,7 +36,7 @@ export default function PaymentCancel() {
             <p>
               {t('payment.cancel.supportMessage')}
             </p>
-            <Link href="mailto:support@carreliability.com">
+            <Link href="mailto:support@lemnaed.com">
               <a className="contact-link">{t('payment.cancel.contactSupport')}</a>
             </Link>
           </div>

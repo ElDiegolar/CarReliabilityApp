@@ -88,7 +88,7 @@ async function handler(req, res) {
     };
     
     // Add header
-    page.drawText(`Vehicle Comparison Report`, {
+    page.drawText(`Lemnaed - Vehicle Comparison Report`, {
       x: margin,
       y: currentY,
       size: 24,
@@ -442,7 +442,7 @@ async function handler(req, res) {
     }
     
     // Add footer to the last page
-    page.drawText('This comparison report was generated automatically. Data should be verified with a qualified mechanic.', {
+    page.drawText('This Lemnaed comparison report was generated automatically. Data should be verified with a qualified mechanic.', {
       x: width / 2 - 240,
       y: 30,
       size: 10,
@@ -455,7 +455,7 @@ async function handler(req, res) {
     
     // Set the content type and send the PDF bytes
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="vehicle-comparison-report.pdf"`);
+    res.setHeader('Content-Disposition', `attachment; filename="Lemnaed-vehicle-comparison-report.pdf"`);
     res.status(200).send(Buffer.from(pdfBytes));
     
   } catch (error) {

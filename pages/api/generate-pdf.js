@@ -528,7 +528,7 @@ export default async function handler(req, res) {
     });
     
     // Add footer with powered by info
-    page.drawText('Powered by Verida.com', {
+    page.drawText('Powered by Lemnaed.com', {
       x: margin,
       y: 30,
       size: 10,
@@ -541,7 +541,7 @@ export default async function handler(req, res) {
     
     // Set the content type and send the PDF bytes
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${year}-${make}-${model}-reliability-report.pdf"`);
+    res.setHeader('Content-Disposition', `attachment; filename="Lemnaed ${year}-${make}-${model}-reliability-report.pdf"`);
     res.status(200).send(Buffer.from(pdfBytes));
     
   } catch (error) {
