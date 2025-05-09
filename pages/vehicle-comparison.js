@@ -129,7 +129,7 @@ export default function VehicleComparison() {
         <div className="comparison-container">
           <h1>{t('comparison.title', 'Vehicle Comparison')}</h1>
           
-          <Link href="/saved-vehicles" className="back-link">
+          <Link href="/saved-vehicles" className="button primary">
             ← {t('comparison.backToSaved', 'Back to Saved Vehicles')}
           </Link>
           
