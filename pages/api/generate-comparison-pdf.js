@@ -1,4 +1,4 @@
-// pages/api/generate-comparison-pdf.js
+// pages/api/generate-comparison-pdf.js - Updated with kilometers conversion
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { withAuth } from '../../lib/auth';
 import { query } from '../../lib/database';
@@ -23,6 +23,11 @@ async function handler(req, res) {
     }
 
     const userId = req.user.id;
+    
+    // Function to convert miles to kilometers
+    const milesToKilometers = (miles) => {
+      return Math.round(miles * 1.60934);
+    };
     
     // Check if user is premium
     const now = new Date().toISOString();
@@ -121,7 +126,8 @@ async function handler(req, res) {
     currentY -= lineHeight;
     
     vehicles.forEach((vehicle, index) => {
-      page.drawText(`${index + 1}. ${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.mileage.toLocaleString()} miles)`, {
+      const kmValue = milesToKilometers(vehicle.mileage);
+      page.drawText(`${index + 1}. ${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.mileage.toLocaleString()} miles / ${kmValue.toLocaleString()} km)`, {
         x: margin + 10,
         y: currentY,
         size: textSize,
@@ -199,13 +205,26 @@ async function handler(req, res) {
     currentY -= lineHeight;
     drawRowDivider(currentY + lineHeight / 2);
     
-    // Draw mileage row
+    // Draw mileage row (miles)
     ensureSpace(lineHeight * 2);
     
     currentY -= lineHeight / 2;
-    drawTableCell('Mileage', margin, currentY);
+    drawTableCell('Mileage (miles)', margin, currentY);
     vehicles.forEach((vehicle, index) => {
-      drawTableCell(`${vehicle.mileage.toLocaleString()} miles`, margin + colWidth * (index + 1), currentY, false, 'center');
+      drawTableCell(`${vehicle.mileage.toLocaleString()}`, margin + colWidth * (index + 1), currentY, false, 'center');
+    });
+    
+    currentY -= lineHeight;
+    drawRowDivider(currentY + lineHeight / 2);
+    
+    // Draw mileage row (kilometers)
+    ensureSpace(lineHeight * 2);
+    
+    currentY -= lineHeight / 2;
+    drawTableCell('Mileage (km)', margin, currentY);
+    vehicles.forEach((vehicle, index) => {
+      const kmValue = milesToKilometers(vehicle.mileage);
+      drawTableCell(`${kmValue.toLocaleString()}`, margin + colWidth * (index + 1), currentY, false, 'center');
     });
     
     currentY -= lineHeight;
@@ -365,12 +384,24 @@ async function handler(req, res) {
       let columnY = columnStartY;
       const columnX = margin + colWidth * vehicleIndex;
       
-      // Draw vehicle name
+      // Draw vehicle name with mileage in both miles and kilometers
+      const kmValue = milesToKilometers(vehicle.mileage);
       page.drawText(`${vehicle.year} ${vehicle.make} ${vehicle.model}:`, {
         x: columnX,
         y: columnY,
         size: textSize,
         font: helveticaBoldFont,
+      });
+      
+      columnY -= lineHeight;
+      
+      // Add mileage information
+      page.drawText(`${vehicle.mileage.toLocaleString()} miles / ${kmValue.toLocaleString()} km`, {
+        x: columnX,
+        y: columnY,
+        size: textSize - 1,
+        font: helveticaFont,
+        color: rgb(0.4, 0.4, 0.4),
       });
       
       columnY -= lineHeight;
@@ -415,6 +446,48 @@ async function handler(req, res) {
             }
             
             page.drawText(`  Cost: ${issue.costToFix}`, {
+              x: columnX,
+              y: columnY,
+              size: textSize - 1,
+              font: helveticaFont,
+              color: rgb(0.4, 0.4, 0.4),
+            });
+            
+            columnY -= lineHeight * 0.8;
+          }
+          
+          // Add mileage information if present, with km conversion
+          if (issue.mileage) {
+            // Check if we need to continue on a new page
+            if (columnY < minSpaceRequired) {
+              page = pdfDoc.addPage([612, 792]);
+              columnY = height - 50;
+            }
+            
+            // Try to convert any numeric values in the mileage string to include km
+            let mileageText = issue.mileage;
+            if (typeof issue.mileage === 'string') {
+              // Extract numbers from the string
+              const mileageMatches = issue.mileage.match(/(\d[\d,]*)/g);
+              if (mileageMatches) {
+                mileageText = issue.mileage;
+                
+                // Add km conversion for each number found
+                for (const match of mileageMatches) {
+                  const numericValue = parseInt(match.replace(/,/g, ''));
+                  if (!isNaN(numericValue)) {
+                    const kmValue = milesToKilometers(numericValue);
+                    // Replace occurrences but preserve text around them
+                    mileageText = mileageText.replace(
+                      match, 
+                      `${numericValue.toLocaleString()} miles (${kmValue.toLocaleString()} km)`
+                    );
+                  }
+                }
+              }
+            }
+            
+            page.drawText(`  Typical mileage: ${mileageText}`, {
               x: columnX,
               y: columnY,
               size: textSize - 1,

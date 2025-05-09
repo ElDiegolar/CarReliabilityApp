@@ -1,4 +1,4 @@
-// Modified version of pages/api/generate-pdf.js that includes timeline data and vehicle image
+// Modified version of pages/api/generate-pdf.js that includes kilometers conversion
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { query } from '../../lib/database';
 
@@ -34,6 +34,11 @@ export default async function handler(req, res) {
     let page = pdfDoc.addPage([612, 792]); // Letter size - use let instead of const
     const { width, height } = page.getSize();
 
+    // Function to convert miles to kilometers
+    const milesToKilometers = (miles) => {
+      return Math.round(miles * 1.60934);
+    };
+
     // Set some initial variables for positioning
     let currentY = height - 50;
     const margin = 50;
@@ -63,7 +68,11 @@ export default async function handler(req, res) {
     
     currentY -= lineHeight;
     
-    page.drawText(`Mileage: ${mileage.toLocaleString()} miles`, {
+    // Convert mileage to kilometers
+    const kilometers = milesToKilometers(mileage);
+    
+    // Display mileage in both miles and kilometers
+    page.drawText(`Mileage: ${mileage.toLocaleString()} miles (${kilometers.toLocaleString()} km)`, {
       x: margin,
       y: currentY,
       size: textSize,
@@ -292,7 +301,24 @@ export default async function handler(req, res) {
         
         currentY -= lineHeight;
         
-        page.drawText(`   Typical Mileage: ${issue.mileage}`, {
+        // Convert mileage values in the text if they exist
+        let mileageText = issue.mileage;
+        if (typeof issue.mileage === 'string') {
+          // Try to extract numbers from the mileage string
+          const mileageMatch = issue.mileage.match(/(\d[\d,]*)/g);
+          if (mileageMatch) {
+            // Replace each number with its equivalent in miles and kilometers
+            mileageText = issue.mileage.replace(/(\d[\d,]*)/g, (match) => {
+              const numericValue = parseInt(match.replace(/,/g, ''));
+              if (!isNaN(numericValue)) {
+                return `${numericValue.toLocaleString()} miles (${milesToKilometers(numericValue).toLocaleString()} km)`;
+              }
+              return match;
+            });
+          }
+        }
+        
+        page.drawText(`   Typical Mileage: ${mileageText}`, {
           x: margin,
           y: currentY,
           size: textSize,
