@@ -101,7 +101,7 @@ export default function Layout({ children, title }) {
                   <ul>
                     <li><Link href="/terms">{t('footer.terms')}</Link></li>
                     <li><Link href="/privacy">{t('footer.privacy')}</Link></li>
-                    <li><a href="mailto:contact@carreliability.com">{t('footer.contact')}</a></li>
+                    <li><a href="mailto:contact@lemnaed.com">{t('footer.contact')}</a></li>
                   </ul>
                 </div>
               </div>
@@ -112,7 +112,7 @@ export default function Layout({ children, title }) {
           <div className="copyright-container">
             <div className="container">
               <p className="copyright">
-                {t('footer.copyright', '© 2025 Verida. All rights reserved.')}
+                {t('footer.copyright', '© 2025 Lemnaed. All rights reserved.')}
               </p>
             </div>
           </div>
