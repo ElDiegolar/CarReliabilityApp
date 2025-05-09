@@ -1,4 +1,4 @@
-
+// pages/search.js - Modified to display mileage in kilometers as well
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -35,27 +35,10 @@ export default function Search() {
   const [showSearchForm, setShowSearchForm] = useState(true);
   const [carImageUrl, setCarImageUrl] = useState(null);
 
-  
-  const fetchCarImage = async (year, make, model) => {
-    try {
-      const response = await fetch('https://google.serper.dev/images', {
-        method: 'POST',
-        headers: {
-          'X-API-KEY': process.env.NEXT_PUBLIC_SERPER_API_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ q: `${year} ${make} ${model}` })
-      });
-
-      const data = await response.json();
-      if (data.images && data.images.length > 0) {
-        setCarImageUrl(data.images[0].imageUrl);
-      }
-    } catch (error) {
-      console.error('Failed to fetch car image:', error);
-    }
+  // Function to convert miles to kilometers
+  const milesToKilometers = (miles) => {
+    return Math.round(miles * 1.60934);
   };
-
 
   // Load vehicle data from URL parameters or saved vehicle
   useEffect(() => {
@@ -235,7 +218,9 @@ export default function Search() {
       setShowSearchForm(false);
 
       // Set car image URL if provided in the response
-      fetchCarImage(formData.year, formData.make, formData.model);
+      if (data.imageUrl) {
+        setCarImageUrl(data.imageUrl);
+      }
 
       // Update URL if not auto-submitted
       if (!isAutoSubmit) {
@@ -286,6 +271,11 @@ export default function Search() {
                 required
                 placeholder={t(`search.${field}Placeholder`) || `Enter ${field}`}
               />
+              {field === 'mileage' && formData.mileage && (
+                <div className="unit-converter">
+                  {milesToKilometers(formData.mileage).toLocaleString()} km
+                </div>
+              )}
             </div>
           ))}
 
@@ -312,7 +302,16 @@ export default function Search() {
 
       {results && (
         <div className="results">
-          <h2>{t('search.resultsFor') || 'Results for'} {formData.year} {formData.make} {formData.model}</h2>
+          <h2>
+            {t('search.resultsFor') || 'Results for'} {formData.year} {formData.make} {formData.model}
+          </h2>
+          
+          <div className="vehicle-info">
+            <p className="mileage-info">
+              {t('search.mileage') || 'Mileage'}: {parseInt(formData.mileage).toLocaleString()} {t('search.miles') || 'miles'} 
+              <span className="kilometers">({milesToKilometers(formData.mileage).toLocaleString()} km)</span>
+            </p>
+          </div>
           
           <div className="score-card">
             <h3>{t('search.overallScore') || 'Overall Reliability Score'}</h3>
@@ -399,12 +398,29 @@ export default function Search() {
                     return null;
                   }
 
+                  // Check if mileage contains numeric values to convert
+                  let mileageText = mileage;
+                  if (typeof mileage === 'string') {
+                    // Try to extract numbers from the mileage string
+                    const mileageMatch = mileage.match(/(\d[\d,]*)/g);
+                    if (mileageMatch) {
+                      // Replace each number with its equivalent in miles and kilometers
+                      mileageText = mileage.replace(/(\d[\d,]*)/g, (match) => {
+                        const numericValue = parseInt(match.replace(/,/g, ''));
+                        if (!isNaN(numericValue)) {
+                          return `${numericValue.toLocaleString()} miles (${milesToKilometers(numericValue).toLocaleString()} km)`;
+                        }
+                        return match;
+                      });
+                    }
+                  }
+
                   return (
                     <li key={index}>
                       <strong>{description}</strong>
                       <div>{t('search.costToFix') || 'Cost to Fix'}: {costToFix}</div>
                       <div>{t('search.occurrence') || 'Occurrence'}: {occurrence}</div>
-                      <div>{t('search.typicalMileage') || 'Typical Mileage'}: {mileage}</div>
+                      <div>{t('search.typicalMileage') || 'Typical Mileage'}: {mileageText}</div>
                     </li>
                   );
                 })}
@@ -495,6 +511,28 @@ export default function Search() {
           border-radius: 12px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
           margin-bottom: 2rem;
+        }
+        
+        .unit-converter {
+          margin-top: 0.5rem;
+          font-size: 0.9rem;
+          color: #666;
+          font-style: italic;
+        }
+        
+        .vehicle-info {
+          margin-bottom: 1.5rem;
+          text-align: center;
+        }
+        
+        .mileage-info {
+          font-size: 1.1rem;
+          color: #333;
+        }
+        
+        .kilometers {
+          margin-left: 0.5rem;
+          color: #666;
         }
         
         .timeline-section {
@@ -627,6 +665,7 @@ export default function Search() {
           margin-bottom: 1.5rem;
           color: #333;
           font-size: 1.75rem;
+          text-align: center;
         }
 
         .score-card {
