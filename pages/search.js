@@ -41,6 +41,27 @@ export default function Search() {
     return Math.round(miles * 1.60934);
   };
 
+  
+  const fetchCarImage = async (year, make, model) => {
+    try {
+      const response = await fetch('https://google.serper.dev/images', {
+        method: 'POST',
+        headers: {
+          'X-API-KEY': process.env.NEXT_PUBLIC_SERPER_API_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ q: `${year} ${make} ${model}` })
+      });
+
+      const data = await response.json();
+      if (data.images && data.images.length > 0) {
+        setCarImageUrl(data.images[0].imageUrl);
+      }
+    } catch (error) {
+      console.error('Failed to fetch car image:', error);
+    }
+  };
+  
   // Load vehicle data from URL parameters or saved vehicle
   useEffect(() => {
     const loadSavedVehicle = async () => {
@@ -78,10 +99,9 @@ export default function Search() {
               setTimelineData(vehicle.timeline_data);
             }
 
-            // Handle car image if available
-            if (vehicle.reliability_data.imageUrl) {
-              setCarImageUrl(vehicle.reliability_data.imageUrl);
-            }
+      
+      // Set car image URL if provided in the response inside handle submit
+      fetchCarImage(formData.year, formData.make, formData.model);
 
             setShowSearchForm(false);
             return;
