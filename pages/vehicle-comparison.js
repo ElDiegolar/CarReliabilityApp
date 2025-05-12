@@ -295,10 +295,13 @@ export default function VehicleComparison() {
                                 {vehicle.reliability_data.commonIssues.slice(0, 2).map((issue, idx) => (
                                   <li key={idx}>
                                     {issue.description}
-                                    {/* Add km conversion for mileage in common issues if available */}
+                                    {/* Fixed: Add km conversion for mileage in common issues if available */}
                                     {issue.mileage && (
                                       <div className="issue-detail">
-                                        {convertMileageText(issue.mileage, milesToKilometers)}
+                                        {typeof issue.mileage === 'string' 
+                                          ? convertMileageText(issue.mileage, milesToKilometers)
+                                          : issue.mileage
+                                        }
                                       </div>
                                     )}
                                   </li>
@@ -317,7 +320,6 @@ export default function VehicleComparison() {
                       </tr>
                     </>
                   )}
-                  
                   {/* Actions section */}
                   <tr className="section-header">
                     <td colSpan={vehicles.length + 1}>{t('comparison.actions', 'Actions')}</td>
@@ -617,9 +619,12 @@ function getScoreClass(score) {
   return 'score-low';
 }
 
-// Helper function to convert mileage text to include kilometers
+// Fixed: Helper function to convert mileage text to include kilometers
 function convertMileageText(mileageText, convertFn) {
-  if (!mileageText) return '';
+  // Check if mileageText is undefined, null, or not a string
+  if (!mileageText || typeof mileageText !== 'string') {
+    return '';
+  }
   
   // Check if mileage text already contains "miles" and "km"
   if (mileageText.includes('miles') && mileageText.includes('km')) {

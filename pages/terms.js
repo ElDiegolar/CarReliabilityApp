@@ -15,7 +15,7 @@ export default function TermsOfService() {
         
         <section>
           <h2>1. Introduction</h2>
-          <p>Welcome to CarReliability.com ("we," "our," or "us"). By accessing or using our website, mobile applications, or any other products or services we offer (collectively, the "Services"), you agree to be bound by these Terms of Service ("Terms").</p>
+          <p>Welcome to Lemnaed.com ("we," "our," or "us"). By accessing or using our website, mobile applications, or any other products or services we offer (collectively, the "Services"), you agree to be bound by these Terms of Service ("Terms").</p>
           <p>Please read these Terms carefully. They contain important information about your legal rights and obligations. If you do not agree with these Terms, please do not access or use our Services.</p>
         </section>
         
@@ -125,8 +125,8 @@ export default function TermsOfService() {
         <section>
           <h2>15. Contact Information</h2>
           <p>If you have any questions about these Terms, please contact us at:</p>
-          <p>CarReliability.com<br />
-          legal@carreliability.com<br />
+          <p>Lemnaed.com<br />
+          legal@Lemnaed.com<br />
           123 Auto Plaza Drive<br />
           San Francisco, CA 94105</p>
         </section>
