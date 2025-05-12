@@ -14,7 +14,7 @@ export default function PrivacyPolicy() {
         <p className="last-updated">Last Updated: April 17, 2025</p>
         
         <section className="intro">
-          <p>At CarReliability.com ("we," "our," or "us"), we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.</p>
+          <p>At Lemnaed.com ("we," "our," or "us"), we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.</p>
           <p>Please read this Privacy Policy carefully. By accessing or using our services, you acknowledge that you have read, understood, and agree to be bound by all the terms of this Privacy Policy. If you do not agree with our policies and practices, please do not use our services.</p>
         </section>
         
@@ -162,8 +162,8 @@ export default function PrivacyPolicy() {
         <section>
           <h2>12. Contact Us</h2>
           <p>If you have any questions or concerns about this Privacy Policy or our privacy practices, please contact us at:</p>
-          <p>CarReliability.com<br />
-          privacy@carreliability.com<br />
+          <p>Lemnaed.com<br />
+          privacy@Lemnaed.com<br />
           123 Auto Plaza Drive<br />
           San Francisco, CA 94105</p>
         </section>

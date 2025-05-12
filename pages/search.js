@@ -1,4 +1,4 @@
-// pages/search.js - Modified to display mileage in kilometers as well
+// pages/search.js - Modified to include specifications section
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -34,6 +34,7 @@ export default function Search() {
   const [timelineData, setTimelineData] = useState([]);
   const [showSearchForm, setShowSearchForm] = useState(true);
   const [carImageUrl, setCarImageUrl] = useState(null);
+  const [specifications, setSpecifications] = useState(null);
 
   // Function to convert miles to kilometers
   const milesToKilometers = (miles) => {
@@ -64,6 +65,12 @@ export default function Search() {
             // Apply premium status if user is premium
             if (isPremium) vehicle.reliability_data.isPremium = true;
             setResults(vehicle.reliability_data);
+            
+            // Handle specifications data from saved vehicle
+            if (vehicle.specifications_data) {
+              console.log('Loaded specifications data from saved vehicle');
+              setSpecifications(vehicle.specifications_data);
+            }
             
             // Handle timeline data from saved vehicle
             if (vehicle.timeline_data && Array.isArray(vehicle.timeline_data) && vehicle.timeline_data.length > 0) {
@@ -150,6 +157,7 @@ export default function Search() {
     setResults(null);
     setTimelineData([]);
     setCarImageUrl(null);
+    setSpecifications(null);
     setShowSearchForm(true);
     router.replace('/search', undefined, { shallow: true });
     setFormData({ year: '', make: '', model: '', mileage: '' });
@@ -168,6 +176,7 @@ export default function Search() {
       setResults(null);
       setTimelineData([]);
       setCarImageUrl(null);
+      setSpecifications(null);
     }
 
     try {
@@ -197,6 +206,12 @@ export default function Search() {
 
       const data = await res.json();
       console.log('Received reliability data:', data);
+      
+      // Check for specifications data in the response
+      if (data.specifications) {
+        console.log('Received specifications data from API');
+        setSpecifications(data.specifications);
+      }
       
       // Check for timeline data in the response
       if (data.timeline && Array.isArray(data.timeline)) {
@@ -294,9 +309,113 @@ export default function Search() {
 
       {error && <div className="error">{error}</div>}
 
-      {carImageUrl && (
-        <div className="car-image">
-          <img src={carImageUrl} alt={`${formData.make} ${formData.model}`} />
+      {/* Specifications section with image and details */}
+      {carImageUrl && specifications && results && (
+        <div className="specifications-section">
+          <h2>{t('search.specifications') || 'Vehicle Specifications'}</h2>
+          <div className="specifications-container">
+            <div className="image-container">
+              <img src={carImageUrl} alt={`${formData.year} ${formData.make} ${formData.model}`} />
+            </div>
+            <div className="specs-table-container">
+              <table className="specs-table">
+                <tbody>
+                  <tr>
+                    <th colSpan="2" className="specs-header">{t('search.engineSpecs') || 'Engine'}</th>
+                  </tr>
+                  <tr>
+                    <td>{t('search.engineType') || 'Type'}</td>
+                    <td>{specifications.engine.type}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.displacement') || 'Displacement'}</td>
+                    <td>{specifications.engine.displacement}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.horsepower') || 'Horsepower'}</td>
+                    <td>{specifications.engine.horsepower}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.torque') || 'Torque'}</td>
+                    <td>{specifications.engine.torque}</td>
+                  </tr>
+                  <tr>
+                    <th colSpan="2" className="specs-header">{t('search.drivetrainSpecs') || 'Drivetrain'}</th>
+                  </tr>
+                  <tr>
+                    <td>{t('search.transmission') || 'Transmission'}</td>
+                    <td>{specifications.transmission}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.drivetrain') || 'Drive Type'}</td>
+                    <td>{specifications.drivetrain}</td>
+                  </tr>
+                  <tr>
+                    <th colSpan="2" className="specs-header">{t('search.dimensions') || 'Dimensions'}</th>
+                  </tr>
+                  <tr>
+                    <td>{t('search.length') || 'Length'}</td>
+                    <td>{specifications.dimensions.length}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.width') || 'Width'}</td>
+                    <td>{specifications.dimensions.width}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.height') || 'Height'}</td>
+                    <td>{specifications.dimensions.height}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.wheelbase') || 'Wheelbase'}</td>
+                    <td>{specifications.dimensions.wheelbase}</td>
+                  </tr>
+                  <tr>
+                    <th colSpan="2" className="specs-header">{t('search.other') || 'Other Specifications'}</th>
+                  </tr>
+                  <tr>
+                    <td>{t('search.weight') || 'Weight'}</td>
+                    <td>{specifications.weight}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.seatingCapacity') || 'Seating Capacity'}</td>
+                    <td>{specifications.seatingCapacity}</td>
+                  </tr>
+                  {isPremium && (
+                    <>
+                      <tr>
+                        <td>{t('search.cargoCapacity') || 'Cargo Capacity'}</td>
+                        <td>{specifications.cargoCapacity}</td>
+                      </tr>
+                      <tr>
+                        <th colSpan="2" className="specs-header">{t('search.fuelEconomy') || 'Fuel Economy'}</th>
+                      </tr>
+                      <tr>
+                        <td>{t('search.cityMPG') || 'City'}</td>
+                        <td>{specifications.fuelEconomy.city}</td>
+                      </tr>
+                      <tr>
+                        <td>{t('search.highwayMPG') || 'Highway'}</td>
+                        <td>{specifications.fuelEconomy.highway}</td>
+                      </tr>
+                      <tr>
+                        <td>{t('search.combinedMPG') || 'Combined'}</td>
+                        <td>{specifications.fuelEconomy.combined}</td>
+                      </tr>
+                    </>
+                  )}
+                </tbody>
+              </table>
+              
+              {!isPremium && (
+                <div className="specs-premium-prompt">
+                  <p>{t('search.upgradeFullSpecs') || 'Upgrade to premium for complete specifications'}</p>
+                  <Link href="/pricing" className="upgrade-button">
+                    {t('search.goPremium') || 'Go Premium'}
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -327,6 +446,7 @@ export default function Search() {
                 vehicleData={results}
                 searchParams={formData}
                 timelineData={timelineData}
+                specificationsData={specifications}
                 savedId={savedId}
               />
             )}
@@ -334,6 +454,7 @@ export default function Search() {
               vehicleData={results}
               searchParams={formData}
               timelineData={timelineData}
+              specificationsData={specifications}
             />
           </div>
 
@@ -643,18 +764,82 @@ export default function Search() {
           border-left: 4px solid #e53e3e;
         }
         
-        .car-image {
+        .specifications-section {
+          background-color: #fff;
+          padding: 2rem;
+          border-radius: 12px;
           margin-bottom: 2rem;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .specifications-section h2 {
+          margin-top: 0;
+          margin-bottom: 1.5rem;
+          color: #333;
+          font-size: 1.75rem;
           text-align: center;
+          border-bottom: 1px solid #eee;
+          padding-bottom: 0.75rem;
+        }
+        
+        .specifications-container {
+          display: flex;
+          flex-direction: row;
+          gap: 2rem;
+        }
+        
+        .image-container {
+          flex: 1;
+          min-width: 0;
           border-radius: 12px;
           overflow: hidden;
         }
         
-        .car-image img {
-          max-width: 100%;
+        .image-container img {
+          width: 100%;
           height: auto;
           border-radius: 12px;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          object-fit: cover;
+        }
+        
+        .specs-table-container {
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .specs-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 1rem;
+        }
+        
+        .specs-table th, .specs-table td {
+          padding: 0.75rem;
+          text-align: left;
+          border-bottom: 1px solid #eee;
+        }
+        
+        .specs-table th {
+          font-weight: 600;
+          color: #333;
+        }
+        
+        .specs-header {
+          background-color: #f5f8ff;
+          color: #0070f3 !important;
+          font-weight: bold;
+          text-align: left;
+          padding: 0.75rem 1rem;
+        }
+        
+        .specs-premium-prompt {
+          background-color: #f0f7ff;
+          padding: 1.5rem;
+          border-radius: 8px;
+          text-align: center;
+          margin-top: 1rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .results {
@@ -865,6 +1050,10 @@ export default function Search() {
         @media (max-width: 768px) {
           .search-form {
             grid-template-columns: 1fr;
+          }
+          
+          .specifications-container {
+            flex-direction: column;
           }
           
           .action-buttons {

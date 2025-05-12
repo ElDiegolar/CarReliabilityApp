@@ -1,4 +1,4 @@
-// Modified version of pages/api/generate-pdf.js that includes kilometers conversion
+// Modified version of pages/api/generate-pdf.js that includes specifications section
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { query } from '../../lib/database';
 
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { year, make, model, mileage, reliability_data, timeline_data, imageUrl } = req.body;
+    const { year, make, model, mileage, reliability_data, timeline_data, specifications_data, imageUrl } = req.body;
     
     // Validate required fields
     if (!year || !make || !model || !mileage || !reliability_data) {
@@ -126,88 +126,509 @@ export default async function handler(req, res) {
     
     currentY -= lineHeight * 2;
     
-    // Add vehicle image if available
-    if (imageUrl) {
-      try {
-        // Fetch the image with a timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
-        
-        console.log(`Attempting to fetch image: ${imageUrl}`);
-        
-        const imageResponse = await fetch(imageUrl, { 
-          signal: controller.signal,
-          headers: {
-            // Some images might require a user-agent header
-            'User-Agent': 'Mozilla/5.0 Vehicle Report Generator'
+    // SPECIFICATIONS SECTION
+    if (specifications_data) {
+      page.drawText('Vehicle Specifications', {
+        x: margin,
+        y: currentY,
+        size: subheaderSize,
+        font: helveticaBoldFont,
+        color: rgb(0, 0.3, 0.7),
+      });
+      
+      currentY -= lineHeight * 1.5;
+      
+      // Add vehicle image if available
+      let imageWidth = 0;
+      let imageHeight = 0;
+      let imageX = margin;
+      let imageY = currentY;
+      
+      if (imageUrl) {
+        try {
+          // Fetch the image with a timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+          
+          console.log(`Attempting to fetch image: ${imageUrl}`);
+          
+          const imageResponse = await fetch(imageUrl, { 
+            signal: controller.signal,
+            headers: {
+              'User-Agent': 'Mozilla/5.0 Vehicle Report Generator'
+            }
+          });
+          clearTimeout(timeoutId);
+          
+          if (!imageResponse.ok) {
+            throw new Error(`Failed to fetch image: ${imageResponse.status} ${imageResponse.statusText}`);
           }
-        });
-        clearTimeout(timeoutId);
-        
-        if (!imageResponse.ok) {
-          throw new Error(`Failed to fetch image: ${imageResponse.status} ${imageResponse.statusText}`);
-        }
-        
-        const contentType = imageResponse.headers.get('content-type');
-        console.log(`Image content type: ${contentType}`);
-        
-        const imageBytes = await imageResponse.arrayBuffer();
-        console.log(`Image size: ${imageBytes.byteLength} bytes`);
-        
-        // Determine image type and embed accordingly
-        let embeddedImage;
-        if (contentType?.includes('jpeg') || contentType?.includes('jpg') || 
-            imageUrl.toLowerCase().endsWith('.jpg') || imageUrl.toLowerCase().endsWith('.jpeg') || 
-            imageUrl.includes('jpg') || imageUrl.includes('jpeg')) {
-          embeddedImage = await pdfDoc.embedJpg(imageBytes);
-        } else if (contentType?.includes('png') || imageUrl.toLowerCase().endsWith('.png') || 
-                  imageUrl.includes('png')) {
-          embeddedImage = await pdfDoc.embedPng(imageBytes);
-        } else {
-          // Try to determine from the first few bytes
-          const header = new Uint8Array(imageBytes.slice(0, 4));
-          const hexHeader = Array.from(header).map(b => b.toString(16).padStart(2, '0')).join('');
           
-          console.log(`Image header: ${hexHeader}`);
+          const contentType = imageResponse.headers.get('content-type');
+          console.log(`Image content type: ${contentType}`);
           
-          if (hexHeader.startsWith('ffd8')) {
-            // JPEG starts with FFD8
+          const imageBytes = await imageResponse.arrayBuffer();
+          console.log(`Image size: ${imageBytes.byteLength} bytes`);
+          
+          // Determine image type and embed accordingly
+          let embeddedImage;
+          if (contentType?.includes('jpeg') || contentType?.includes('jpg') || 
+              imageUrl.toLowerCase().endsWith('.jpg') || imageUrl.toLowerCase().endsWith('.jpeg') || 
+              imageUrl.includes('jpg') || imageUrl.includes('jpeg')) {
             embeddedImage = await pdfDoc.embedJpg(imageBytes);
-          } else if (hexHeader.startsWith('89504e47')) {
-            // PNG starts with 89 50 4E 47
+          } else if (contentType?.includes('png') || imageUrl.toLowerCase().endsWith('.png') || 
+                    imageUrl.includes('png')) {
             embeddedImage = await pdfDoc.embedPng(imageBytes);
           } else {
-            // Default to JPG if type can't be determined
-            console.log("Unable to determine image type, defaulting to JPG");
-            embeddedImage = await pdfDoc.embedJpg(imageBytes);
+            // Try to determine from the first few bytes
+            const header = new Uint8Array(imageBytes.slice(0, 4));
+            const hexHeader = Array.from(header).map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            console.log(`Image header: ${hexHeader}`);
+            
+            if (hexHeader.startsWith('ffd8')) {
+              // JPEG starts with FFD8
+              embeddedImage = await pdfDoc.embedJpg(imageBytes);
+            } else if (hexHeader.startsWith('89504e47')) {
+              // PNG starts with 89 50 4E 47
+              embeddedImage = await pdfDoc.embedPng(imageBytes);
+            } else {
+              // Default to JPG if type can't be determined
+              console.log("Unable to determine image type, defaulting to JPG");
+              embeddedImage = await pdfDoc.embedJpg(imageBytes);
+            }
+          }
+          
+          // Scale the image - maintain aspect ratio for specifications section
+          imageWidth = Math.min(200, (width - 2 * margin) / 2);
+          const scale = imageWidth / embeddedImage.width;
+          imageHeight = embeddedImage.height * scale;
+          
+          // Draw the image
+          page.drawImage(embeddedImage, {
+            x: imageX,
+            y: imageY - imageHeight,
+            width: imageWidth,
+            height: imageHeight,
+          });
+          
+          console.log("Successfully embedded image in PDF");
+        } catch (err) {
+          console.error("Image embedding failed:", err);
+          // Additional logging for debugging
+          if (err.name === 'AbortError') {
+            console.warn("Image fetch timed out after 8 seconds");
+          }
+          // Continue with PDF generation even if image fails
+          imageWidth = 0;
+          imageHeight = 0;
+        }
+      }
+      
+      // Specifications table section (to the right of the image if there's an image)
+      const specTableX = imageWidth > 0 ? margin + imageWidth + 20 : margin;
+      const specTableWidth = imageWidth > 0 ? width - margin - imageWidth - margin - 20 : width - 2 * margin;
+      let specTableY = currentY;
+      const columnWidth = specTableWidth / 2;
+      
+      // ENGINE SPECIFICATIONS
+      page.drawText('Engine Specifications', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaBoldFont,
+      });
+      
+      specTableY -= lineHeight * 1.2;
+      
+      // Engine Type
+      page.drawText('Type:', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      page.drawText(specifications_data.engine.type, {
+        x: specTableX + columnWidth / 2,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      specTableY -= lineHeight;
+      
+      // Displacement
+      page.drawText('Displacement:', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      page.drawText(specifications_data.engine.displacement, {
+        x: specTableX + columnWidth / 2,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      specTableY -= lineHeight;
+      
+      // Horsepower
+      page.drawText('Horsepower:', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      page.drawText(specifications_data.engine.horsepower, {
+        x: specTableX + columnWidth / 2,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      specTableY -= lineHeight;
+      
+      // Torque
+      page.drawText('Torque:', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      page.drawText(specifications_data.engine.torque, {
+        x: specTableX + columnWidth / 2,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      specTableY -= lineHeight * 1.5;
+      
+      // DRIVETRAIN SPECIFICATIONS
+      page.drawText('Drivetrain', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaBoldFont,
+      });
+      
+      specTableY -= lineHeight * 1.2;
+      
+      // Transmission
+      page.drawText('Transmission:', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      page.drawText(specifications_data.transmission, {
+        x: specTableX + columnWidth / 2,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      specTableY -= lineHeight;
+      
+      // Drive Type
+      page.drawText('Drive Type:', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      page.drawText(specifications_data.drivetrain, {
+        x: specTableX + columnWidth / 2,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      specTableY -= lineHeight * 1.5;
+      
+      // DIMENSIONS
+      page.drawText('Dimensions', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaBoldFont,
+      });
+      
+      specTableY -= lineHeight * 1.2;
+      
+      // Length
+      page.drawText('Length:', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      page.drawText(specifications_data.dimensions.length, {
+        x: specTableX + columnWidth / 2,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      specTableY -= lineHeight;
+      
+      // Width
+      page.drawText('Width:', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      page.drawText(specifications_data.dimensions.width, {
+        x: specTableX + columnWidth / 2,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      specTableY -= lineHeight;
+      
+      // Height
+      page.drawText('Height:', {
+        x: specTableX,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      page.drawText(specifications_data.dimensions.height, {
+        x: specTableX + columnWidth / 2,
+        y: specTableY,
+        size: textSize,
+        font: helveticaFont,
+      });
+      
+      // Update currentY to be below the image or the specs table, whichever is lower
+      const imageBottom = imageY - imageHeight;
+      const specTableBottom = specTableY - lineHeight;
+      currentY = Math.min(imageBottom, specTableBottom) - lineHeight * 2;
+      
+      // If we're almost at the bottom of the page, go to the next page
+      if (currentY < 150) {
+        page = pdfDoc.addPage([612, 792]);
+        currentY = height - 50;
+      }
+      
+      // Continue with more specifications on next page if needed
+      if (reliability_data.isPremium) {
+        // Check if we need more space for premium specifications
+        if (currentY < 250) {
+          page = pdfDoc.addPage([612, 792]);
+          currentY = height - 50;
+        }
+        
+        // ADDITIONAL PREMIUM SPECIFICATIONS
+        page.drawText('Additional Specifications', {
+          x: margin,
+          y: currentY,
+          size: subheaderSize,
+          font: helveticaBoldFont,
+          color: rgb(0, 0.3, 0.7),
+        });
+        
+        currentY -= lineHeight * 1.5;
+        
+        // Fuel Economy header
+        page.drawText('Fuel Economy', {
+          x: margin,
+          y: currentY,
+          size: textSize,
+          font: helveticaBoldFont,
+        });
+        
+        currentY -= lineHeight * 1.2;
+        
+        // City MPG
+        page.drawText('City:', {
+          x: margin,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        page.drawText(specifications_data.fuelEconomy.city, {
+          x: margin + 100,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        currentY -= lineHeight;
+        
+        // Highway MPG
+        page.drawText('Highway:', {
+          x: margin,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        page.drawText(specifications_data.fuelEconomy.highway, {
+          x: margin + 100,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        currentY -= lineHeight;
+        
+        // Combined MPG
+        page.drawText('Combined:', {
+          x: margin,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        page.drawText(specifications_data.fuelEconomy.combined, {
+          x: margin + 100,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        currentY -= lineHeight * 1.5;
+        
+        // Other Specifications
+        page.drawText('Other Specifications', {
+          x: margin,
+          y: currentY,
+          size: textSize,
+          font: helveticaBoldFont,
+        });
+        
+        currentY -= lineHeight * 1.2;
+        
+        // Weight
+        page.drawText('Weight:', {
+          x: margin,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        page.drawText(specifications_data.weight, {
+          x: margin + 100,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        currentY -= lineHeight;
+        
+        // Seating Capacity
+        page.drawText('Seating Capacity:', {
+          x: margin,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        page.drawText(specifications_data.seatingCapacity, {
+          x: margin + 150,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        currentY -= lineHeight;
+        
+        // Cargo Capacity
+        page.drawText('Cargo Capacity:', {
+          x: margin,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        page.drawText(specifications_data.cargoCapacity, {
+          x: margin + 150,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+        });
+        
+        currentY -= lineHeight * 1.5;
+        
+        // Safety Features
+        if (specifications_data.safetyFeatures && specifications_data.safetyFeatures.length > 0) {
+          page.drawText('Safety Features:', {
+            x: margin,
+            y: currentY,
+            size: textSize,
+            font: helveticaBoldFont,
+          });
+          
+          currentY -= lineHeight;
+          
+          // List safety features
+          for (const feature of specifications_data.safetyFeatures) {
+            page.drawText(`• ${feature}`, {
+              x: margin + 20,
+              y: currentY,
+              size: textSize,
+              font: helveticaFont,
+            });
+            
+            currentY -= lineHeight;
+            
+            // Check if we need a new page
+            if (currentY < 150) {
+              page = pdfDoc.addPage([612, 792]);
+              currentY = height - 50;
+            }
           }
         }
         
-        // Scale the image - maintain aspect ratio but don't exceed 300px width
-        const imgWidth = Math.min(300, width - 2 * margin);
-        const scale = imgWidth / embeddedImage.width;
-        const imgHeight = embeddedImage.height * scale;
-        
-        // Draw the image
-        currentY -= 20; // Add some spacing
-        page.drawImage(embeddedImage, {
+        // Warranty information if available
+        if (specifications_data.warranty) {
+          currentY -= lineHeight / 2;
+          
+          page.drawText('Warranty:', {
+            x: margin,
+            y: currentY,
+            size: textSize,
+            font: helveticaBoldFont,
+          });
+          
+          currentY -= lineHeight;
+          
+          page.drawText(specifications_data.warranty, {
+            x: margin + 20,
+            y: currentY,
+            size: textSize,
+            font: helveticaFont,
+          });
+          
+          currentY -= lineHeight * 2;
+        }
+      }
+      
+      // If not premium, add an upgrade note
+      if (!reliability_data.isPremium) {
+        page.drawText('Upgrade to premium for complete specifications data', {
           x: margin,
-          y: currentY - imgHeight,
-          width: imgWidth,
-          height: imgHeight,
+          y: currentY,
+          size: textSize,
+          font: helveticaFont,
+          color: rgb(0.5, 0.5, 0.5),
         });
         
-        // Update the current Y position to be below the image
-        currentY -= imgHeight + 20;
-        
-        console.log("Successfully embedded image in PDF");
-      } catch (err) {
-        console.error("Image embedding failed:", err);
-        // Additional logging for debugging
-        if (err.name === 'AbortError') {
-          console.warn("Image fetch timed out after 8 seconds");
-        }
-        // Continue with PDF generation even if image fails
+        currentY -= lineHeight * 2;
       }
     }
     
