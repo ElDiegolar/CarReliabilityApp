@@ -61,7 +61,7 @@ export default function Search() {
       console.error('Failed to fetch car image:', error);
     }
   };
-  
+
   // Load vehicle data from URL parameters or saved vehicle
   useEffect(() => {
     const loadSavedVehicle = async () => {
@@ -98,10 +98,8 @@ export default function Search() {
               console.log(`Loaded ${vehicle.timeline_data.length} timeline items from saved vehicle`);
               setTimelineData(vehicle.timeline_data);
             }
-
-      
       // Set car image URL if provided in the response inside handle submit
-      fetchCarImage(formData.year, formData.make, formData.model);
+      fetchCarImage(vehicle.year, vehicle.make, vehicle.model);
 
             setShowSearchForm(false);
             return;
@@ -252,10 +250,9 @@ export default function Search() {
       
       setShowSearchForm(false);
 
-      // Set car image URL if provided in the response
-      if (data.imageUrl) {
-        setCarImageUrl(data.imageUrl);
-      }
+    // Set car image URL if provided in the response inside handle submit
+    fetchCarImage(formData.year, formData.make, formData.model);
+
 
       // Update URL if not auto-submitted
       if (!isAutoSubmit) {
