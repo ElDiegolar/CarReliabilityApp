@@ -11,7 +11,7 @@ import Head from 'next/head';
 const BLOG_POSTS = [
   {
     id: 'understanding-reliability-scores',
-    title: 'Understanding Car Reliability Scores',
+    title: 'Understanding Lemnaed Scores',
     excerpt: 'Learn what reliability scores really mean and how they can help you make better car-buying decisions.',
     date: '2025-05-01',
     author: 'Emma Rodriguez',
@@ -21,11 +21,11 @@ const BLOG_POSTS = [
     image: '/images/blog/check-engine.webp',
     readTime: '6 min read',
     content: `
-      <h2>What Do Car Reliability Scores Really Mean?</h2>
+      <h2>What Do Lemnaed Scores Really Mean?</h2>
       <p>When you're searching for your next vehicle, reliability scores can be one of the most important factors in your decision-making process. But what exactly do these numbers mean, and how are they calculated?</p>
       
       <h3>How Reliability Scores Are Calculated</h3>
-      <p>Car reliability scores are comprehensive assessments that incorporate multiple data points across various vehicle systems. At Lemonaed, our reliability algorithm analyzes:</p>
+      <p>Lemnaed scores are comprehensive assessments that incorporate multiple data points across various vehicle systems. At Lemonaed, our reliability algorithm analyzes:</p>
       <ul>
         <li>Historical maintenance records from thousands of vehicles</li>
         <li>Reported problems from certified mechanics</li>

@@ -15,7 +15,7 @@ export default function Layout({ children, title }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const pageTitle = title || "CarReliability";
+  const pageTitle = title || "Lemnaed";
 
   // Handle scroll event to change header style
   useEffect(() => {

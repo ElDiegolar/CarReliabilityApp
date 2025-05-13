@@ -10,7 +10,7 @@ export default function handler(req, res) {
   }
 
   return res.status(200).json({
-    message: "Car Reliability API is running",
+    message: "Lemnaed API is running",
     version: "1.0.0",
     endpoints: [
       "/api/register",

@@ -1,6 +1,6 @@
 # Translations Guide
 
-This document provides instructions for working with translations in the Car Reliability application.
+This document provides instructions for working with translations in the Lemnaed application.
 
 ## Overview
 

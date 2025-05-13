@@ -74,7 +74,7 @@ export default function Header() {
     <div className="logo-content">
       <img 
         src="/logo.png" 
-        alt="CarReliability" 
+        alt="Lemnaed" 
         className="logo-image"
         width={48}
         height={48}

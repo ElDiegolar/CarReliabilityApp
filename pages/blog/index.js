@@ -10,7 +10,7 @@ import Layout from '../../components/Layout';
 const BLOG_POSTS = [
   {
     id: 'understanding-reliability-scores',
-    title: 'Understanding Car Reliability Scores',
+    title: 'Understanding Lemnaed Scores',
     excerpt: 'Learn what reliability scores really mean and how they can help you make better car-buying decisions.',
     date: '2025-05-01',
     author: 'Emma Rodriguez',
@@ -18,11 +18,11 @@ const BLOG_POSTS = [
     image: '/images/blog/blog1.png',
     readTime: '6 min read',
     content: `
-      <h2>What Do Car Reliability Scores Really Mean?</h2>
+      <h2>What Do Lemnaed Scores Really Mean?</h2>
       <p>When you're searching for your next vehicle, reliability scores can be one of the most important factors in your decision-making process. But what exactly do these numbers mean, and how are they calculated?</p>
       
       <h3>How Reliability Scores Are Calculated</h3>
-      <p>Car reliability scores are comprehensive assessments that incorporate multiple data points across various vehicle systems. At Lemonaed, our reliability algorithm analyzes:</p>
+      <p>Lemnaed scores are comprehensive assessments that incorporate multiple data points across various vehicle systems. At Lemonaed, our reliability algorithm analyzes:</p>
       <ul>
         <li>Historical maintenance records from thousands of vehicles</li>
         <li>Reported problems from certified mechanics</li>
@@ -242,10 +242,10 @@ export default function Blog() {
   };
   
   return (
-    <Layout title={t('blog.title') || 'Car Reliability Blog'}>
+    <Layout title={t('blog.title') || 'Lemnaed Blog'}>
       <div className="blog-container">
         <div className="blog-header">
-          <h1>{t('blog.title') || 'Car Reliability Blog'}</h1>
+          <h1>{t('blog.title') || 'Lemnaed Blog'}</h1>
           <p className="blog-subtitle">
             {t('blog.subtitle') || 'Expert insights on vehicle reliability, smart car buying, and maintenance'}
           </p>
@@ -340,7 +340,7 @@ export default function Blog() {
         {/* <div className="newsletter-section">
           <div className="newsletter-content">
             <h2>{t('blog.newsletterTitle') || 'Stay Updated'}</h2>
-            <p>{t('blog.newsletterDescription') || 'Subscribe to our newsletter to receive the latest car reliability insights directly to your inbox.'}</p>
+            <p>{t('blog.newsletterDescription') || 'Subscribe to our newsletter to receive the latest Lemnaed insights directly to your inbox.'}</p>
             <form className="newsletter-form">
               <input 
                 type="email" 

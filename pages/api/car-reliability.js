@@ -1,4 +1,4 @@
-// pages/api/car-reliability.js - Car reliability data API route with integrated timeline
+// pages/api/car-reliability.js - Lemnaed data API route with integrated timeline
 import { Configuration, OpenAIApi } from 'openai';
 import { query } from '../../lib/database';
 import { ensureTimelineTable, getCachedTimeline, saveTimelineData } from '../../lib/timeline-utils';
