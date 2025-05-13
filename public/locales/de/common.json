@@ -334,7 +334,20 @@
     "login": "Anmelden",
     "register": "Registrieren",
     "logout": "Abmelden",
-    "language": "Sprache"
+    "language": "Sprache",
+    "blog": "Blog"
+  },
+  "blog": {
+    "title": "Autozverlässigkeits-Blog",
+    "subtitle": "Expertenwissen über Fahrzeugzuverlässigkeit, intelligenten Autokauf und Wartung",
+    "searchPlaceholder": "Artikel suchen...",
+    "featured": "Empfohlen",
+    "noResults": "Keine Artikel gefunden, die Ihren Suchkriterien entsprechen.",
+    "resetFilters": "Filter zurücksetzen",
+    "newsletterTitle": "Bleiben Sie auf dem Laufenden",
+    "newsletterDescription": "Abonnieren Sie unseren Newsletter, um die neuesten Erkenntnisse zur Fahrzeugzuverlässigkeit direkt in Ihren Posteingang zu erhalten.",
+    "emailPlaceholder": "Ihre E-Mail-Adresse",
+    "subscribe": "Abonnieren"
   },
   "footer": {
     "copyright": "© 2025 Lemonaed. Alle Rechte vorbehalten.",

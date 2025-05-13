@@ -334,7 +334,20 @@
     "login": "Connexion",
     "register": "S'inscrire",
     "logout": "Déconnexion",
-    "language": "Langue"
+    "language": "Langue",
+    "blog": "Blog"
+  },
+  "blog": {
+    "title": "Blog de Fiabilité Automobile",
+    "subtitle": "Avis d'experts sur la fiabilité des véhicules, l'achat intelligent de voitures et l'entretien",
+    "searchPlaceholder": "Rechercher des articles...",
+    "featured": "À la une",
+    "noResults": "Aucun article trouvé correspondant à vos critères de recherche.",
+    "resetFilters": "Réinitialiser les filtres",
+    "newsletterTitle": "Restez informé",
+    "newsletterDescription": "Abonnez-vous à notre newsletter pour recevoir les dernières informations sur la fiabilité automobile directement dans votre boîte de réception.",
+    "emailPlaceholder": "Votre adresse e-mail",
+    "subscribe": "S'abonner"
   },
   "footer": {
     "copyright": "© 2025 Lemonaed. Tous droits réservés.",

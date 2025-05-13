@@ -118,6 +118,9 @@ export default function Header() {
                 {t('nav.pricing')}
               </Link>
             </li>
+            <li>
+              <Link href="/blog">{t('nav.blog') || 'Blog'}</Link>
+              </li>
             {isAuthenticated ? (
               <li className="user-dropdown">
                 <button 

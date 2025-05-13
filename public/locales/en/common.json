@@ -334,7 +334,30 @@
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
-    "language": "Language"
+    "language": "Language",
+    "blog": "Blog"
+  },
+  "blog": {
+    "title": "Car Reliability Blog",
+    "subtitle": "Expert insights on vehicle reliability, smart car buying, and maintenance",
+    "searchPlaceholder": "Search articles...",
+    "featured": "Featured",
+    "noResults": "No articles found matching your search criteria.",
+    "resetFilters": "Reset Filters",
+    "newsletterTitle": "Stay Updated",
+    "newsletterDescription": "Subscribe to our newsletter to receive the latest car reliability insights directly to your inbox.",
+    "emailPlaceholder": "Your email address",
+    "subscribe": "Subscribe",
+    "readMore": "Read More",
+    "relatedArticles": "Related Articles",
+    "discussion": "Discussion",
+    "commentPlaceholder": "Share your thoughts or ask a question...",
+    "postComment": "Post Comment",
+    "signinPrompt": "Please sign in to join the discussion.",
+    "shareArticle": "Share this article",
+    "aboutAuthor": "About the Author",
+    "goBack": "Back to All Articles",
+    "loading": "Loading articles..."
   },
   "footer": {
     "copyright": "© 2025 Lemonaed. All rights reserved.",
