@@ -1,4 +1,3 @@
-// pages/profile.js - i18n-enabled with modal functionality
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -71,6 +70,54 @@ export default function Profile() {
     router.push('/pricing');
   };
 
+  // New handler for managing subscription
+  const handleManageSubscription = async () => {
+    // Show loading notification
+    setNotification({
+      show: true,
+      message: t('profile.creatingPortalSession') || 'Creating portal session...',
+      type: 'info'
+    });
+    
+    try {
+      const token = getToken();
+      const response = await fetch('/api/create-billing-portal-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          // Pass the Stripe customer ID if available
+          customerId: subscription?.stripe_customer_id,
+          // Pass the Stripe subscription ID if available
+          subscriptionId: subscription?.stripe_subscription_id
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create billing portal session');
+      }
+      
+      const { url } = await response.json();
+      
+      // Redirect to the Stripe billing portal
+      window.location.href = url;
+    } catch (err) {
+      console.error('Error creating billing portal session:', err);
+      setNotification({
+        show: true,
+        message: t('profile.billingPortalError') || 'Failed to access billing portal. Please try again.',
+        type: 'error'
+      });
+      
+      // Hide error after 5 seconds
+      setTimeout(() => {
+        setNotification({ show: false, message: '', type: '' });
+      }, 5000);
+    }
+  };
+
   // Handle password change success
   const handlePasswordChangeSuccess = () => {
     setNotification({
@@ -138,15 +185,20 @@ export default function Profile() {
                       <div className="info-item">
                         <label>{t('profile.renewalDate')}</label>
                         <div>
-                          {subscription.expires_at
-                            ? new Date(subscription.expires_at).toLocaleDateString(router.locale)
+                          {subscription.current_period_end
+                            ? new Date(subscription.current_period_end).toLocaleDateString(router.locale)
                             : t('profile.noExpiration')}
                         </div>
                       </div>
                     </div>
                     
                     <div className="subscription-actions">
-                      <button className="button secondary">{t('profile.manageSubscription')}</button>
+                      <button 
+                        className="button secondary"
+                        onClick={handleManageSubscription}
+                      >
+                        {t('profile.manageSubscription')}
+                      </button>
                     </div>
                   </div>
                 ) : (
@@ -218,6 +270,12 @@ export default function Profile() {
             background-color: #e6fffa;
             color: #0d9488;
             border-left: 4px solid #0d9488;
+          }
+          
+          .notification.info {
+            background-color: #eff6ff;
+            color: #3b82f6;
+            border-left: 4px solid #3b82f6;
           }
           
           .notification.error {
