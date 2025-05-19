@@ -899,7 +899,7 @@ export default async function handler(req, res) {
         const iconSize = 15;
         
         // Cost info
-        page.drawText(', {
+        page.drawText(' ',{
           x: margin + 5,
           y: detailY,
           size: fonts.heading,
