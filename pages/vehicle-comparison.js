@@ -470,37 +470,45 @@ export default function VehicleComparison() {
             width: 100%;
             border-collapse: collapse;
             background-color: white;
-            table-layout: fixed;
+            table-layout: auto;
+            min-width: 800px;
           }
           
           .comparison-table th,
           .comparison-table td {
-            padding: 1rem;
+            padding: 0.75rem 0.5rem;
             text-align: center;
             border-bottom: 1px solid #eaeaea;
-            vertical-align: middle;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
           }
           
           .comparison-table th {
             background-color: #f5f5f5;
             font-weight: 600;
+            font-size: 0.9rem;
           }
           
           .comparison-table th:first-child,
           .comparison-table td:first-child {
             background-color: #f9f9f9;
             font-weight: 500;
-            width: 25%;
+            min-width: 180px;
+            max-width: 220px;
             text-align: left;
             position: sticky;
             left: 0;
             border-right: 1px solid #eaeaea;
             z-index: 1;
+            white-space: normal;
           }
           
           .comparison-table th:not(:first-child),
           .comparison-table td:not(:first-child) {
-            width: calc(75% / 3);
+            min-width: 150px;
+            max-width: 200px;
           }
           
           .section-header td {
@@ -517,11 +525,13 @@ export default function VehicleComparison() {
           
           .score-badge {
             display: inline-block;
-            padding: 0.5rem 1rem;
-            min-width: 70px;
-            border-radius: 20px;
+            padding: 0.4rem 0.8rem;
+            min-width: 60px;
+            border-radius: 15px;
             font-weight: bold;
             color: white;
+            font-size: 0.85rem;
+            white-space: nowrap;
           }
           
           .score-high {
@@ -539,23 +549,27 @@ export default function VehicleComparison() {
           .premium-locked {
             color: #718096;
             font-style: italic;
-            font-size: 0.9rem;
-            padding: 0.5rem;
+            font-size: 0.8rem;
+            padding: 0.4rem;
             background-color: #f7fafc;
             border-radius: 4px;
             display: inline-block;
-            min-width: 100px;
+            min-width: 80px;
+            line-height: 1.2;
           }
           
           .issues-list {
-            padding-left: 1.2rem;
+            padding-left: 1rem;
             margin: 0;
             text-align: left;
+            list-style-type: disc;
           }
           
           .issues-list li {
             margin-bottom: 0.5rem;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            line-height: 1.3;
+            word-wrap: break-word;
           }
           
           .more-issues {
@@ -572,14 +586,16 @@ export default function VehicleComparison() {
           
           .action-link {
             display: inline-block;
-            padding: 0.5rem 0.75rem;
-            min-width: 120px;
+            padding: 0.4rem 0.6rem;
+            min-width: 100px;
             background-color: #f5f5f5;
             color: #0070f3;
             border-radius: 4px;
             text-decoration: none;
             transition: background-color 0.2s;
             text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.2;
           }
           
           .action-link:hover {
@@ -624,13 +640,20 @@ export default function VehicleComparison() {
             
             .comparison-table th,
             .comparison-table td {
-              padding: 0.75rem 0.5rem;
-              font-size: 0.9rem;
+              padding: 0.5rem 0.3rem;
+              font-size: 0.8rem;
             }
             
             .comparison-table th:first-child,
             .comparison-table td:first-child {
-              width: 120px;
+              min-width: 120px;
+              max-width: 140px;
+            }
+            
+            .comparison-table th:not(:first-child),
+            .comparison-table td:not(:first-child) {
+              min-width: 100px;
+              max-width: 120px;
             }
             
             .back-link {
