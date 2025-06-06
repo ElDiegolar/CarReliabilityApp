@@ -25,7 +25,7 @@ const BLOG_POSTS = [
       <p>When you're searching for your next vehicle, reliability scores can be one of the most important factors in your decision-making process. But what exactly do these numbers mean, and how are they calculated?</p>
       
       <h3>How Reliability Scores Are Calculated</h3>
-      <p>Lemnaed scores are comprehensive assessments that incorporate multiple data points across various vehicle systems. At Lemonaed, our reliability algorithm analyzes:</p>
+      <p>Lemnaed scores are comprehensive assessments that incorporate multiple data points across various vehicle systems. At Lemnaed, our reliability algorithm analyzes:</p>
       <ul>
         <li>Historical maintenance records from thousands of vehicles</li>
         <li>Reported problems from certified mechanics</li>
@@ -85,7 +85,7 @@ const BLOG_POSTS = [
         <li><strong>Manufacturing Process Changes</strong>: Shifts in production methods or facilities can affect build quality</li>
       </ul>
       
-      <p>At Lemonaed, our premium timeline feature traces the full engineering history of your vehicle, identifying the critical changes that impact long-term reliability.</p>
+      <p>At Lemnaed, our premium timeline feature traces the full engineering history of your vehicle, identifying the critical changes that impact long-term reliability.</p>
       
       <h3>The Most Critical Vehicle Generation Changes</h3>
       <p>Some generation changes bring dramatic improvements in reliability, while others introduce new problems. Here are examples of significant generation changes that substantially affected reliability:</p>
@@ -540,7 +540,7 @@ export default function BlogPost() {
               <h3>About {post.author}</h3>
               <div className="author-title">{post.authorTitle}</div>
               <p className="author-description">
-                {post.author} is a {post.authorTitle} at Lemonaed with over 10 years of experience in the automotive industry. 
+                {post.author} is a {post.authorTitle} at Lemnaed with over 10 years of experience in the automotive industry. 
                 Their expertise includes vehicle reliability analysis, maintenance best practices, and consumer advocacy in the automotive space.
               </p>
             </div>

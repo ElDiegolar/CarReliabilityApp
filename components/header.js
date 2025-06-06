@@ -84,7 +84,7 @@ export default function Header() {
       />
       <div className="logo-text-wrapper">
         <span className="logo-text">
-         Lemonaed
+         Lemnaed
         </span>
         <span className="logo-subtext">When life hands you lemons</span>
       </div>
