@@ -1,4 +1,4 @@
-// pages/vehicle-comparison.js
+// pages/vehicle-comparison.js - Fixed version
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -8,6 +8,49 @@ import Layout from '../components/Layout';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
 
+// Helper function to determine score class
+function getScoreClass(score) {
+  if (!score) return '';
+  if (score >= 80) return 'score-high';
+  if (score >= 60) return 'score-medium';
+  return 'score-low';
+}
+
+// Helper function to normalize mileage text for consistency
+function normalizeMileageText(mileageText, convertFn) {
+  if (!mileageText || typeof mileageText !== 'string') {
+    return '';
+  }
+  
+  // If already has both miles and km, return as is
+  if (mileageText.includes('miles') && mileageText.includes('km')) {
+    return mileageText;
+  }
+  
+  // Add "miles" if missing and convert to include km
+  let normalizedText = mileageText;
+  if (!mileageText.includes('mile')) {
+    normalizedText = mileageText + ' miles';
+  }
+  
+  // Find numbers and convert them
+  const numbers = normalizedText.match(/(\d[\d,]*)/g);
+  if (!numbers || numbers.length === 0) {
+    return normalizedText;
+  }
+  
+  let result = normalizedText;
+  for (const num of numbers) {
+    const miles = parseInt(num.replace(/,/g, ''));
+    if (!isNaN(miles)) {
+      const km = convertFn(miles);
+      result = result.replace(num, `${miles.toLocaleString()} miles (${km.toLocaleString()} km)`);
+    }
+  }
+  
+  return result;
+}
+
 export default function VehicleComparison() {
   const router = useRouter();
   const { t } = useTranslation('common');
@@ -16,6 +59,11 @@ export default function VehicleComparison() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [exporting, setExporting] = useState(false);
+  
+  // Function to convert miles to kilometers
+  const milesToKilometers = (miles) => {
+    return Math.round(miles * 1.60934);
+  };
   
   useEffect(() => {
     const fetchVehiclesForComparison = async () => {
@@ -62,10 +110,10 @@ export default function VehicleComparison() {
     fetchVehiclesForComparison();
   }, [router.isReady, router.query, getToken, t]);
   
-const handleExportPdf = async () => {
+  const handleExportPdf = async () => {
     if (vehicles.length === 0) return;
     
-    setExporting(true); // Add this state:
+    setExporting(true);
 
     try {
       const token = getToken();
@@ -118,13 +166,14 @@ const handleExportPdf = async () => {
       setExporting(false);
     }
   };
+
   return (
     <ProtectedRoute>
       <Layout title={t('comparison.title', 'Vehicle Comparison')}>
         <div className="comparison-container">
           <h1>{t('comparison.title', 'Vehicle Comparison')}</h1>
           
-          <Link href="/saved-vehicles" className="back-link">
+          <Link href="/saved-vehicles" className="button primary">
             ← {t('comparison.backToSaved', 'Back to Saved Vehicles')}
           </Link>
           
@@ -146,8 +195,14 @@ const handleExportPdf = async () => {
                   <tr>
                     <th>{t('comparison.criteria', 'Criteria')}</th>
                     {vehicles.map(vehicle => (
-                      <th key={vehicle.id}>
-                        {vehicle.year} {vehicle.make} {vehicle.model}
+                      <th key={vehicle.id} style={{ maxWidth: '200px', wordWrap: 'break-word' }}>
+                        <div style={{ lineHeight: '1.2' }}>
+                          {vehicle.year} {vehicle.make} 
+                          <br />
+                          <span style={{ fontSize: '0.85em', fontWeight: 'normal' }}>
+                            {vehicle.model}
+                          </span>
+                        </div>
                       </th>
                     ))}
                   </tr>
@@ -158,10 +213,18 @@ const handleExportPdf = async () => {
                     <td colSpan={vehicles.length + 1}>{t('comparison.basicInfo', 'Basic Information')}</td>
                   </tr>
                   <tr>
-                    <td>{t('comparison.mileage', 'Mileage')}</td>
+                    <td>{t('comparison.mileage', 'Mileage (mi)')}</td>
                     {vehicles.map(vehicle => (
                       <td key={vehicle.id}>
                         {vehicle.mileage ? vehicle.mileage.toLocaleString() : '0'} {t('comparison.miles', 'miles')}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <td>{t('comparison.mileageKm', 'Mileage (km)')}</td>
+                    {vehicles.map(vehicle => (
+                      <td key={vehicle.id}>
+                        {vehicle.mileage ? milesToKilometers(vehicle.mileage).toLocaleString() : '0'} {t('comparison.kilometers', 'km')}
                       </td>
                     ))}
                   </tr>
@@ -280,7 +343,18 @@ const handleExportPdf = async () => {
                             {vehicle.reliability_data?.isPremium && vehicle.reliability_data?.commonIssues?.length > 0 ? (
                               <ul className="issues-list">
                                 {vehicle.reliability_data.commonIssues.slice(0, 2).map((issue, idx) => (
-                                  <li key={idx}>{issue.description}</li>
+                                  <li key={idx}>
+                                    {issue.description}
+                                    {/* Fixed: Add km conversion for mileage in common issues if available */}
+                                    {issue.mileage && (
+                                      <div className="issue-detail">
+                                        {typeof issue.mileage === 'string' 
+                                          ? normalizeMileageText(issue.mileage, milesToKilometers)
+                                          : issue.mileage
+                                        }
+                                      </div>
+                                    )}
+                                  </li>
                                 ))}
                                 {vehicle.reliability_data.commonIssues.length > 2 && (
                                   <li className="more-issues">
@@ -297,8 +371,8 @@ const handleExportPdf = async () => {
                     </>
                   )}
                   
-                {/* Actions section */}
-                <tr className="section-header">
+                  {/* Actions section */}
+                  <tr className="section-header">
                     <td colSpan={vehicles.length + 1}>{t('comparison.actions', 'Actions')}</td>
                   </tr>
                   <tr>
@@ -322,266 +396,299 @@ const handleExportPdf = async () => {
           {/* Add a PDF export button for premium users */}
           {vehicles.length > 0 && vehicles.some(v => v.reliability_data?.isPremium) && (
             <div className="export-section">
-              <button className="export-button" onClick={()=> handleExportPdf()} disabled={exporting}>
-                {t('comparison.exportPdf', 'Export Comparison as PDF')}
+              <button className="export-button" onClick={handleExportPdf} disabled={exporting}>
+                {exporting ? t('comparison.generating', 'Generating PDF...') : t('comparison.exportPdf', 'Export Comparison as PDF')}
               </button>
               <p className="premium-note">{t('comparison.premiumFeature', 'Premium feature')}</p>
             </div>
           )}
         </div>
         
-      
-<style jsx>{`
-  .comparison-container {
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-  
-  h1 {
-    margin-bottom: 1rem;
-  }
-  
-  .back-link {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: #0070f3;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .back-link:hover {
-    text-decoration: underline;
-  }
-  
-  .loading, .error, .empty-state {
-    padding: 2rem;
-    border-radius: 8px;
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-  
-  .loading {
-    background-color: #f5f5f5;
-  }
-  
-  .error {
-    background-color: #fff5f5;
-    color: #e53e3e;
-  }
-  
-  .empty-state {
-    background-color: #f5f5f5;
-    padding: 3rem;
-  }
-  
-  .button {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-weight: 500;
-    margin-top: 1rem;
-    transition: all 0.2s;
-  }
-  
-  .button.primary {
-    background-color: #0070f3;
-    color: white;
-  }
-  
-  .comparison-table-container {
-    overflow-x: auto;
-    margin-bottom: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .comparison-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    table-layout: fixed; /* Add fixed table layout */
-  }
-  
-  .comparison-table th,
-  .comparison-table td {
-    padding: 1rem;
-    text-align: center; /* Center align all cells */
-    border-bottom: 1px solid #eaeaea;
-    vertical-align: middle; /* Vertically center content */
-  }
-  
-  .comparison-table th {
-    background-color: #f5f5f5;
-    font-weight: 600;
-  }
-  
-  .comparison-table th:first-child,
-  .comparison-table td:first-child {
-    background-color: #f9f9f9;
-    font-weight: 500;
-    width: 25%; /* Fixed width for first column */
-    text-align: left; /* Left align first column */
-    position: sticky;
-    left: 0;
-    border-right: 1px solid #eaeaea;
-    z-index: 1; /* Ensure it stays above other cells when scrolling */
-  }
-  
-  .comparison-table th:not(:first-child),
-  .comparison-table td:not(:first-child) {
-    width: calc(75% / 3); /* Equal distribution for vehicle columns */
-  }
-  
-  .section-header td {
-    background-color: #e5f1ff;
-    color: #0070f3;
-    font-weight: 600;
-    padding: 0.75rem 1rem;
-    text-align: left; /* Left align section headers */
-  }
-  
-  .score-cell {
-    text-align: center;
-  }
-  
-  .score-badge {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    min-width: 70px; /* Standardize badge width */
-    border-radius: 20px;
-    font-weight: bold;
-    color: white;
-  }
-  
-  .score-high {
-    background-color: #38a169;
-  }
-  
-  .score-medium {
-    background-color: #dd6b20;
-  }
-  
-  .score-low {
-    background-color: #e53e3e;
-  }
-  
-  .premium-locked {
-    color: #718096;
-    font-style: italic;
-    font-size: 0.9rem;
-    padding: 0.5rem;
-    background-color: #f7fafc;
-    border-radius: 4px;
-    display: inline-block;
-    min-width: 100px; /* Standardize width */
-  }
-  
-  .issues-list {
-    padding-left: 1.2rem;
-    margin: 0;
-    text-align: left; /* Left align lists */
-  }
-  
-  .issues-list li {
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-  }
-  
-  .more-issues {
-    color: #718096;
-    font-style: italic;
-  }
-  
-  .action-link {
-    display: inline-block;
-    padding: 0.5rem 0.75rem;
-    min-width: 120px; /* Standardize button width */
-    background-color: #f5f5f5;
-    color: #0070f3;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background-color 0.2s;
-    text-align: center;
-  }
-  
-  .action-link:hover {
-    background-color: #e5f1ff;
-  }
-  
-  .export-section {
-    margin-top: 2rem;
-    text-align: center;
-  }
-  
-  .export-button {
-    padding: 0.75rem 1.5rem;
-    background-color: #0070f3;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .export-button:hover {
-    background-color: #0060df;
-  }
-  
-  .premium-note {
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
-    color: #718096;
-  }
-  
-  @media (max-width: 768px) {
-    .comparison-container {
-      padding: 0 1rem;
-    }
-    
-    .comparison-table th,
-    .comparison-table td {
-      padding: 0.75rem 0.5rem;
-      font-size: 0.9rem;
-    }
-    
-    .comparison-table th:first-child,
-    .comparison-table td:first-child {
-      width: 120px; /* Smaller width on mobile */
-    }
-    
-    .back-link {
-      margin-bottom: 1.5rem;
-    }
-    
-    .score-badge {
-      padding: 0.35rem 0.5rem;
-      min-width: 50px; /* Smaller on mobile */
-      font-size: 0.8rem;
-    }
-    
-    .action-link {
-      min-width: auto;
-      padding: 0.4rem 0.5rem;
-      font-size: 0.8rem;
-    }
-  }
-`}</style>
+        <style jsx>{`
+          .comparison-container {
+            max-width: 1000px;
+            margin: 0 auto;
+          }
+          
+          h1 {
+            margin-bottom: 1rem;
+          }
+          
+          .back-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #0070f3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          
+          .back-link:hover {
+            text-decoration: underline;
+          }
+          
+          .loading, .error, .empty-state {
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 1rem;
+          }
+          
+          .loading {
+            background-color: #f5f5f5;
+          }
+          
+          .error {
+            background-color: #fff5f5;
+            color: #e53e3e;
+          }
+          
+          .empty-state {
+            background-color: #f5f5f5;
+            padding: 3rem;
+          }
+          
+          .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: all 0.2s;
+          }
+          
+          .button.primary {
+            background-color: #0070f3;
+            color: white;
+          }
+          
+          .comparison-table-container {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            width: 100%;
+          }
+          
+          .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            table-layout: auto;
+            min-width: 1100px;
+            white-space: nowrap;
+          }
+          
+          .comparison-table th,
+          .comparison-table td {
+            padding: 0.75rem 1rem;
+            text-align: center;
+            border-bottom: 1px solid #eaeaea;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+          }
+          
+          .comparison-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: normal;
+          }
+          
+          .comparison-table th:first-child,
+          .comparison-table td:first-child {
+            background-color: #f9f9f9;
+            font-weight: 500;
+            min-width: 180px;
+            width: 180px;
+            text-align: left;
+            position: sticky;
+            left: 0;
+            border-right: 1px solid #eaeaea;
+            z-index: 1;
+            white-space: normal;
+          }
+          
+          .comparison-table th:not(:first-child),
+          .comparison-table td:not(:first-child) {
+            min-width: 220px;
+            width: auto;
+            white-space: normal;
+          }
+          
+          .section-header td {
+            background-color: #e5f1ff;
+            color: #0070f3;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            text-align: left;
+          }
+          
+          .score-cell {
+            text-align: center;
+          }
+          
+          .score-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            min-width: 60px;
+            border-radius: 15px;
+            font-weight: bold;
+            color: white;
+            font-size: 0.85rem;
+          }
+          
+          .score-high {
+            background-color: #38a169;
+          }
+          
+          .score-medium {
+            background-color: #dd6b20;
+          }
+          
+          .score-low {
+            background-color: #e53e3e;
+          }
+          
+          .premium-locked {
+            color: #718096;
+            font-style: italic;
+            font-size: 0.8rem;
+            padding: 0.4rem;
+            background-color: #f7fafc;
+            border-radius: 4px;
+            display: inline-block;
+            min-width: 80px;
+            line-height: 1.2;
+          }
+          
+          .issues-list {
+            padding-left: 1rem;
+            margin: 0;
+            text-align: left;
+            list-style-type: disc;
+            white-space: normal;
+          }
+          
+          .issues-list li {
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+            white-space: normal;
+          }
+          
+          .more-issues {
+            color: #718096;
+            font-style: italic;
+          }
+          
+          .issue-detail {
+            margin-top: 0.25rem;
+            color: #555;
+            font-size: 0.85rem;
+            font-style: italic;
+          }
+          
+          .action-link {
+            display: inline-block;
+            padding: 0.4rem 0.6rem;
+            min-width: 100px;
+            background-color: #f5f5f5;
+            color: #0070f3;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.2;
+          }
+          
+          .action-link:hover {
+            background-color: #e5f1ff;
+          }
+          
+          .export-section {
+            margin-top: 2rem;
+            text-align: center;
+          }
+          
+          .export-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #0070f3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          
+          .export-button:hover {
+            background-color: #0060df;
+          }
+          
+          .export-button:disabled {
+            background-color: #90cdf4;
+            cursor: not-allowed;
+          }
+          
+          .premium-note {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #718096;
+          }
+          
+          @media (max-width: 768px) {
+            .comparison-container {
+              padding: 0 0.5rem;
+            }
+            
+            .comparison-table {
+              min-width: 800px;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+              padding: 0.5rem 0.5rem;
+              font-size: 0.8rem;
+            }
+            
+            .comparison-table th:first-child,
+            .comparison-table td:first-child {
+              min-width: 150px;
+              width: 150px;
+            }
+            
+            .comparison-table th:not(:first-child),
+            .comparison-table td:not(:first-child) {
+              min-width: 160px;
+            }
+            
+            .back-link {
+              margin-bottom: 1.5rem;
+            }
+            
+            .score-badge {
+              padding: 0.35rem 0.5rem;
+              min-width: 50px;
+              font-size: 0.8rem;
+            }
+            
+            .action-link {
+              min-width: auto;
+              padding: 0.4rem 0.5rem;
+              font-size: 0.8rem;
+            }
+          }
+        `}</style>
       </Layout>
     </ProtectedRoute>
   );
-}
-
-// Helper function to determine score class
-function getScoreClass(score) {
-  if (!score) return '';
-  if (score >= 80) return 'score-high';
-  if (score >= 60) return 'score-medium';
-  return 'score-low';
 }
 
 // Server-side props
