@@ -1,4 +1,4 @@
-// pages/api/generate-comparison-pdf.js - Updated with kilometers conversion and row-based layout
+// pages/api/generate-comparison-pdf.js - Fixed version
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { withAuth } from '../../lib/auth';
 import { query } from '../../lib/database';
@@ -64,8 +64,6 @@ async function handler(req, res) {
     
     // Generate PDF
     const pdfDoc = await PDFDocument.create();
-    const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-    const timesRomanBoldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
@@ -126,15 +124,21 @@ async function handler(req, res) {
     currentY -= lineHeight * 1.5;
     
     vehicles.forEach((vehicle, index) => {
-      const kmValue = milesToKilometers(vehicle.mileage);
-      page.drawText(`${index + 1}. ${vehicle.year} ${vehicle.make} ${vehicle.model}`, {
+      const mileage = vehicle.mileage || 0;
+      const kmValue = milesToKilometers(mileage);
+      
+      // Safely handle vehicle name
+      const vehicleName = `${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim();
+      const mileageText = `Mileage: ${mileage.toLocaleString()} miles (${kmValue.toLocaleString()} km)`;
+      
+      page.drawText(`${index + 1}. ${vehicleName}`, {
         x: margin,
         y: currentY,
         size: textSize,
         font: helveticaBoldFont,
       });
       
-      page.drawText(`Mileage: ${vehicle.mileage.toLocaleString()} miles (${kmValue.toLocaleString()} km)`, {
+      page.drawText(mileageText, {
         x: margin + 250,
         y: currentY,
         size: textSize,
@@ -190,18 +194,29 @@ async function handler(req, res) {
       return rgb(0.9, 0, 0); // Red
     };
     
-    // Draw reliability scores in a row-based layout
+    // Calculate column widths
     const tableWidth = width - 2 * margin;
-    const colWidthName = 150; // Width of criteria name column
-    const colWidthScore = (tableWidth - colWidthName) / vehicles.length; // Equal width for each vehicle
+    const colWidthName = 150;
+    const availableWidth = tableWidth - colWidthName;
+    const colWidthScore = vehicles.length > 0 ? availableWidth / vehicles.length : 150;
     
     // Draw table headers
-    page.drawText('Category', margin, currentY, { size: textSize, font: helveticaBoldFont });
+    page.drawText('Category', {
+      x: margin,
+      y: currentY,
+      size: textSize,
+      font: helveticaBoldFont
+    });
     
     vehicles.forEach((vehicle, index) => {
-      const vehicleName = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
-      page.drawText(vehicleName, margin + colWidthName + (colWidthScore * index), currentY, { 
-        size: textSize, 
+      const vehicleName = `${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim();
+      const maxLength = 20; // Truncate long names
+      const displayName = vehicleName.length > maxLength ? vehicleName.substring(0, maxLength) + '...' : vehicleName;
+      
+      page.drawText(displayName, {
+        x: margin + colWidthName + (colWidthScore * index) + 5,
+        y: currentY,
+        size: textSize,
         font: helveticaBoldFont
       });
     });
@@ -224,37 +239,53 @@ async function handler(req, res) {
     
     // Draw each score category
     for (const category of scoreCategories) {
-      // Skip premium categories if not needed (shouldn't happen here since user is premium)
+      // Skip premium categories if not premium user
       if (category.premium && !isPremium) continue;
       
       ensureSpace(lineHeight * 2);
       
       // Draw category name
-      page.drawText(category.name, margin, currentY, { 
-        size: textSize, 
-        font: category.key === 'overallScore' ? helveticaBoldFont : helveticaFont 
+      page.drawText(category.name, {
+        x: margin,
+        y: currentY,
+        size: textSize,
+        font: category.key === 'overallScore' ? helveticaBoldFont : helveticaFont
       });
       
       // Draw score for each vehicle
       vehicles.forEach((vehicle, index) => {
-        let score;
-        if (category.key === 'overallScore') {
-          score = vehicle.reliability_data?.overallScore || 'N/A';
-        } else if (category.category) {
-          score = vehicle.reliability_data?.categories?.[category.key] || 'N/A';
-        } else {
+        let score = 'N/A';
+        
+        try {
+          if (category.key === 'overallScore') {
+            score = vehicle.reliability_data?.overallScore || 'N/A';
+          } else if (category.category && vehicle.reliability_data?.categories) {
+            score = vehicle.reliability_data.categories[category.key] || 'N/A';
+          }
+        } catch (error) {
+          console.error('Error getting score:', error);
           score = 'N/A';
         }
         
         // Draw score with appropriate color
-        const scoreColor = score !== 'N/A' ? getScoreColor(score) : rgb(0, 0, 0);
-        const textWidth = helveticaBoldFont.widthOfTextAtSize(score.toString(), textSize);
+        const scoreColor = score !== 'N/A' && !isNaN(score) ? getScoreColor(score) : rgb(0, 0, 0);
+        const scoreText = score.toString();
+        
+        // Calculate text width for centering
+        let textWidth = 0;
+        try {
+          textWidth = helveticaFont.widthOfTextAtSize(scoreText, textSize);
+        } catch (error) {
+          textWidth = scoreText.length * 6; // Fallback estimate
+        }
         
         // Center the score in its column
         const scoreX = margin + colWidthName + (colWidthScore * index) + (colWidthScore / 2) - (textWidth / 2);
         
-        page.drawText(score.toString(), scoreX, currentY, { 
-          size: textSize, 
+        page.drawText(scoreText, {
+          x: Math.max(margin + colWidthName + (colWidthScore * index) + 5, scoreX),
+          y: currentY,
+          size: textSize,
           font: category.key === 'overallScore' ? helveticaBoldFont : helveticaFont,
           color: scoreColor
         });
@@ -265,19 +296,11 @@ async function handler(req, res) {
       currentY -= lineHeight / 2;
     }
     
-    // Common Issues Section - using row-based layout
+    // Common Issues Section
     currentY -= lineHeight;
     ensureSpace(lineHeight * 3);
     drawSectionHeader('Common Issues', currentY);
     currentY -= lineHeight * 2;
-    
-    // Create a new page for common issues if space is limited
-    if (currentY < height / 2) {
-      page = pdfDoc.addPage([612, 792]);
-      currentY = height - 50;
-      drawSectionHeader('Common Issues', currentY);
-      currentY -= lineHeight * 2;
-    }
     
     // Process each vehicle one at a time
     for (let vehicleIndex = 0; vehicleIndex < vehicles.length; vehicleIndex++) {
@@ -285,7 +308,9 @@ async function handler(req, res) {
       
       // Draw vehicle name
       ensureSpace(lineHeight * 2);
-      page.drawText(`${vehicleIndex + 1}. ${vehicle.year} ${vehicle.make} ${vehicle.model}:`, {
+      const vehicleName = `${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim();
+      
+      page.drawText(`${vehicleIndex + 1}. ${vehicleName}:`, {
         x: margin,
         y: currentY,
         size: textSize,
@@ -295,13 +320,14 @@ async function handler(req, res) {
       currentY -= lineHeight * 1.5;
       
       // Check if there are common issues
-      if (vehicle.reliability_data?.commonIssues?.length > 0) {
+      const commonIssues = vehicle.reliability_data?.commonIssues;
+      if (commonIssues && Array.isArray(commonIssues) && commonIssues.length > 0) {
         // Process each issue
-        for (const issue of vehicle.reliability_data.commonIssues) {
-          ensureSpace(lineHeight * 4); // Ensure space for the issue
+        for (const issue of commonIssues) {
+          ensureSpace(lineHeight * 4);
           
-          // Format and wrap issue description
-          const issueText = `• ${issue.description}`;
+          // Issue description
+          const issueText = `• ${issue.description || 'Unknown issue'}`;
           const wrappedLines = wrapText(issueText, width - 2 * margin - 20, textSize, helveticaFont);
           
           // Draw each line of the wrapped text
@@ -351,20 +377,15 @@ async function handler(req, res) {
           if (issue.mileage) {
             ensureSpace(lineHeight);
             
-            // Try to convert any numeric values in the mileage string to include km
             let mileageText = issue.mileage;
             if (typeof issue.mileage === 'string') {
-              // Extract numbers from the string
+              // Extract numbers and convert to include km
               const mileageMatches = issue.mileage.match(/(\d[\d,]*)/g);
               if (mileageMatches) {
-                mileageText = issue.mileage;
-                
-                // Replace each number with its miles/km equivalent
                 for (const match of mileageMatches) {
                   const numericValue = parseInt(match.replace(/,/g, ''));
                   if (!isNaN(numericValue)) {
                     const kmValue = milesToKilometers(numericValue);
-                    // Replace numbers while preserving text around them
                     mileageText = mileageText.replace(
                       match, 
                       `${numericValue.toLocaleString()} miles (${kmValue.toLocaleString()} km)`
@@ -374,7 +395,6 @@ async function handler(req, res) {
               }
             }
             
-            // Wrap the mileage text if needed
             const wrappedMileage = wrapText(`Typical Mileage: ${mileageText}`, width - 2 * margin - 30, textSize - 1, helveticaFont);
             
             for (const line of wrappedMileage) {
@@ -391,7 +411,6 @@ async function handler(req, res) {
             }
           }
           
-          // Add space between issues
           currentY -= lineHeight * 0.5;
         }
       } else {
@@ -407,12 +426,11 @@ async function handler(req, res) {
         currentY -= lineHeight * 1.5;
       }
       
-      // Add space between vehicles
       currentY -= lineHeight;
     }
     
-    // Add a conclusion/interpretation section
-    ensureSpace(lineHeight * 5);
+    // Add interpretation guide
+    ensureSpace(lineHeight * 6);
     drawSectionHeader('Interpretation Guide', currentY);
     currentY -= lineHeight * 1.5;
     
@@ -425,6 +443,7 @@ async function handler(req, res) {
     ];
     
     for (const line of interpretationText) {
+      ensureSpace(lineHeight);
       page.drawText(line, {
         x: margin,
         y: currentY,
@@ -451,7 +470,7 @@ async function handler(req, res) {
       
       // Disclaimer on last page
       if (i === pageCount - 1) {
-        footerPage.drawText('This Lemnaed comparison report was generated automatically. Data should be verified with a qualified mechanic.', {
+        footerPage.drawText('This report was generated automatically. Data should be verified with a qualified mechanic.', {
           x: margin,
           y: 40,
           size: 10,
@@ -475,29 +494,45 @@ async function handler(req, res) {
     
     // Set the content type and send the PDF bytes
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="Lemnaed-vehicle-comparison-report.pdf"`);
+    res.setHeader('Content-Disposition', `attachment; filename="vehicle-comparison-report.pdf"`);
     res.status(200).send(Buffer.from(pdfBytes));
     
   } catch (error) {
     console.error('Error generating PDF:', error);
-    return res.status(500).json({ error: 'Failed to generate PDF report' });
+    return res.status(500).json({ 
+      error: 'Failed to generate PDF report',
+      details: error.message 
+    });
   }
 }
 
 // Helper function to wrap text
 function wrapText(text, maxWidth, fontSize, font) {
+  if (!text || typeof text !== 'string') {
+    return [''];
+  }
+  
   const words = text.split(' ');
   const lines = [];
   let currentLine = '';
   
   for (const word of words) {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
-    const lineWidth = font.widthOfTextAtSize(testLine, fontSize);
+    
+    let lineWidth;
+    try {
+      lineWidth = font.widthOfTextAtSize(testLine, fontSize);
+    } catch (error) {
+      // Fallback calculation if font width calculation fails
+      lineWidth = testLine.length * (fontSize * 0.6);
+    }
     
     if (lineWidth <= maxWidth) {
       currentLine = testLine;
     } else {
-      lines.push(currentLine);
+      if (currentLine) {
+        lines.push(currentLine);
+      }
       currentLine = word;
     }
   }
@@ -506,7 +541,7 @@ function wrapText(text, maxWidth, fontSize, font) {
     lines.push(currentLine);
   }
   
-  return lines;
+  return lines.length > 0 ? lines : [''];
 }
 
 export default withAuth(handler);
