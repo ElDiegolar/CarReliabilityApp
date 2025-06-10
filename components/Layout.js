@@ -169,7 +169,7 @@ export default function Layout({ children, title }) {
         }
 
         .highlight {
-          color:yellow;
+          color:#FFC300;
         }
 
         .footer-tagline {

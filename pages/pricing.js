@@ -17,7 +17,7 @@ export default function PricingPlans() {
   const plans = [
     {
       name: t('pricing.premium.title', 'Premium'),
-      price: 9.99,
+      price: 4.99,
       period: t('pricing.premium.period', 'month'),
       isPopular: true,
       features: t('pricing.premium.features', { returnObjects: true }) || [
@@ -27,7 +27,7 @@ export default function PricingPlans() {
         'Priority support',
         'Limited search history',
       ],
-      priceId: 'price_1R9oOTCroJxwl2Z2BZAL2z8B',
+      priceId: 'price_1RX0XSCroJxwl2Z2HUQuOEj9',
       badge: t('pricing.premium.badge', 'Most Popular')
     },
     {
@@ -44,7 +44,7 @@ export default function PricingPlans() {
         'API access',
         '24/7 priority support',
       ],
-      priceId: 'price_1R9oNVCroJxwl2Z2DvMMLELN'
+      priceId: 'price_1RX0XsCroJxwl2Z2ZpMU6s1V'
     },
   ];
 
