@@ -241,7 +241,7 @@ export default function Home() {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #f6e05e 0%, #ecc94b 100%);
           opacity: 0.9;
         }
 
