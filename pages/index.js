@@ -1,5 +1,4 @@
-
-// pages/index.js - Lemon-themed Home page component with i18n
+// pages/index.js - Refined Home page component with i18n
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
@@ -63,30 +62,20 @@ export default function Home() {
     <Layout>
       <div className="hero">
         <div className="hero-bg"></div>
-        <div className="lemon-decorations">
-          <div className="lemon lemon-1">🍋</div>
-          <div className="lemon lemon-2">🍋</div>
-          <div className="lemon lemon-3">🍋</div>
-          <div className="lemon lemon-4">🍋</div>
-          <div className="lemon lemon-5">🍋</div>
-        </div>
         <div className="hero-content">
-          <div className="hero-badge">🚗 Fresh AI-Powered Vehicle Intelligence 🍋</div>
+          <div className="hero-badge">🚗 AI-Powered Vehicle Intelligence</div>
           <h1 className="hero-title">
             <span className="gradient-text">{t('hero.title')}</span>
-            <div className="title-accent">✨ Zesty & Reliable ✨</div>
           </h1>
           <p className="hero-description">
             {t('hero.description')}
           </p>
           <div className="hero-buttons">
             <Link href="/search" className="btn-primary">
-              <span>{t('hero.search')}</span>
-              <div className="btn-sparkle">✨</div>
+              {t('hero.search')}
             </Link>
             <Link href="/login" className="btn-secondary">
-              <span>{t('hero.signup')}</span>
-              <div className="btn-lemon">🍋</div>
+              {t('hero.signup')}
             </Link>
           </div>
         </div>
@@ -95,7 +84,7 @@ export default function Home() {
       <div className="features-section">
         <div className="section-header">
           <h2>{t('features.title')}</h2>
-          <div className="section-subtitle">Fresh insights, zesty results 🍋</div>
+          <p className="section-subtitle">Comprehensive vehicle insights powered by AI</p>
           <div className="section-underline"></div>
         </div>
         <div className="features-grid">
@@ -103,29 +92,21 @@ export default function Home() {
             <div className="feature-icon">📊</div>
             <h3>{t('features.reliabilityScores.title')}</h3>
             <p>{t('features.reliabilityScores.description')}</p>
-            <div className="feature-glow"></div>
-            <div className="feature-lemon">🍋</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">🔧</div>
             <h3>{t('features.commonIssues.title')}</h3>
             <p>{t('features.commonIssues.description')}</p>
-            <div className="feature-glow"></div>
-            <div className="feature-lemon">🍋</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">🧠</div>
             <h3>{t('features.expertAnalysis.title')}</h3>
             <p>{t('features.expertAnalysis.description')}</p>
-            <div className="feature-glow"></div>
-            <div className="feature-lemon">🍋</div>
           </div>
           <div className="feature-card">
             <div className="feature-icon">💎</div>
             <h3>{t('features.premiumData.title')}</h3>
             <p>{t('features.premiumData.description')}</p>
-            <div className="feature-glow"></div>
-            <div className="feature-lemon">🍋</div>
           </div>
         </div>
       </div>
@@ -133,7 +114,7 @@ export default function Home() {
       <div className="process-section">
         <div className="section-header">
           <h2>{t('howItWorks.title')}</h2>
-          <div className="section-subtitle">Squeeze the most out of your research 🍋</div>
+          <p className="section-subtitle">Simple, fast, and accurate vehicle research</p>
           <div className="section-underline"></div>
         </div>
         <div className="process-timeline">
@@ -142,7 +123,6 @@ export default function Home() {
               <div className="timeline-connector"></div>
               <div className="timeline-marker">
                 <span>{index + 1}</span>
-                <div className="marker-lemon">🍋</div>
               </div>
               <div className="timeline-content">
                 <h3>{step.title}</h3>
@@ -156,13 +136,12 @@ export default function Home() {
       <div className="pricing-section">
         <div className="section-header">
           <h2>{t('pricing.title')}</h2>
-          <p className="section-subtitle">{t('pricing.description')} 🍋</p>
+          <p className="section-subtitle">{t('pricing.description')}</p>
           <div className="section-underline"></div>
         </div>
         
         <div className="pricing-cards">
           <div className="pricing-card starter">
-            <div className="card-decoration">🍋</div>
             <div className="card-header">
               <h3>{t('pricing.free.title')}</h3>
               <div className="price-display">
@@ -174,22 +153,20 @@ export default function Home() {
             <ul className="feature-list">
               {freeFeatures.map((feature, index) => (
                 <li key={index}>
-                  <div className="check-mark">🍋</div>
+                  <div className="check-mark">✓</div>
                   {feature}
                 </li>
               ))}
             </ul>
             <Link href="/search" className="plan-button starter-btn">
-              <span>{t('pricing.free.cta')}</span>
-              <div className="btn-accent">🌟</div>
+              {t('pricing.free.cta')}
             </Link>
           </div>
           
           <div className="pricing-card premium featured">
             <div className="featured-badge">
-              <span>🍋 {t('pricing.premium.badge')} 🍋</span>
+              <span>{t('pricing.premium.badge')}</span>
             </div>
-            <div className="card-decoration premium-decoration">🍋</div>
             <div className="card-header">
               <h3>{t('pricing.premium.title')}</h3>
               <div className="price-display">
@@ -201,19 +178,17 @@ export default function Home() {
             <ul className="feature-list">
               {premiumFeatures.map((feature, index) => (
                 <li key={index}>
-                  <div className="check-mark">🍋</div>
+                  <div className="check-mark">✓</div>
                   {feature}
                 </li>
               ))}
             </ul>
             <Link href="/pricing" className="plan-button premium-btn">
-              <span>{t('pricing.premium.cta')}</span>
-              <div className="btn-accent">✨</div>
+              {t('pricing.premium.cta')}
             </Link>
           </div>
           
           <div className="pricing-card professional">
-            <div className="card-decoration">🍋</div>
             <div className="card-header">
               <h3>{t('pricing.professional.title')}</h3>
               <div className="price-display">
@@ -225,14 +200,13 @@ export default function Home() {
             <ul className="feature-list">
               {professionalFeatures.map((feature, index) => (
                 <li key={index}>
-                  <div className="check-mark">🍋</div>
+                  <div className="check-mark">✓</div>
                   {feature}
                 </li>
               ))}
             </ul>
             <Link href="/pricing" className="plan-button pro-btn">
-              <span>{t('pricing.professional.cta')}</span>
-              <div className="btn-accent">🚀</div>
+              {t('pricing.professional.cta')}
             </Link>
           </div>
         </div>
@@ -242,12 +216,12 @@ export default function Home() {
       <style jsx>{`
         .hero {
           position: relative;
-          min-height: 80vh;
+          min-height: 70vh;
           display: flex;
           align-items: center;
           justify-content: center;
           overflow: hidden;
-          margin-bottom: 8rem;
+          margin-bottom: 6rem;
         }
 
         .hero-bg {
@@ -256,7 +230,7 @@ export default function Home() {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           opacity: 0.95;
         }
 
@@ -267,67 +241,13 @@ export default function Home() {
           left: 0;
           right: 0;
           bottom: 0;
-          background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffec8b' fill-opacity='0.15'%3E%3Ccircle cx='40' cy='40' r='3'/%3E%3Ccircle cx='20' cy='20' r='2'/%3E%3Ccircle cx='60' cy='20' r='2'/%3E%3Ccircle cx='20' cy='60' r='2'/%3E%3Ccircle cx='60' cy='60' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-          animation: float 25s ease-in-out infinite;
-        }
-
-        .lemon-decorations {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          pointer-events: none;
-          z-index: 1;
-        }
-
-        .lemon {
-          position: absolute;
-          font-size: 2rem;
-          opacity: 0.3;
-          animation: bobFloat 8s ease-in-out infinite;
-        }
-
-        .lemon-1 {
-          top: 10%;
-          left: 10%;
-          animation-delay: 0s;
-        }
-
-        .lemon-2 {
-          top: 20%;
-          right: 15%;
-          animation-delay: 2s;
-        }
-
-        .lemon-3 {
-          bottom: 30%;
-          left: 8%;
-          animation-delay: 4s;
-        }
-
-        .lemon-4 {
-          bottom: 15%;
-          right: 10%;
-          animation-delay: 6s;
-        }
-
-        .lemon-5 {
-          top: 50%;
-          left: 5%;
-          animation-delay: 1s;
+          background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+          animation: float 20s ease-in-out infinite;
         }
 
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(180deg); }
-        }
-
-        @keyframes bobFloat {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          25% { transform: translateY(-10px) rotate(5deg); }
-          50% { transform: translateY(-5px) rotate(-5deg); }
-          75% { transform: translateY(-15px) rotate(3deg); }
+          50% { transform: translateY(-10px) rotate(180deg); }
         }
 
         .hero-content {
@@ -340,17 +260,16 @@ export default function Home() {
 
         .hero-badge {
           display: inline-block;
-          background: rgba(255, 255, 255, 0.25);
-          backdrop-filter: blur(15px);
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          padding: 0.75rem 2rem;
-          border-radius: 50px;
-          color: #2d3748;
-          font-size: 1rem;
-          font-weight: 600;
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 0.75rem 1.5rem;
+          border-radius: 30px;
+          color: white;
+          font-size: 0.95rem;
+          font-weight: 500;
           margin-bottom: 2rem;
           animation: slideInUp 0.8s ease-out;
-          box-shadow: 0 4px 20px rgba(241, 196, 15, 0.3);
         }
 
         @keyframes slideInUp {
@@ -366,34 +285,26 @@ export default function Home() {
 
         .hero-title {
           font-size: clamp(2.5rem, 5vw, 4rem);
-          font-weight: 800;
-          margin-bottom: 1rem;
+          font-weight: 700;
+          margin-bottom: 1.5rem;
           line-height: 1.1;
           animation: slideInUp 0.8s ease-out 0.2s both;
         }
 
         .gradient-text {
-          background: linear-gradient(135deg, #ffffff 0%, #fff8dc 100%);
+          background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .title-accent {
-          font-size: 1.2rem;
-          color: rgba(255, 255, 255, 0.9);
-          font-weight: 500;
-          margin-top: 0.5rem;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .hero-description {
-          font-size: 1.25rem;
-          color: rgba(255, 255, 255, 0.95);
-          margin-bottom: 3rem;
+          font-size: 1.2rem;
+          color: rgba(255, 255, 255, 0.9);
+          margin-bottom: 2.5rem;
           line-height: 1.6;
           animation: slideInUp 0.8s ease-out 0.4s both;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .hero-buttons {
@@ -405,61 +316,39 @@ export default function Home() {
         }
 
         .btn-primary {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          background: linear-gradient(135deg, #2d3748, #4a5568);
-          color: white;
-          padding: 1.2rem 2.5rem;
-          border-radius: 50px;
-          font-weight: 700;
+          display: inline-block;
+          background: rgba(255, 255, 255, 0.9);
+          color: #4a5568;
+          padding: 1rem 2rem;
+          border-radius: 30px;
+          font-weight: 600;
           text-decoration: none;
           transition: all 0.3s ease;
-          box-shadow: 0 6px 20px rgba(45, 55, 72, 0.4);
-          border: 2px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .btn-primary:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 30px rgba(45, 55, 72, 0.6);
-        }
-
-        .btn-sparkle {
-          animation: sparkle 2s ease-in-out infinite;
-        }
-
-        @keyframes sparkle {
-          0%, 100% { transform: scale(1) rotate(0deg); }
-          50% { transform: scale(1.2) rotate(180deg); }
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+          background: white;
         }
 
         .btn-secondary {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          background: rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(15px);
-          border: 2px solid rgba(255, 255, 255, 0.4);
-          color: #2d3748;
-          padding: 1.2rem 2.5rem;
-          border-radius: 50px;
-          font-weight: 700;
+          display: inline-block;
+          background: transparent;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          color: white;
+          padding: 1rem 2rem;
+          border-radius: 30px;
+          font-weight: 600;
           text-decoration: none;
           transition: all 0.3s ease;
         }
 
         .btn-secondary:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: translateY(-3px);
-        }
-
-        .btn-lemon {
-          animation: spin 3s linear infinite;
-        }
-
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.5);
+          transform: translateY(-2px);
         }
 
         .section-header {
@@ -475,23 +364,21 @@ export default function Home() {
         }
 
         .section-subtitle {
-          font-size: 1.3rem;
-          color: #f39c12;
+          font-size: 1.1rem;
+          color: #718096;
           margin-bottom: 2rem;
-          font-weight: 600;
         }
 
         .section-underline {
-          width: 100px;
-          height: 5px;
-          background: linear-gradient(135deg, #f1c40f, #f39c12);
+          width: 80px;
+          height: 4px;
+          background: linear-gradient(135deg, #667eea, #764ba2);
           margin: 0 auto;
-          border-radius: 3px;
-          box-shadow: 0 2px 10px rgba(241, 196, 15, 0.3);
+          border-radius: 2px;
         }
 
         .features-section {
-          margin-bottom: 8rem;
+          margin-bottom: 6rem;
           padding: 0 2rem;
         }
 
@@ -504,59 +391,27 @@ export default function Home() {
         }
 
         .feature-card {
-          position: relative;
           background: white;
           padding: 2.5rem;
-          border-radius: 25px;
-          box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
           transition: all 0.3s ease;
-          border: 3px solid transparent;
-          overflow: hidden;
+          border: 1px solid #e2e8f0;
         }
 
         .feature-card:hover {
-          transform: translateY(-15px);
-          box-shadow: 0 25px 70px rgba(241, 196, 15, 0.2);
-          border-color: #f1c40f;
-        }
-
-        .feature-card:hover .feature-glow {
-          opacity: 1;
-        }
-
-        .feature-card:hover .feature-lemon {
-          transform: scale(1.2) rotate(360deg);
-        }
-
-        .feature-glow {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(135deg, rgba(241, 196, 15, 0.1), rgba(243, 156, 18, 0.1));
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          pointer-events: none;
-        }
-
-        .feature-lemon {
-          position: absolute;
-          top: 1rem;
-          right: 1rem;
-          font-size: 1.5rem;
-          opacity: 0.6;
-          transition: all 0.3s ease;
+          transform: translateY(-5px);
+          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
         }
 
         .feature-icon {
-          font-size: 3rem;
+          font-size: 2.5rem;
           margin-bottom: 1.5rem;
           display: block;
         }
 
         .feature-card h3 {
-          font-size: 1.5rem;
+          font-size: 1.4rem;
           font-weight: 600;
           color: #2d3748;
           margin-bottom: 1rem;
@@ -568,7 +423,7 @@ export default function Home() {
         }
 
         .process-section {
-          margin-bottom: 8rem;
+          margin-bottom: 6rem;
           padding: 0 2rem;
         }
 
@@ -590,48 +445,33 @@ export default function Home() {
 
         .timeline-connector {
           position: absolute;
-          left: 30px;
-          top: 70px;
-          width: 3px;
+          left: 25px;
+          top: 60px;
+          width: 2px;
           height: 80px;
-          background: linear-gradient(to bottom, #f1c40f, #f39c12);
-          opacity: 0.6;
-          border-radius: 2px;
+          background: linear-gradient(to bottom, #667eea, #764ba2);
+          opacity: 0.3;
+          border-radius: 1px;
         }
 
         .timeline-marker {
-          position: relative;
           flex-shrink: 0;
-          width: 60px;
-          height: 60px;
-          background: linear-gradient(135deg, #f1c40f, #f39c12);
+          width: 50px;
+          height: 50px;
+          background: linear-gradient(135deg, #667eea, #764ba2);
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #2d3748;
-          font-weight: 800;
-          font-size: 1.3rem;
+          color: white;
+          font-weight: 600;
+          font-size: 1.1rem;
           margin-right: 2rem;
-          box-shadow: 0 6px 20px rgba(241, 196, 15, 0.4);
-          border: 3px solid white;
-        }
-
-        .marker-lemon {
-          position: absolute;
-          top: -8px;
-          right: -8px;
-          font-size: 1.2rem;
-          animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .timeline-content h3 {
-          font-size: 1.5rem;
+          font-size: 1.4rem;
           font-weight: 600;
           color: #2d3748;
           margin-bottom: 0.5rem;
@@ -643,7 +483,7 @@ export default function Home() {
         }
 
         .pricing-section {
-          margin-bottom: 8rem;
+          margin-bottom: 6rem;
           padding: 0 2rem;
         }
 
@@ -658,76 +498,51 @@ export default function Home() {
         .pricing-card {
           position: relative;
           background: white;
-          border-radius: 30px;
+          border-radius: 20px;
           padding: 2.5rem;
-          box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
           transition: all 0.3s ease;
-          border: 3px solid transparent;
-          overflow: hidden;
+          border: 1px solid #e2e8f0;
         }
 
         .pricing-card.featured {
-          border-color: #f1c40f;
-          transform: scale(1.05);
-          box-shadow: 0 25px 70px rgba(241, 196, 15, 0.3);
+          border-color: #667eea;
+          transform: scale(1.02);
+          box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
         }
 
         .pricing-card:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+          transform: translateY(-5px);
+          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
         }
 
         .pricing-card.featured:hover {
-          transform: scale(1.05) translateY(-10px);
-        }
-
-        .card-decoration {
-          position: absolute;
-          top: 1rem;
-          right: 1rem;
-          font-size: 2rem;
-          opacity: 0.4;
-          transition: all 0.3s ease;
-        }
-
-        .premium-decoration {
-          animation: bounce 2s ease-in-out infinite;
-        }
-
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-
-        .pricing-card:hover .card-decoration {
-          opacity: 0.8;
-          transform: scale(1.2) rotate(15deg);
+          transform: scale(1.02) translateY(-5px);
         }
 
         .featured-badge {
           position: absolute;
-          top: -15px;
+          top: -12px;
           left: 50%;
           transform: translateX(-50%);
-          background: linear-gradient(135deg, #f1c40f, #f39c12);
-          color: #2d3748;
-          padding: 0.75rem 2rem;
-          border-radius: 50px;
-          font-size: 0.9rem;
-          font-weight: 700;
-          box-shadow: 0 6px 20px rgba(241, 196, 15, 0.4);
-          border: 2px solid white;
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          padding: 0.5rem 1.5rem;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .card-header {
           text-align: center;
           margin-bottom: 2rem;
           padding-bottom: 1.5rem;
-          border-bottom: 2px solid #f7fafc;
+          border-bottom: 1px solid #f7fafc;
         }
 
         .card-header h3 {
-          font-size: 1.5rem;
+          font-size: 1.4rem;
           font-weight: 600;
           color: #2d3748;
           margin-bottom: 1rem;
@@ -741,14 +556,14 @@ export default function Home() {
         }
 
         .currency {
-          font-size: 1.5rem;
+          font-size: 1.3rem;
           font-weight: 600;
-          color: #f39c12;
+          color: #667eea;
         }
 
         .amount {
-          font-size: 3rem;
-          font-weight: 800;
+          font-size: 2.5rem;
+          font-weight: 700;
           color: #2d3748;
         }
 
@@ -767,73 +582,69 @@ export default function Home() {
           display: flex;
           align-items: center;
           gap: 1rem;
-          padding: 0.75rem 0;
+          padding: 0.5rem 0;
           color: #4a5568;
         }
 
         .check-mark {
           flex-shrink: 0;
-          font-size: 1.2rem;
-        }
-
-        .plan-button {
+          width: 20px;
+          height: 20px;
+          background: #48bb78;
+          color: white;
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.5rem;
+          font-size: 0.8rem;
+          font-weight: 600;
+        }
+
+        .plan-button {
+          display: block;
           width: 100%;
-          padding: 1.2rem;
+          padding: 1rem;
           text-align: center;
-          border-radius: 15px;
-          font-weight: 700;
+          border-radius: 12px;
+          font-weight: 600;
           text-decoration: none;
           transition: all 0.3s ease;
         }
 
         .starter-btn {
-          background: linear-gradient(135deg, #f7fafc, #edf2f7);
+          background: #f7fafc;
           color: #4a5568;
-          border: 2px solid #e2e8f0;
+          border: 1px solid #e2e8f0;
         }
 
         .starter-btn:hover {
-          background: linear-gradient(135deg, #edf2f7, #e2e8f0);
+          background: #edf2f7;
           border-color: #cbd5e0;
-          transform: translateY(-2px);
         }
 
         .premium-btn {
-          background: linear-gradient(135deg, #f1c40f, #f39c12);
-          color: #2d3748;
-          box-shadow: 0 6px 20px rgba(241, 196, 15, 0.4);
-          border: 2px solid rgba(255, 255, 255, 0.3);
+          background: linear-gradient(135deg, #667eea, #764ba2);
+          color: white;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .premium-btn:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 30px rgba(241, 196, 15, 0.6);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
         .pro-btn {
           background: linear-gradient(135deg, #2d3748, #4a5568);
           color: white;
-          box-shadow: 0 6px 20px rgba(45, 55, 72, 0.4);
+          box-shadow: 0 4px 15px rgba(45, 55, 72, 0.3);
         }
 
         .pro-btn:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 30px rgba(45, 55, 72, 0.6);
-        }
-
-        .btn-accent {
-          font-size: 1.1rem;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(45, 55, 72, 0.4);
         }
 
         @media (max-width: 768px) {
-          .lemon-decorations {
-            display: none;
-          }
-
           .hero-buttons {
             flex-direction: column;
             align-items: center;
@@ -843,7 +654,6 @@ export default function Home() {
           .btn-secondary {
             width: 100%;
             max-width: 280px;
-            justify-content: center;
           }
 
           .timeline-item {
@@ -871,13 +681,14 @@ export default function Home() {
           }
 
           .pricing-card.featured:hover {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
           }
         }
       `}</style>
     </Layout>
   );
 }
+
 // This function gets called at build time and on every request
 export async function getStaticProps({ locale }) {
   try {
