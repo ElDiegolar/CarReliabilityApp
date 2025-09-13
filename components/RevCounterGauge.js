@@ -36,7 +36,8 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
   const needleY = centerY + needleLength * Math.sin(needleRad);
 
   // Large arc flag for SVG
-  const largeArcFlag = 1;
+  // For value arc, sweep-flag should be 1 if value > 50%
+  const valueArcSweepFlag = safeValue > max / 2 ? 1 : 0;
 
   return (
     <div className="rev-counter-gauge" style={{ display: 'inline-block', textAlign: 'center', margin: '24px' }}>
@@ -51,7 +52,7 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
           />
           {/* Value arc */}
           <path
-            d={`M${startX},${startY} A${radius},${radius} 0 ${largeArcFlag},1 ${needleX},${needleY}`}
+            d={`M${startX},${startY} A${radius},${radius} 0 0,${valueArcSweepFlag} ${needleX},${needleY}`}
             stroke="#ff9800"
             strokeWidth="18"
             fill="none"
