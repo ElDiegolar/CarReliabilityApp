@@ -43,9 +43,9 @@ async function handler(req, res) {
     
     const isPremium = subscriptionResult.rows.length > 0;
     
-    if (!isPremium) {
+   // if (!isPremium) {
       return res.status(403).json({ error: 'Premium subscription required for PDF export' });
-    }
+   // }
     
     // Get vehicles data with a single query
     const placeholders = vehicleIds.map((_, index) => `$${index + 2}`).join(', ');
@@ -240,7 +240,7 @@ async function handler(req, res) {
     // Draw each score category
     for (const category of scoreCategories) {
       // Skip premium categories if not premium user
-      if (category.premium && !isPremium) continue;
+  // Premium restriction removed: include all categories
       
       ensureSpace(lineHeight * 2);
       

@@ -135,7 +135,7 @@ export default function VehicleComparison() {
       });
       
       if (response.status === 403) {
-        alert(t('comparison.premiumRequired', 'PDF export requires a premium subscription'));
+  // Premium restriction removed: allow PDF export for all users
         setExporting(false);
         return;
       }
@@ -280,7 +280,7 @@ export default function VehicleComparison() {
                                 {vehicle.reliability_data?.categories?.electricalSystem || 'N/A'}
                               </span>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              {/* Premium lock removed: show data to all users */}
                             )}
                           </td>
                         ))}
@@ -294,7 +294,7 @@ export default function VehicleComparison() {
                                 {vehicle.reliability_data?.categories?.brakes || 'N/A'}
                               </span>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              {/* Premium lock removed: show data to all users */}
                             )}
                           </td>
                         ))}
@@ -308,7 +308,7 @@ export default function VehicleComparison() {
                                 {vehicle.reliability_data?.categories?.suspension || 'N/A'}
                               </span>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              {/* Premium lock removed: show data to all users */}
                             )}
                           </td>
                         ))}
@@ -322,7 +322,7 @@ export default function VehicleComparison() {
                                 {vehicle.reliability_data?.categories?.fuelSystem || 'N/A'}
                               </span>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              {/* Premium lock removed: show data to all users */}
                             )}
                           </td>
                         ))}
@@ -363,7 +363,7 @@ export default function VehicleComparison() {
                                 )}
                               </ul>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              {/* Premium lock removed: show data to all users */}
                             )}
                           </td>
                         ))}

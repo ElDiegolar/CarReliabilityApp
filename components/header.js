@@ -113,11 +113,11 @@ export default function Header() {
                 {t('nav.search')}
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link href="/pricing" className={router.pathname === '/pricing' ? 'active' : ''}>
                 {t('nav.pricing')}
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link href="/blog">{t('nav.blog') || 'Blog'}</Link>
               </li>
