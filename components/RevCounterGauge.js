@@ -36,6 +36,7 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
   const needleY = centerY + needleLength * Math.sin(needleRad);
 
   // Large arc flag for SVG
+  const largeArcFlag = 1; // Always 270deg for background arc
   // For value arc, sweep-flag should be 1 if value > 50%
   const valueArcSweepFlag = safeValue > max / 2 ? 1 : 0;
 
