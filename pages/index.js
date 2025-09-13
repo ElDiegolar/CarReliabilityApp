@@ -77,9 +77,6 @@ export default function Home() {
                 {t('hero.search')}
               </button>
             </Link>
-            <Link href="/login" className="btn-secondary">
-              {t('hero.signup')}
-            </Link>
           </div>
         </div>
       </div>
