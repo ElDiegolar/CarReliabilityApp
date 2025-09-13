@@ -500,7 +500,7 @@ export default function Search() {
                     {t('search.goPremium') || 'Go Premium'}
                   </Link>
                 </div>
-              )}
+              
             </div>
           </div>
 
