@@ -22,6 +22,7 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
   const centerY = size / 2;
   const needleLength = radius - 12;
 
+
   // Arc start/end for 270deg
   const startAngleRad = (Math.PI / 180) * minAngle;
   const endAngleRad = (Math.PI / 180) * maxAngle;
@@ -32,13 +33,14 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
 
   // Needle endpoint
   const needleRad = (Math.PI / 180) * angle;
-  const needleX = centerX + needleLength * Math.cos(needleRad);
-  const needleY = centerY + needleLength * Math.sin(needleRad);
+  const needleX = centerX + radius * Math.cos(needleRad);
+  const needleY = centerY + radius * Math.sin(needleRad);
 
   // Large arc flag for SVG
   const largeArcFlag = 1; // Always 270deg for background arc
-  // For value arc, sweep-flag should be 1 if value > 50%
-  const valueArcSweepFlag = safeValue > max / 2 ? 1 : 0;
+  // For value arc, largeArcFlag is 1 if value > 75, sweepFlag is 1
+  const valueArcLargeFlag = safeValue > (max * 0.75) ? 1 : 0;
+  const valueArcSweepFlag = 1;
 
   return (
     <div className="rev-counter-gauge" style={{ display: 'inline-block', textAlign: 'center', margin: '24px' }}>
@@ -52,12 +54,14 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
             fill="none"
           />
           {/* Value arc */}
-          <path
-            d={`M${startX},${startY} A${radius},${radius} 0 0,${valueArcSweepFlag} ${needleX},${needleY}`}
-            stroke="#ff9800"
-            strokeWidth="18"
-            fill="none"
-          />
+          {safeValue > 0 && (
+            <path
+              d={`M${startX},${startY} A${radius},${radius} 0 ${valueArcLargeFlag},${valueArcSweepFlag} ${needleX},${needleY}`}
+              stroke="#ff9800"
+              strokeWidth="18"
+              fill="none"
+            />
+          )}
           {/* Needle */}
           <line
             x1={centerX}
