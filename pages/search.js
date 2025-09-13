@@ -8,7 +8,6 @@ import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import SaveSearchButton from '../components/SaveSearchButton';
 import DownloadPdfButton from '../components/DownloadPdfButton';
-import DownloadPdfButton from '../components/DownloadPdfButton';
 import CarTimeline from '../components/CarTimeline';
 import RevCounterGauge from '../components/RevCounterGauge';
 
