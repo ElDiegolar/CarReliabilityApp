@@ -2,7 +2,7 @@
 import React from 'react';
 
 /**
- * RevCounterGauge - Circular, large gauge for category scores
+ * RevCounterGauge - Accurate, stable circular gauge for category scores
  * Props:
  *   value: number (score, 0-100)
  *   max: number (default 100)
@@ -10,86 +10,149 @@ import React from 'react';
  */
 export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
   const safeValue = Math.max(0, Math.min(value, max));
-  // 270-degree gauge: -225deg to +45deg
-  const minAngle = -225;
-  const maxAngle = 45;
-  const angle = minAngle + ((safeValue / max) * (maxAngle - minAngle));
-
-  // Gauge size
-  const size = 200;
-  const radius = 90;
-  const centerX = size / 2;
-  const centerY = size / 2;
-  const needleLength = radius - 12;
-
-
-  // Arc start/end for 270deg
-  const startAngleRad = (Math.PI / 180) * minAngle;
-  const endAngleRad = (Math.PI / 180) * maxAngle;
-  const startX = centerX + radius * Math.cos(startAngleRad);
-  const startY = centerY + radius * Math.sin(startAngleRad);
-  const endX = centerX + radius * Math.cos(endAngleRad);
-  const endY = centerY + radius * Math.sin(endAngleRad);
-
-  // Needle endpoint
-  const needleRad = (Math.PI / 180) * angle;
-  const needleX = centerX + radius * Math.cos(needleRad);
-  const needleY = centerY + radius * Math.sin(needleRad);
-
-  // Large arc flag for SVG
-  const largeArcFlag = 1; // Always 270deg for background arc
-  // For value arc, largeArcFlag is 1 if value > 75, sweepFlag is 1
-  const valueArcLargeFlag = safeValue > (max * 0.75) ? 1 : 0;
-  const valueArcSweepFlag = 1;
+  
+  // Fixed dimensions for consistency
+  const GAUGE_SIZE = 180;
+  const GAUGE_RADIUS = 75;
+  const CENTER_X = GAUGE_SIZE / 2;
+  const CENTER_Y = GAUGE_SIZE / 2;
+  const STROKE_WIDTH = 12;
+  const NEEDLE_LENGTH = GAUGE_RADIUS - 8;
+  
+  // 270-degree gauge: start at bottom-left, sweep clockwise
+  const START_ANGLE = 135; // degrees
+  const END_ANGLE = 45;    // degrees
+  const TOTAL_RANGE = 270; // degrees
+  
+  // Calculate current value angle
+  const valueAngle = START_ANGLE - ((safeValue / max) * TOTAL_RANGE);
+  
+  // Convert angles to radians for calculations
+  const startRad = (START_ANGLE * Math.PI) / 180;
+  const endRad = (END_ANGLE * Math.PI) / 180;
+  const valueRad = (valueAngle * Math.PI) / 180;
+  
+  // Calculate arc endpoints
+  const startX = CENTER_X + GAUGE_RADIUS * Math.cos(startRad);
+  const startY = CENTER_Y - GAUGE_RADIUS * Math.sin(startRad);
+  const endX = CENTER_X + GAUGE_RADIUS * Math.cos(endRad);
+  const endY = CENTER_Y - GAUGE_RADIUS * Math.sin(endRad);
+  const valueX = CENTER_X + GAUGE_RADIUS * Math.cos(valueRad);
+  const valueY = CENTER_Y - GAUGE_RADIUS * Math.sin(valueRad);
+  
+  // Calculate needle endpoint
+  const needleX = CENTER_X + NEEDLE_LENGTH * Math.cos(valueRad);
+  const needleY = CENTER_Y - NEEDLE_LENGTH * Math.sin(valueRad);
+  
+  // Determine arc flags for SVG paths
+  const backgroundLargeArc = 1;
+  const valueLargeArc = (safeValue / max) > 0.75 ? 1 : 0;
+  
+  // Color based on value ranges
+  const getValueColor = (val) => {
+    if (val >= 80) return '#4caf50'; // Green
+    if (val >= 60) return '#ff9800'; // Orange
+    if (val >= 40) return '#ffc107'; // Yellow
+    return '#f44336'; // Red
+  };
 
   return (
-    <div className="rev-counter-gauge" style={{ display: 'inline-block', textAlign: 'center', margin: '24px' }}>
-      <div style={{ position: 'relative', width: size, height: size }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}> 
-          {/* Background arc */}
+    <div style={{
+      display: 'inline-flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: GAUGE_SIZE + 40,
+      height: GAUGE_SIZE + 80,
+      margin: '10px',
+      padding: '10px',
+      boxSizing: 'border-box'
+    }}>
+      {/* Gauge SVG Container */}
+      <div style={{
+        position: 'relative',
+        width: GAUGE_SIZE,
+        height: GAUGE_SIZE,
+        marginBottom: '15px'
+      }}>
+        <svg 
+          width={GAUGE_SIZE} 
+          height={GAUGE_SIZE} 
+          viewBox={`0 0 ${GAUGE_SIZE} ${GAUGE_SIZE}`}
+          style={{ overflow: 'visible' }}
+        >
+          {/* Background arc (gray) */}
           <path
-            d={`M${startX},${startY} A${radius},${radius} 0 ${largeArcFlag},1 ${endX},${endY}`}
-            stroke="#eee"
-            strokeWidth="18"
+            d={`M ${startX} ${startY} A ${GAUGE_RADIUS} ${GAUGE_RADIUS} 0 ${backgroundLargeArc} 0 ${endX} ${endY}`}
+            stroke="#e0e0e0"
+            strokeWidth={STROKE_WIDTH}
+            strokeLinecap="round"
             fill="none"
           />
-          {/* Value arc */}
+          
+          {/* Value arc (colored) */}
           {safeValue > 0 && (
             <path
-              d={`M${startX},${startY} A${radius},${radius} 0 ${valueArcLargeFlag},${valueArcSweepFlag} ${needleX},${needleY}`}
-              stroke="#ff9800"
-              strokeWidth="18"
+              d={`M ${startX} ${startY} A ${GAUGE_RADIUS} ${GAUGE_RADIUS} 0 ${valueLargeArc} 0 ${valueX} ${valueY}`}
+              stroke={getValueColor(safeValue)}
+              strokeWidth={STROKE_WIDTH}
+              strokeLinecap="round"
               fill="none"
             />
           )}
+          
           {/* Needle */}
           <line
-            x1={centerX}
-            y1={centerY}
+            x1={CENTER_X}
+            y1={CENTER_Y}
             x2={needleX}
             y2={needleY}
-            stroke="#e53935"
-            strokeWidth="7"
+            stroke="#333"
+            strokeWidth="4"
             strokeLinecap="round"
           />
+          
           {/* Center circle */}
-          <circle cx={centerX} cy={centerY} r="14" fill="#333" />
+          <circle 
+            cx={CENTER_X} 
+            cy={CENTER_Y} 
+            r="8" 
+            fill="#333"
+            stroke="#fff"
+            strokeWidth="2"
+          />
         </svg>
-        {/* Score value */}
+        
+        {/* Score display */}
         <div style={{
           position: 'absolute',
-          left: 0,
-          top: size / 2.1,
-          width: '100%',
+          top: '65%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontSize: '18px',
           fontWeight: 'bold',
-          fontSize: 32,
-          color: '#e53935',
-          textShadow: '0 2px 8px #fff',
+          color: '#333',
+          textAlign: 'center',
+          background: 'rgba(255, 255, 255, 0.9)',
+          padding: '2px 8px',
+          borderRadius: '12px',
+          border: '1px solid #e0e0e0'
         }}>
-          {safeValue} / {max}
+          {safeValue}
         </div>
       </div>
-      <div style={{ fontSize: 20, marginTop: 24, fontWeight: 600 }}>{label}</div>
+      
+      {/* Label */}
+      <div style={{
+        fontSize: '14px',
+        fontWeight: '600',
+        color: '#555',
+        textAlign: 'center',
+        maxWidth: '120px',
+        lineHeight: '1.2',
+        wordWrap: 'break-word'
+      }}>
+        {label}
+      </div>
     </div>
   );
 }
