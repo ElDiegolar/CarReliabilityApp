@@ -424,8 +424,8 @@ export default async function handler(req, res) {
       }
       
       // Continue with more specifications on next page if needed
-      if (reliability_data.isPremium) {
-        // Check if we need more space for premium specifications
+      if (true) { // All users get full specifications
+        // Check if we need more space for specifications
         if (currentY < 250) {
           page = pdfDoc.addPage([612, 792]);
           currentY = height - 50;
@@ -618,8 +618,8 @@ export default async function handler(req, res) {
         }
       }
       
-      // If not premium, add an upgrade note
-      if (!reliability_data.isPremium) {
+      // All users get complete specifications - no upgrade note needed
+      if (false) { // Disabled premium check
         page.drawText('Upgrade to premium for complete specifications data', {
           x: margin,
           y: currentY,
@@ -651,7 +651,7 @@ export default async function handler(req, res) {
     currentY -= lineHeight;
     
     // Check if full report with all categories is available
-    if (reliability_data.isPremium) {
+    if (true) { // All users get detailed breakdown
       // Electrical System
       drawCategoryScore(page, margin, currentY, 'Electrical System', reliability_data.categories.electricalSystem, helveticaFont, helveticaBoldFont);
       currentY -= lineHeight;
@@ -667,21 +667,11 @@ export default async function handler(req, res) {
       // Fuel System
       drawCategoryScore(page, margin, currentY, 'Fuel System', reliability_data.categories.fuelSystem, helveticaFont, helveticaBoldFont);
       currentY -= lineHeight * 2;
-    } else {
-      // For free users, add note about premium
-      currentY -= lineHeight;
-      page.drawText(`Upgrade to premium for detailed category breakdown scores.`, {
-        x: margin + 20,
-        y: currentY,
-        size: textSize,
-        font: helveticaFont,
-        color: rgb(0.5, 0.5, 0.5),
-      });
-      currentY -= lineHeight * 2;
-    }
+    } 
+    // All users now get full access - no upgrade messages needed
     
-    // Common issues section if premium
-    if (reliability_data.isPremium && reliability_data.commonIssues && reliability_data.commonIssues.length > 0) {
+    // Common issues section - now available for all users
+    if (reliability_data.commonIssues && reliability_data.commonIssues.length > 0) {
       page.drawText(`Common Issues`, {
         x: margin,
         y: currentY,
@@ -754,26 +744,8 @@ export default async function handler(req, res) {
           currentY = height - 50;
         }
       }
-    } else if (!reliability_data.isPremium) {
-      page.drawText(`Common Issues`, {
-        x: margin,
-        y: currentY,
-        size: subheaderSize,
-        font: helveticaBoldFont,
-      });
-      
-      currentY -= lineHeight * 1.5;
-      
-      page.drawText(`Upgrade to premium for detailed common issues information.`, {
-        x: margin + 20,
-        y: currentY,
-        size: textSize,
-        font: helveticaFont,
-        color: rgb(0.5, 0.5, 0.5),
-      });
-      
-      currentY -= lineHeight * 2;
-    }
+    } 
+    // All users now have access to common issues data
     
     // Analysis section
     page.drawText(`Reliability Analysis`, {
@@ -785,10 +757,8 @@ export default async function handler(req, res) {
     
     currentY -= lineHeight * 1.5;
     
-    // AI analysis text - we need to wrap this text
-    const analysisText = reliability_data.isPremium 
-      ? reliability_data.aiAnalysis 
-      : 'Upgrade to premium for detailed reliability analysis.';
+    // AI analysis text - now available to all users
+    const analysisText = reliability_data.aiAnalysis || 'No detailed analysis available.';
     
     // Split analysis text into multiple lines
     const analysisLines = splitTextToLines(analysisText, width - 2 * margin, textSize, helveticaFont);
@@ -811,8 +781,8 @@ export default async function handler(req, res) {
       }
     }
 
-    // Add timeline section if premium and timeline data exists
-    if (reliability_data.isPremium && timeline_data && timeline_data.length > 0) {
+    // Add timeline section - now available to all users
+    if (timeline_data && timeline_data.length > 0) {
       // Add a new page for the timeline
       page = pdfDoc.addPage([612, 792]);
       currentY = height - 50;
@@ -924,8 +894,8 @@ export default async function handler(req, res) {
         // Add spacing between timeline events
         currentY -= lineHeight;
       }
-    } else if (reliability_data.isPremium && (!timeline_data || timeline_data.length === 0)) {
-      // If premium but no timeline data
+    } else if (!timeline_data || timeline_data.length === 0) {
+      // If no timeline data available
       currentY -= lineHeight * 2;
       
       page.drawText(`Design History & Engineering Timeline`, {
@@ -943,7 +913,7 @@ export default async function handler(req, res) {
         size: textSize,
         font: helveticaFont,
       });
-    } else if (!reliability_data.isPremium) {
+    } else if (false) { // Disabled premium check
       // For free users, mention timeline is a premium feature
       currentY -= lineHeight * 2;
       

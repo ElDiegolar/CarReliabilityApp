@@ -29,23 +29,7 @@ async function handler(req, res) {
       return Math.round(miles * 1.60934);
     };
     
-    // Check if user is premium
-    const now = new Date().toISOString();
-    const subscriptionResult = await query(`
-      SELECT us.id
-      FROM user_subscriptions us
-      JOIN subscription_plans sp ON us.plan_id = sp.id
-      WHERE us.user_id = $1 
-      AND us.status = $2 
-      AND (us.current_period_end IS NULL OR us.current_period_end > $3)
-      AND (sp.name = 'premium' OR sp.name = 'professional')
-    `, [userId, 'active', now]);
-    
-    const isPremium = subscriptionResult.rows.length > 0;
-    
-    if (!isPremium) {
-      return res.status(403).json({ error: 'Premium subscription required for PDF export' });
-    }
+    // PDF export is now available to all authenticated users
     
     // Get vehicles data with a single query
     const placeholders = vehicleIds.map((_, index) => `$${index + 2}`).join(', ');

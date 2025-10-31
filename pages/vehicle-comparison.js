@@ -135,7 +135,8 @@ export default function VehicleComparison() {
       });
       
       if (response.status === 403) {
-        alert(t('comparison.premiumRequired', 'PDF export requires a premium subscription'));
+        // PDF export is now available to all users - this alert is disabled
+        // alert(t('comparison.premiumRequired', 'PDF export requires a premium subscription'));
         setExporting(false);
         return;
       }
@@ -268,19 +269,19 @@ export default function VehicleComparison() {
                     ))}
                   </tr>
                   
-                  {/* Only show these if at least one vehicle has premium data */}
-                  {vehicles.some(v => v.reliability_data?.isPremium) && (
+                  {/* Show reliability details for all vehicles */}
+                  {vehicles.some(v => v.reliability_data) && (
                     <>
                       <tr>
                         <td>{t('comparison.electrical', 'Electrical System')}</td>
                         {vehicles.map(vehicle => (
                           <td key={vehicle.id} className="score-cell">
-                            {vehicle.reliability_data?.isPremium ? (
+                            {vehicle.reliability_data?.categories?.electricalSystem ? (
                               <span className={`score-badge ${getScoreClass(vehicle.reliability_data?.categories?.electricalSystem)}`}>
-                                {vehicle.reliability_data?.categories?.electricalSystem || 'N/A'}
+                                {vehicle.reliability_data?.categories?.electricalSystem}
                               </span>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              <span>N/A</span>
                             )}
                           </td>
                         ))}
@@ -289,12 +290,12 @@ export default function VehicleComparison() {
                         <td>{t('comparison.brakes', 'Brakes')}</td>
                         {vehicles.map(vehicle => (
                           <td key={vehicle.id} className="score-cell">
-                            {vehicle.reliability_data?.isPremium ? (
+                            {vehicle.reliability_data?.categories?.brakes ? (
                               <span className={`score-badge ${getScoreClass(vehicle.reliability_data?.categories?.brakes)}`}>
-                                {vehicle.reliability_data?.categories?.brakes || 'N/A'}
+                                {vehicle.reliability_data?.categories?.brakes}
                               </span>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              <span>N/A</span>
                             )}
                           </td>
                         ))}
@@ -303,12 +304,12 @@ export default function VehicleComparison() {
                         <td>{t('comparison.suspension', 'Suspension')}</td>
                         {vehicles.map(vehicle => (
                           <td key={vehicle.id} className="score-cell">
-                            {vehicle.reliability_data?.isPremium ? (
+                            {vehicle.reliability_data?.categories?.suspension ? (
                               <span className={`score-badge ${getScoreClass(vehicle.reliability_data?.categories?.suspension)}`}>
-                                {vehicle.reliability_data?.categories?.suspension || 'N/A'}
+                                {vehicle.reliability_data?.categories?.suspension}
                               </span>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              <span>N/A</span>
                             )}
                           </td>
                         ))}
@@ -317,12 +318,12 @@ export default function VehicleComparison() {
                         <td>{t('comparison.fuelSystem', 'Fuel System')}</td>
                         {vehicles.map(vehicle => (
                           <td key={vehicle.id} className="score-cell">
-                            {vehicle.reliability_data?.isPremium ? (
+                            {vehicle.reliability_data?.categories?.fuelSystem ? (
                               <span className={`score-badge ${getScoreClass(vehicle.reliability_data?.categories?.fuelSystem)}`}>
-                                {vehicle.reliability_data?.categories?.fuelSystem || 'N/A'}
+                                {vehicle.reliability_data?.categories?.fuelSystem}
                               </span>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              <span>N/A</span>
                             )}
                           </td>
                         ))}
@@ -331,7 +332,7 @@ export default function VehicleComparison() {
                   )}
                   
                   {/* Common Issues Section */}
-                  {vehicles.some(v => v.reliability_data?.isPremium && v.reliability_data?.commonIssues?.length > 0) && (
+                  {vehicles.some(v => v.reliability_data?.commonIssues?.length > 0) && (
                     <>
                       <tr className="section-header">
                         <td colSpan={vehicles.length + 1}>{t('comparison.commonIssues', 'Common Issues')}</td>
@@ -340,7 +341,7 @@ export default function VehicleComparison() {
                         <td>{t('comparison.reportedIssues', 'Reported Issues')}</td>
                         {vehicles.map(vehicle => (
                           <td key={vehicle.id}>
-                            {vehicle.reliability_data?.isPremium && vehicle.reliability_data?.commonIssues?.length > 0 ? (
+                            {vehicle.reliability_data?.commonIssues?.length > 0 ? (
                               <ul className="issues-list">
                                 {vehicle.reliability_data.commonIssues.slice(0, 2).map((issue, idx) => (
                                   <li key={idx}>
@@ -363,7 +364,7 @@ export default function VehicleComparison() {
                                 )}
                               </ul>
                             ) : (
-                              <span className="premium-locked">Premium only</span>
+                              <span>No common issues data</span>
                             )}
                           </td>
                         ))}

@@ -170,12 +170,12 @@ function generateFallbackData(year, make, model, isPremium) {
     categories: {
       engine: Math.floor(Math.random() * 30) + 70,
       transmission: Math.floor(Math.random() * 30) + 70,
-      electricalSystem: isPremium ? Math.floor(Math.random() * 30) + 70 : null,
-      brakes: isPremium ? Math.floor(Math.random() * 30) + 70 : null,
-      suspension: isPremium ? Math.floor(Math.random() * 30) + 70 : null,
-      fuelSystem: isPremium ? Math.floor(Math.random() * 30) + 70 : null,
+      electricalSystem: Math.floor(Math.random() * 30) + 70, // Always available
+      brakes: Math.floor(Math.random() * 30) + 70, // Always available
+      suspension: Math.floor(Math.random() * 30) + 70, // Always available
+      fuelSystem: Math.floor(Math.random() * 30) + 70, // Always available
     },
-    commonIssues: isPremium ? [
+    commonIssues: [
       {
         description: `${make} ${model} transmission issues reported after 60,000 miles`,
         costToFix: "$1,500-$3,000",
@@ -188,38 +188,36 @@ function generateFallbackData(year, make, model, isPremium) {
         occurrence: "8% of vehicles",
         mileage: "Any mileage"
       }
-    ] : [],
-    aiAnalysis: isPremium 
-      ? `The ${year} ${make} ${model} shows generally good reliability with some minor concerns. Compared to similar vehicles in its class, it ranks above average for long-term dependability. Owners report high satisfaction with engine performance and fuel economy, while some report issues with the transmission after extended use. Regular maintenance appears to prevent most common problems.`
-      : "Upgrade to premium for full analysis",
-    isPremium: isPremium
+    ],
+    aiAnalysis: `The ${year} ${make} ${model} shows generally good reliability with some minor concerns. Compared to similar vehicles in its class, it ranks above average for long-term dependability. Owners report high satisfaction with engine performance and fuel economy, while some report issues with the transmission after extended use. Regular maintenance appears to prevent most common problems.`,
+    isPremium: true // All users are now considered premium
   };
 
   const specificationsData = {
     engine: {
       type: `${Math.random() > 0.5 ? 'V6' : 'Inline-4'} ${Math.random() > 0.5 ? 'Turbocharged' : ''}`,
       displacement: `${(1.8 + Math.random() * 3.0).toFixed(1)}L`,
-      horsepower: isPremium ? `${Math.floor(Math.random() * 150) + 150} hp` : "Upgrade to premium",
-      torque: isPremium ? `${Math.floor(Math.random() * 150) + 150} lb-ft` : "Upgrade to premium"
+      horsepower: `${Math.floor(Math.random() * 150) + 150} hp`, // Always available
+      torque: `${Math.floor(Math.random() * 150) + 150} lb-ft` // Always available
     },
     transmission: `${Math.random() > 0.5 ? 'Automatic' : 'Manual'} ${Math.floor(Math.random() * 3) + 6}-Speed`,
     drivetrain: Math.random() > 0.5 ? 'FWD' : (Math.random() > 0.5 ? 'RWD' : 'AWD'),
     fuelEconomy: {
-      city: isPremium ? `${Math.floor(Math.random() * 10) + 18} mpg` : "Upgrade to premium",
-      highway: isPremium ? `${Math.floor(Math.random() * 10) + 25} mpg` : "Upgrade to premium",
-      combined: isPremium ? `${Math.floor(Math.random() * 10) + 22} mpg` : "Upgrade to premium"
+      city: `${Math.floor(Math.random() * 10) + 18} mpg`, // Always available
+      highway: `${Math.floor(Math.random() * 10) + 25} mpg`, // Always available
+      combined: `${Math.floor(Math.random() * 10) + 22} mpg` // Always available
     },
     dimensions: {
       length: `${Math.floor(Math.random() * 20) + 170} in`,
       width: `${Math.floor(Math.random() * 10) + 65} in`,
       height: `${Math.floor(Math.random() * 10) + 55} in`,
-      wheelbase: isPremium ? `${Math.floor(Math.random() * 20) + 100} in` : "Upgrade to premium"
+      wheelbase: `${Math.floor(Math.random() * 20) + 100} in` // Always available
     },
     weight: `${Math.floor(Math.random() * 1000) + 3000} lbs`,
-    cargoCapacity: isPremium ? `${Math.floor(Math.random() * 20) + 10} cu ft` : "Upgrade to premium",
+    cargoCapacity: `${Math.floor(Math.random() * 20) + 10} cu ft`, // Always available
     seatingCapacity: `${Math.floor(Math.random() * 3) + 4}`,
-    safetyFeatures: isPremium ? ["ABS", "Stability Control", "Multiple Airbags", "Rear Camera"] : ["Upgrade to premium for full safety features"],
-    warranty: isPremium ? `${Math.floor(Math.random() * 3) + 3} years / ${Math.floor(Math.random() * 30) + 30},000 miles` : "Upgrade to premium for warranty information"
+    safetyFeatures: ["ABS", "Stability Control", "Multiple Airbags", "Rear Camera"], // Always available
+    warranty: `${Math.floor(Math.random() * 3) + 3} years / ${Math.floor(Math.random() * 30) + 30},000 miles` // Always available
   };
 
   return { reliabilityData, specificationsData };
@@ -285,46 +283,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Year, make, model, and mileage are required' });
     }
 
-    // Check if premium based on token
-    let isPremium = false;
-    let user_id = null;
-    
-    if (premiumToken) {
-      // Verify token
-      const now = new Date().toISOString();
-      const subscriptionResult = await query(`
-        SELECT us.user_id
-        FROM user_subscriptions us
-        JOIN subscription_plans sp ON us.plan_id = sp.id
-        WHERE us.status = $1 
-        AND (us.current_period_end IS NULL OR us.current_period_end > $2)
-        AND (sp.name = 'premium' OR sp.name = 'professional')
-      `, ['active', now]);
-      
-      if (subscriptionResult.rows.length > 0) {
-        isPremium = true;
-        user_id = subscriptionResult.rows[0].user_id;
-      }
-    } else if (userId) {
-      // If user is authenticated but no token provided
-      user_id = userId;
-      
-      // Check if user has active subscription (premium or professional)
-      const now = new Date().toISOString();
-      const subscriptionResult = await query(`
-        SELECT us.id
-        FROM user_subscriptions us
-        JOIN subscription_plans sp ON us.plan_id = sp.id
-        WHERE us.user_id = $1 
-        AND us.status = $2 
-        AND (us.current_period_end IS NULL OR us.current_period_end > $3)
-        AND (sp.name = 'premium' OR sp.name = 'professional')
-      `, [userId, 'active', now]);
-      
-      if (subscriptionResult.rows.length > 0) {
-        isPremium = true;
-      }
-    }
+    // All users now have full access - no premium restrictions
+    let isPremium = true; // Enable all features for everyone
+    let user_id = userId || null;
 
     let reliabilityData = null;
     let specificationsData = null;
@@ -346,8 +307,8 @@ export default async function handler(req, res) {
         makeOpenAICall(specificationsPrompt, specificationsSystemMessage)
       ];
 
-      // Add timeline call for premium users
-      if (isPremium) {
+      // Timeline data now available to all users
+      if (true) {
         // Check for cached timeline data first
         await ensureTimelineTable();
         const cachedTimeline = await getCachedTimeline(year, make, model);
@@ -437,8 +398,8 @@ export default async function handler(req, res) {
       }
     }
 
-    // Log if we're including timeline data
-    if (isPremium && timelineData.length > 0) {
+    // Log timeline data
+    if (timelineData.length > 0) {
       console.log(`Including ${timelineData.length} timeline items in response`);
     }
     
@@ -446,7 +407,7 @@ export default async function handler(req, res) {
     res.json({
       ...reliabilityData,
       specifications: specificationsData,
-      timeline: isPremium ? timelineData : []
+      timeline: timelineData // All users get timeline data
     });
   } catch (error) {
     console.error('General API Error:', error);

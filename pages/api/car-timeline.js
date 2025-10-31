@@ -26,21 +26,7 @@ async function handler(req, res) {
   }
 
   try {
-    // Check if user has premium or professional subscription
-    const now = new Date().toISOString();
-    const subscriptionResult = await query(`
-      SELECT us.id
-      FROM user_subscriptions us
-      JOIN subscription_plans sp ON us.plan_id = sp.id
-      WHERE us.user_id = $1 
-      AND us.status = $2 
-      AND (us.current_period_end IS NULL OR us.current_period_end > $3)
-      AND (sp.name = 'premium' OR sp.name = 'professional')
-    `, [req.user.id, 'active', now]);
-
-    if (subscriptionResult.rows.length === 0) {
-      return res.status(403).json({ error: 'Premium subscription required' });
-    }
+    // Timeline is now available to all authenticated users
 
     // Ensure timeline table exists
     await ensureTimelineTable();

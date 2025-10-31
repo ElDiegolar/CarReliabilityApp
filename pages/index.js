@@ -135,82 +135,53 @@ export default function Home() {
       
       <div className="pricing-section">
         <div className="section-header">
-          <h2>{t('pricing.title')}</h2>
-          <p className="section-subtitle">{t('pricing.description')}</p>
+          <h2>🎉 All Features Now Free!</h2>
+          <p className="section-subtitle">Get complete access to all vehicle reliability data and analysis tools at no cost.</p>
           <div className="section-underline"></div>
         </div>
         
-        <div className="pricing-cards">
-          <div className="pricing-card starter">
-            <div className="card-header">
-              <h3>{t('pricing.free.title')}</h3>
-              <div className="price-display">
-                <span className="currency">$</span>
-                <span className="amount">0</span>
-                <span className="period">{t('pricing.free.period')}</span>
-              </div>
+        <div className="free-features-card">
+          <div className="card-header">
+            <h3>Complete Car Reliability Analysis</h3>
+            <div className="price-display">
+              <span className="currency">$</span>
+              <span className="amount">0</span>
+              <span className="period">Forever Free</span>
             </div>
-            <ul className="feature-list">
-              {freeFeatures.map((feature, index) => (
-                <li key={index}>
-                  <div className="check-mark">✓</div>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <Link href="/search" className="plan-button starter-btn">
-              {t('pricing.free.cta')}
-            </Link>
           </div>
-          
-          <div className="pricing-card premium featured">
-            <div className="featured-badge">
-              <span>{t('pricing.premium.badge')}</span>
+          <div className="features-grid">
+            <div className="feature-column">
+              <h4>✅ Reliability Analysis</h4>
+              <ul>
+                <li>Comprehensive reliability scores</li>
+                <li>All vehicle systems data</li>
+                <li>Engine, transmission, electrical</li>
+                <li>Brakes, suspension, fuel system</li>
+              </ul>
             </div>
-            <div className="card-header">
-              <h3>{t('pricing.premium.title')}</h3>
-              <div className="price-display">
-                <span className="currency">$</span>
-                <span className="amount">9.99</span>
-                <span className="period">{t('pricing.premium.period')}</span>
-              </div>
+            <div className="feature-column">
+              <h4>✅ Advanced Features</h4>
+              <ul>
+                <li>Common issues with repair costs</li>
+                <li>AI-powered analysis</li>
+                <li>Vehicle comparison tools</li>
+                <li>PDF report generation</li>
+              </ul>
             </div>
-            <ul className="feature-list">
-              {premiumFeatures.map((feature, index) => (
-                <li key={index}>
-                  <div className="check-mark">✓</div>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <Link href="/pricing" className="plan-button premium-btn">
-              {t('pricing.premium.cta')}
-            </Link>
+            <div className="feature-column">
+              <h4>✅ Full Access</h4>
+              <ul>
+                <li>Unlimited vehicle searches</li>
+                <li>Complete search history</li>
+                <li>Design timeline data</li>
+                <li>All specifications</li>
+              </ul>
+            </div>
           </div>
-          
-          <div className="pricing-card professional">
-            <div className="card-header">
-              <h3>{t('pricing.professional.title')}</h3>
-              <div className="price-display">
-                <span className="currency">$</span>
-                <span className="amount">19.99</span>
-                <span className="period">{t('pricing.professional.period')}</span>
-              </div>
-            </div>
-            <ul className="feature-list">
-              {professionalFeatures.map((feature, index) => (
-                <li key={index}>
-                  <div className="check-mark">✓</div>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <Link href="/pricing" className="plan-button pro-btn">
-              {t('pricing.professional.cta')}
-            </Link>
-          </div>
+          <Link href="/search" className="plan-button free-btn">
+            Start Analyzing Vehicles - Free!
+          </Link>
         </div>
-        {/* <TranslationDebugger /> */}
       </div>
 
       <style jsx>{`
@@ -493,6 +464,69 @@ export default function Home() {
           gap: 2rem;
           max-width: 1200px;
           margin: 0 auto;
+        }
+
+        .free-features-card {
+          max-width: 1000px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 20px;
+          padding: 3rem;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+          border: 3px solid #48bb78;
+        }
+
+        .features-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 2rem;
+          margin: 2rem 0;
+        }
+
+        .feature-column {
+          padding: 1.5rem;
+          background: #f7fafc;
+          border-radius: 12px;
+          border-left: 4px solid #48bb78;
+        }
+
+        .feature-column h4 {
+          color: #2d3748;
+          margin-bottom: 1rem;
+          font-size: 1.2rem;
+        }
+
+        .feature-column ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .feature-column li {
+          padding: 0.5rem 0;
+          color: #4a5568;
+          font-size: 0.95rem;
+        }
+
+        .free-btn {
+          background: linear-gradient(135deg, #48bb78, #38a169);
+          color: white;
+          border: none;
+          padding: 1rem 2rem;
+          border-radius: 12px;
+          font-size: 1.1rem;
+          font-weight: 600;
+          cursor: pointer;
+          text-decoration: none;
+          display: inline-block;
+          text-align: center;
+          margin-top: 1rem;
+          transition: all 0.3s ease;
+        }
+
+        .free-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
         }
 
         .pricing-card {

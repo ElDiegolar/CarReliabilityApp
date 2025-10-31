@@ -30,7 +30,7 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [subscription, setSubscription] = useState(null);
-  const [isPremium, setIsPremium] = useState(false);
+  const [isPremium, setIsPremium] = useState(true); // All users now have premium access
   const [timelineData, setTimelineData] = useState([]);
   const [showSearchForm, setShowSearchForm] = useState(true);
   const [carImageUrl, setCarImageUrl] = useState(null);
@@ -139,33 +139,10 @@ export default function Search() {
     }
   }, [queryYear, queryMake, queryModel, queryMileage, fromSaved, savedId, user, getToken, isPremium]);
 
-  // Check user subscription status
+  // All users now have premium access - no need to check subscription
   useEffect(() => {
-    const checkSubscription = async () => {
-      if (!user) return;
-      try {
-        const token = getToken();
-        const response = await fetch('/api/profile', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch profile data');
-        }
-        
-        const data = await response.json();
-        console.log('User subscription data:', data.subscription);
-        setSubscription(data.subscription);
-        setIsPremium(!!data.subscription);
-      } catch (err) {
-        console.error('Error checking subscription:', err);
-      }
-    };
-    
-    checkSubscription();
-  }, [user, getToken]);
+    setIsPremium(true); // Always grant premium access
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -201,8 +178,8 @@ export default function Search() {
       const body = {
         ...formData,
         locale: router.locale,
-        ...(user && { userId: user.id }),
-        ...(subscription?.access_token && { premiumToken: subscription.access_token })
+        ...(user && { userId: user.id })
+        // No longer need premium token since all users have access
       };
 
       console.log('Sending reliability data request:', body);
@@ -279,9 +256,7 @@ export default function Search() {
     <Layout title={t('search.title')}>
       <h1>{t('search.title')}</h1>
 
-      {isPremium && (
-        <div className="premium-badge">{t('search.premiumUser')}</div>
-      )}
+      {/* All users now have full access - no need for premium badge */}
 
       {!showSearchForm && (
         <button onClick={() => setShowSearchForm(true)} className="reopen-button">
@@ -397,40 +372,30 @@ export default function Search() {
                     <td>{t('search.seatingCapacity') || 'Seating Capacity'}</td>
                     <td>{specifications.seatingCapacity}</td>
                   </tr>
-                  {isPremium && (
-                    <>
-                      <tr>
-                        <td>{t('search.cargoCapacity') || 'Cargo Capacity'}</td>
-                        <td>{specifications.cargoCapacity}</td>
-                      </tr>
-                      <tr>
-                        <th colSpan="2" className="specs-header">{t('search.fuelEconomy') || 'Fuel Economy'}</th>
-                      </tr>
-                      <tr>
-                        <td>{t('search.cityMPG') || 'City'}</td>
-                        <td>{specifications.fuelEconomy.city}</td>
-                      </tr>
-                      <tr>
-                        <td>{t('search.highwayMPG') || 'Highway'}</td>
-                        <td>{specifications.fuelEconomy.highway}</td>
-                      </tr>
-                      <tr>
-                        <td>{t('search.combinedMPG') || 'Combined'}</td>
-                        <td>{specifications.fuelEconomy.combined}</td>
-                      </tr>
-                    </>
-                  )}
+                  {/* All users now get complete fuel economy and cargo data */}
+                  <tr>
+                    <td>{t('search.cargoCapacity') || 'Cargo Capacity'}</td>
+                    <td>{specifications.cargoCapacity}</td>
+                  </tr>
+                  <tr>
+                    <th colSpan="2" className="specs-header">{t('search.fuelEconomy') || 'Fuel Economy'}</th>
+                  </tr>
+                  <tr>
+                    <td>{t('search.cityMPG') || 'City'}</td>
+                    <td>{specifications.fuelEconomy.city}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.highwayMPG') || 'Highway'}</td>
+                    <td>{specifications.fuelEconomy.highway}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('search.combinedMPG') || 'Combined'}</td>
+                    <td>{specifications.fuelEconomy.combined}</td>
+                  </tr>
                 </tbody>
               </table>
               
-              {!isPremium && (
-                <div className="specs-premium-prompt">
-                  <p>{t('search.upgradeFullSpecs') || 'Upgrade to premium for complete specifications'}</p>
-                  <Link href="/pricing" className="upgrade-button">
-                    {t('search.goPremium') || 'Go Premium'}
-                  </Link>
-                </div>
-              )}
+              {/* All users now get complete specifications - no upgrade prompt needed */}
             </div>
           </div>
         </div>
@@ -488,38 +453,28 @@ export default function Search() {
                 <div className="category-score">{results.categories.transmission}/100</div>
               </div>
 
-              {results.isPremium ? (
-                <>
-                  <div className="category">
-                    <h4>{t('search.electrical') || 'Electrical System'}</h4>
-                    <div className="category-score">{results.categories.electricalSystem}/100</div>
-                  </div>
-                  <div className="category">
-                    <h4>{t('search.brakes') || 'Brakes'}</h4>
-                    <div className="category-score">{results.categories.brakes}/100</div>
-                  </div>
-                  <div className="category">
-                    <h4>{t('search.suspension') || 'Suspension'}</h4>
-                    <div className="category-score">{results.categories.suspension}/100</div>
-                  </div>
-                  <div className="category">
-                    <h4>{t('search.fuelSystem') || 'Fuel System'}</h4>
-                    <div className="category-score">{results.categories.fuelSystem}/100</div>
-                  </div>
-                </>
-              ) : (
-                <div className="premium-prompt">
-                  <p>{t('search.upgradeFull') || 'Upgrade to premium for full category breakdowns'}</p>
-                  <Link href="/pricing" className="upgrade-button">
-                    {t('search.goPremium') || 'Go Premium'}
-                  </Link>
-                </div>
-              )}
+              {/* All users now get full category breakdowns */}
+              <div className="category">
+                <h4>{t('search.electrical') || 'Electrical System'}</h4>
+                <div className="category-score">{results.categories.electricalSystem || 'N/A'}/100</div>
+              </div>
+              <div className="category">
+                <h4>{t('search.brakes') || 'Brakes'}</h4>
+                <div className="category-score">{results.categories.brakes || 'N/A'}/100</div>
+              </div>
+              <div className="category">
+                <h4>{t('search.suspension') || 'Suspension'}</h4>
+                <div className="category-score">{results.categories.suspension || 'N/A'}/100</div>
+              </div>
+              <div className="category">
+                <h4>{t('search.fuelSystem') || 'Fuel System'}</h4>
+                <div className="category-score">{results.categories.fuelSystem || 'N/A'}/100</div>
+              </div>
             </div>
           </div>
 
-          {/* Common Issues - Only show for premium users and if there are issues */}
-          {results.isPremium && results.commonIssues && results.commonIssues.length > 0 && (
+          {/* Common Issues - Now available for all users */}
+          {results.commonIssues && results.commonIssues.length > 0 && (
             <div className="common-issues">
               <h3>{t('search.commonIssues') || 'Common Issues'}</h3>
               <ul>
@@ -571,25 +526,18 @@ export default function Search() {
             <h3>{t('search.analysis') || 'Analysis'}</h3>
             <p>{results.aiAnalysis}</p>
 
-            {!results.isPremium && (
-              <div className="upgrade-prompt">
-                <p>{t('search.upgradePrompt') || 'Upgrade to premium for full AI analysis and detailed reports.'}</p>
-                <Link href="/pricing" className="upgrade-button">
-                  {t('search.goPremium') || 'Go Premium'}
-                </Link>
-              </div>
-            )}
+            {/* All users now get full AI analysis - no upgrade prompt needed */}
           </div>
           
-          {/* Use CarTimeline component with the data we already have */}
-          {isPremium && timelineData && timelineData.length > 0 && (
+          {/* Timeline - now available for all users */}
+          {timelineData && timelineData.length > 0 && (
             <div className="timeline-section">
               <h3>{t('search.timeline') || 'Vehicle Timeline'}</h3>
               <CarTimeline 
                 year={formData.year}
                 make={formData.make}
                 model={formData.model}
-                isPremium={isPremium}
+                isPremium={true} // All users now have premium access
                 timelineData={timelineData}
                 // No need for onTimelineLoaded since we already have the data
               />
@@ -925,17 +873,37 @@ export default function Search() {
 
         .category-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-          gap: 1rem;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.5rem;
+          max-width: 900px;
+          margin: 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+          .category-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .category-grid {
+            grid-template-columns: 1fr;
+          }
         }
 
         .category {
           background-color: #f9f9f9;
           padding: 1.5rem;
-          border-radius: 8px;
+          border-radius: 12px;
           text-align: center;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
           transition: transform 0.2s, box-shadow 0.2s;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 120px;
+          aspect-ratio: 1;
         }
         
         .category:hover {
@@ -950,9 +918,15 @@ export default function Search() {
         }
 
         .category-score {
-          font-size: 1.5rem;
+          font-size: 2rem;
           font-weight: bold;
-          color: #0070f3;
+          color: #ff6b35;
+          background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin-top: 0.5rem;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .premium-prompt, .upgrade-prompt {
