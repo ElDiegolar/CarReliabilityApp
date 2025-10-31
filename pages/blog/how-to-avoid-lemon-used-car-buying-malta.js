@@ -1,16 +1,16 @@
-// pages/blog/how-to-avoid-lemon-used-car-buying-malta.js
+// pages/blog/how-to-avoid-lemon-used-car-buying-worldwide.js
 import React from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Layout from '../../components/Layout';
 import SEO from '../../components/SEO';
 
-export default function AvoidLemonCars() {
+export default function AvoidLemonCarsWorldwide() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
-    "headline": "How to Avoid Buying a Lemon When Purchasing a Used Car in Malta",
-    "description": "Complete guide to avoiding lemon cars in Malta. Learn the warning signs, inspection tips, and red flags when buying used cars in Malta.",
+    "headline": "How to Avoid Buying a Lemon When Purchasing a Used Car Worldwide",
+    "description": "Complete guide to avoiding lemon cars globally. Learn the warning signs, inspection tips, and red flags when buying used cars anywhere.",
     "image": "/images/blog/avoid-lemon-cars-malta.jpg",
     "author": {
       "@type": "Person", 
@@ -31,10 +31,10 @@ export default function AvoidLemonCars() {
   return (
     <Layout>
       <SEO
-        title="How to Avoid Buying a Lemon Used Car in Malta | Complete Guide 2025"
-        description="Learn how to avoid buying a lemon when purchasing used cars in Malta. Expert inspection tips, warning signs, and red flags for Malta's used car market."
-        keywords="avoid lemon cars Malta, used car inspection Malta, car buying tips Malta, lemon car warning signs, Malta used car market, car inspection checklist Malta"
-        ogImage="/images/blog/avoid-lemon-cars-malta.jpg"
+        title="How to Avoid Buying a Lemon Used Car Worldwide | Complete Guide 2025"
+        description="Learn how to avoid buying a lemon when purchasing used cars anywhere in the world. Expert inspection tips, warning signs, and red flags for global used car markets."
+        keywords="avoid lemon cars worldwide, used car inspection guide, car buying tips global, lemon car warning signs, international used car market, car inspection checklist"
+        ogImage="/images/blog/avoid-lemon-cars-worldwide.jpg"
         structuredData={structuredData}
       />
       

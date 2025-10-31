@@ -12,9 +12,9 @@ class MyDocument extends Document {
           <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
           <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
           
-          {/* SEO Meta tags */}
-          <meta name="description" content="Check any car's reliability score free forever. Get instant used car reliability reports, reliability scores, and avoid buying lemons. Malta's #1 car reliability checker." />
-          <meta name="keywords" content="used car reliability check, car reliability score, is my car reliable, vehicle reliability report, car problems check, Malta cars, avoid lemon cars, car buying Malta, vehicle inspection" />
+          {/* Meta tags */}
+          <meta name="description" content="Check any car's reliability score free forever. Get instant used car reliability reports worldwide. Avoid buying lemons with comprehensive vehicle analysis and reliability scores." />
+          <meta name="keywords" content="used car reliability check, car reliability score, is my car reliable, vehicle reliability report, car problems check, avoid lemon cars, car buying guide, vehicle inspection, Toyota Honda BMW Mercedes reliability" />
           <meta name="author" content="Lemnaed" />
           <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
           <meta name="theme-color" content="#0070f3" />
@@ -39,17 +39,17 @@ class MyDocument extends Document {
                 "@context": "https://schema.org",
                 "@type": "Organization",
                 "name": "Lemnaed",
-                "description": "Malta's leading car reliability checker and vehicle analysis platform",
+                "description": "Leading car reliability checker and vehicle analysis platform worldwide",
                 "url": "https://lemnaed.com",
                 "logo": "https://lemnaed.com/logo.png",
                 "contactPoint": {
                   "@type": "ContactPoint",
                   "contactType": "customer service",
-                  "availableLanguage": ["English", "Maltese"]
+                  "availableLanguage": ["English"]
                 },
                 "areaServed": {
-                  "@type": "Country",
-                  "name": "Malta"
+                  "@type": "Place",
+                  "name": "Worldwide"
                 },
                 "serviceType": "Vehicle Reliability Analysis"
               })

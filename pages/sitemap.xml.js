@@ -17,8 +17,8 @@ const STATIC_PAGES = [
 
 // List of blog posts - in a real app this would come from a CMS/API
 const BLOG_POSTS = [
-  '/blog/5-most-reliable-used-cars-under-10k-malta-2025',
-  '/blog/how-to-avoid-lemon-used-car-buying-malta',
+  '/blog/5-most-reliable-used-cars-under-15k-worldwide-2025',
+  '/blog/how-to-avoid-lemon-used-car-buying-worldwide',
   '/blog/understanding-reliability-scores'
 ];
 

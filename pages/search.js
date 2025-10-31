@@ -260,14 +260,14 @@ export default function Search() {
       const carString = `${formData.year} ${formData.make} ${formData.model}`;
       return {
         title: `${carString} Reliability Score & Report | Is ${carString} Reliable?`,
-        description: `Check ${carString} reliability score and detailed analysis. Get comprehensive report on ${formData.make} ${formData.model} ${formData.year} reliability, common problems, and maintenance costs in Malta.`,
-        keywords: `${formData.year} ${formData.make} ${formData.model} reliability, ${formData.make} ${formData.model} problems, ${carString} reliability score, is ${carString} reliable, ${formData.make} reliability Malta`
+        description: `Check ${carString} reliability score and detailed analysis. Get comprehensive report on ${formData.make} ${formData.model} ${formData.year} reliability, common problems, and maintenance costs worldwide.`,
+        keywords: `${formData.year} ${formData.make} ${formData.model} reliability, ${formData.make} ${formData.model} problems, ${carString} reliability score, is ${carString} reliable, ${formData.make} reliability worldwide`
       };
     }
     return {
-      title: "Car Reliability Checker Malta | Check Any Vehicle's Reliability Score Free",
-      description: "Free car reliability checker for Malta. Enter any car details to get instant reliability scores, common problems, and detailed analysis. Avoid buying lemons.",
-      keywords: "car reliability checker Malta, vehicle reliability score, car problems check Malta, used car reliability, Toyota Honda BMW Mercedes reliability Malta"
+      title: "Car Reliability Checker | Check Any Vehicle's Reliability Score Free Worldwide",
+      description: "Free car reliability checker worldwide. Enter any car details to get instant reliability scores, common problems, and detailed analysis. Avoid buying lemons anywhere.",
+      keywords: "car reliability checker, vehicle reliability score, car problems check, used car reliability, Toyota Honda BMW Mercedes reliability worldwide"
     };
   };
 

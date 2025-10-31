@@ -9,26 +9,26 @@ import Layout from '../../components/Layout';
 // Sample blog posts data - in a real application, this would come from an API or CMS
 const BLOG_POSTS = [
   {
-    id: '5-most-reliable-used-cars-under-10k-malta-2025',
-    title: '5 Most Reliable Used Cars Under €10k in Malta (2025 Edition)',
-    excerpt: 'Discover the most reliable used cars under €10,000 in Malta for 2025. Expert analysis of Toyota, Honda, Mazda and other dependable vehicles.',
+    id: '5-most-reliable-used-cars-under-15k-worldwide-2025',
+    title: '5 Most Reliable Used Cars Under $15k Worldwide (2025 Edition)',
+    excerpt: 'Discover the most reliable used cars under $15,000 globally for 2025. Expert analysis of Toyota, Honda, Mazda and other dependable vehicles.',
     date: '2025-01-15',
     author: 'Lemnaed Team',
     category: 'Car Buying Guide',
-    image: '/images/blog/reliable-cars-malta-2025.jpg',
+    image: '/images/blog/reliable-cars-worldwide-2025.jpg',
     readTime: '8 min read',
-    slug: '5-most-reliable-used-cars-under-10k-malta-2025'
+    slug: '5-most-reliable-used-cars-under-15k-worldwide-2025'
   },
   {
-    id: 'how-to-avoid-lemon-used-car-buying-malta',
-    title: 'How to Avoid Buying a Lemon When Purchasing a Used Car in Malta',
-    excerpt: 'Complete guide to avoiding lemon cars in Malta. Learn the warning signs, inspection tips, and red flags when buying used cars.',
+    id: 'how-to-avoid-lemon-used-car-buying-worldwide',
+    title: 'How to Avoid Buying a Lemon When Purchasing a Used Car Worldwide',
+    excerpt: 'Complete guide to avoiding lemon cars globally. Learn the warning signs, inspection tips, and red flags when buying used cars anywhere.',
     date: '2025-01-20',
     author: 'Lemnaed Team',
     category: 'Car Buying Guide',
-    image: '/images/blog/avoid-lemon-cars-malta.jpg',
+    image: '/images/blog/avoid-lemon-cars-worldwide.jpg',
     readTime: '12 min read',
-    slug: 'how-to-avoid-lemon-used-car-buying-malta'
+    slug: 'how-to-avoid-lemon-used-car-buying-worldwide'
   },
   {
     id: 'understanding-reliability-scores',

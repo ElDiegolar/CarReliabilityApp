@@ -3,9 +3,9 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 const SEO = ({
-  title = "Lemnaed - Free Car Reliability Checker Malta | Check Any Car's Reliability Score",
-  description = "Check any car's reliability score free forever. Get instant used car reliability reports for Malta. Avoid buying lemons with our comprehensive vehicle analysis tool.",
-  keywords = "used car reliability check Malta, car reliability score, is my car reliable, vehicle reliability report, car problems check, Malta cars, avoid lemon cars, car buying Malta, Toyota Honda reliability",
+  title = "Lemnaed - Free Car Reliability Checker | Check Any Vehicle's Reliability Score",
+  description = "Check any car's reliability score free forever. Get instant used car reliability reports worldwide. Avoid buying lemons with our comprehensive vehicle analysis tool.",
+  keywords = "used car reliability check, car reliability score, is my car reliable, vehicle reliability report, car problems check, avoid lemon cars, car buying guide, Toyota Honda BMW Mercedes reliability",
   ogImage = "/images/og-image.png",
   ogType = "website",
   canonicalUrl,

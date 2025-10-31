@@ -64,48 +64,49 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Lemnaed Car Reliability Checker",
-    "description": "Free car reliability checker for Malta. Get instant reliability scores and detailed vehicle reports to avoid buying lemons.",
+    "description": "Free car reliability checker worldwide. Get instant reliability scores and detailed vehicle reports to avoid buying lemons.",
     "url": "https://lemnaed.com",
     "applicationCategory": "AutomotiveApplication",
     "operatingSystem": "Web",
     "offers": {
       "@type": "Offer",
       "price": "0",
-      "priceCurrency": "EUR",
-      "description": "Free car reliability checking service"
+      "priceCurrency": "USD",
+      "description": "Free car reliability checking service worldwide"
     },
     "featureList": [
       "Car reliability scores",
       "Used car reliability check",
       "Vehicle history analysis", 
       "Common car problems database",
-      "Malta car market insights"
+      "Global car market insights",
+      "Worldwide vehicle data"
     ],
     "areaServed": {
-      "@type": "Country",
-      "name": "Malta"
+      "@type": "Place",
+      "name": "Worldwide"
     }
   };
 
   return (
     <Layout>
       <SEO
-        title="Free Car Reliability Checker Malta | Check Any Vehicle's Reliability Score"
-        description="Check any car's reliability score free forever in Malta. Get instant used car reliability reports, avoid buying lemons. Toyota, Honda, BMW, Mercedes reliability data."
-        keywords="used car reliability check Malta, car reliability score, is my car reliable, Toyota reliability Malta, Honda reliability check, BMW reliability, Mercedes problems, avoid lemon cars Malta, car buying guide Malta"
+        title="Free Car Reliability Checker | Check Any Vehicle's Reliability Score Worldwide"
+        description="Check any car's reliability score free forever worldwide. Get instant used car reliability reports, avoid buying lemons. Toyota, Honda, BMW, Mercedes reliability data."
+        keywords="used car reliability check, car reliability score, is my car reliable, Toyota reliability, Honda reliability check, BMW reliability, Mercedes problems, avoid lemon cars, car buying guide worldwide"
         structuredData={homeStructuredData}
       />
       <div className="hero">
         <div className="hero-bg"></div>
         <div className="hero-content">
-          <div className="hero-badge">🚗 AI-Powered Vehicle Intelligence for Malta</div>
+          <div className="hero-badge">🚗 AI-Powered Vehicle Intelligence Worldwide</div>
           <h1 className="hero-title">
             <span className="gradient-text">Check Any Car's Reliability Score</span>
             <br />
-            <span className="hero-subtitle">Free Forever in Malta</span>
+            <span className="hero-subtitle">Free Forever Worldwide</span>
           </h1>
           <p className="hero-description">
-            Get instant reliability reports for used cars in Malta. Check Toyota, Honda, BMW, Mercedes and all major brands. Avoid buying lemons with our comprehensive vehicle analysis.
+            Get instant reliability reports for used cars anywhere in the world. Check Toyota, Honda, BMW, Mercedes and all major brands. Avoid buying lemons with our comprehensive vehicle analysis.
           </p>
           <div className="hero-buttons">
             <Link href="/search" className="btn-primary cta-search search-btn">
