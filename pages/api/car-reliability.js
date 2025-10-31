@@ -336,8 +336,8 @@ export default async function handler(req, res) {
       reliabilityData = results[0];
       specificationsData = results[1];
       
-      // Handle timeline data if it was generated (not cached)
-      if (isPremium && results.length > 2) {
+      // Handle timeline data if it was generated (not cached) - available to all users
+      if (results.length > 2) {
         timelineData = results[2];
         // Cache the new timeline data
         await saveTimelineData(year, make, model, timelineData);

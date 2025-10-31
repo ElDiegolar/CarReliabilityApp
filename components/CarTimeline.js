@@ -62,59 +62,11 @@ export default function CarTimeline({
       }
     };
     
-    // Only load if we don't already have data and the user is premium
-    if (isPremium && (!timelineData || timelineData.length === 0)) {
+    // Timeline is now available to all users - load if we don't already have data
+    if (!timelineData || timelineData.length === 0) {
       loadTimelineData();
     }
   }, [year, make, model, isPremium, timelineData, getToken, onTimelineLoaded]);
-
-  // If not premium or there's no data to show yet, show upgrade prompt
-  //if (!isPremium) {
-    return (
-      <div className="upgrade-container">
-        <h3>Vehicle Timeline</h3>
-        <p>Upgrade to premium to see the complete design and engineering history of this vehicle.</p>
-        <Link href="/pricing" className="upgrade-button">
-          Go Premium
-        </Link>
-        <style jsx>{`
-          .upgrade-container {
-            background-color: #f0f7ff;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 2rem;
-          }
-          
-          h3 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-            color: #333;
-          }
-          
-          p {
-            color: #555;
-            margin-bottom: 1.5rem;
-          }
-          
-          .upgrade-button {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            background-color: #0070f3;
-            color: white;
-            border-radius: 6px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: background-color 0.2s;
-          }
-          
-          .upgrade-button:hover {
-            background-color: #0060df;
-          }
-        `}</style>
-      </div>
-    );
-//  }
 
   if (loading) {
     return (

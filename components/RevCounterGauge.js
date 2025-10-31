@@ -19,13 +19,13 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
   const STROKE_WIDTH = 12;
   const NEEDLE_LENGTH = GAUGE_RADIUS - 8;
   
-  // 270-degree gauge: start at bottom-left, sweep clockwise
-  const START_ANGLE = 135; // degrees
-  const END_ANGLE = 45;    // degrees
+  // 270-degree gauge: start at bottom-left, sweep clockwise  
+  const START_ANGLE = 225; // degrees (bottom-left)
+  const END_ANGLE = 315;   // degrees (bottom-right) 
   const TOTAL_RANGE = 270; // degrees
   
-  // Calculate current value angle
-  const valueAngle = START_ANGLE - ((safeValue / max) * TOTAL_RANGE);
+  // Calculate current value angle (clockwise from start)
+  const valueAngle = START_ANGLE + ((safeValue / max) * TOTAL_RANGE);
   
   // Convert angles to radians for calculations
   const startRad = (START_ANGLE * Math.PI) / 180;
@@ -34,19 +34,19 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
   
   // Calculate arc endpoints
   const startX = CENTER_X + GAUGE_RADIUS * Math.cos(startRad);
-  const startY = CENTER_Y - GAUGE_RADIUS * Math.sin(startRad);
+  const startY = CENTER_Y + GAUGE_RADIUS * Math.sin(startRad);
   const endX = CENTER_X + GAUGE_RADIUS * Math.cos(endRad);
-  const endY = CENTER_Y - GAUGE_RADIUS * Math.sin(endRad);
+  const endY = CENTER_Y + GAUGE_RADIUS * Math.sin(endRad);
   const valueX = CENTER_X + GAUGE_RADIUS * Math.cos(valueRad);
-  const valueY = CENTER_Y - GAUGE_RADIUS * Math.sin(valueRad);
+  const valueY = CENTER_Y + GAUGE_RADIUS * Math.sin(valueRad);
   
   // Calculate needle endpoint
   const needleX = CENTER_X + NEEDLE_LENGTH * Math.cos(valueRad);
-  const needleY = CENTER_Y - NEEDLE_LENGTH * Math.sin(valueRad);
+  const needleY = CENTER_Y + NEEDLE_LENGTH * Math.sin(valueRad);
   
   // Determine arc flags for SVG paths
   const backgroundLargeArc = 1;
-  const valueLargeArc = (safeValue / max) > 0.75 ? 1 : 0;
+  const valueLargeArc = (safeValue / max) > 0.5 ? 1 : 0;
   
   // Color based on value ranges
   const getValueColor = (val) => {
@@ -82,7 +82,7 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
         >
           {/* Background arc (gray) */}
           <path
-            d={`M ${startX} ${startY} A ${GAUGE_RADIUS} ${GAUGE_RADIUS} 0 ${backgroundLargeArc} 0 ${endX} ${endY}`}
+            d={`M ${startX} ${startY} A ${GAUGE_RADIUS} ${GAUGE_RADIUS} 0 ${backgroundLargeArc} 1 ${endX} ${endY}`}
             stroke="#e0e0e0"
             strokeWidth={STROKE_WIDTH}
             strokeLinecap="round"
@@ -92,7 +92,7 @@ export default function RevCounterGauge({ value = 0, max = 100, label = '' }) {
           {/* Value arc (colored) */}
           {safeValue > 0 && (
             <path
-              d={`M ${startX} ${startY} A ${GAUGE_RADIUS} ${GAUGE_RADIUS} 0 ${valueLargeArc} 0 ${valueX} ${valueY}`}
+              d={`M ${startX} ${startY} A ${GAUGE_RADIUS} ${GAUGE_RADIUS} 0 ${valueLargeArc} 1 ${valueX} ${valueY}`}
               stroke={getValueColor(safeValue)}
               strokeWidth={STROKE_WIDTH}
               strokeLinecap="round"
