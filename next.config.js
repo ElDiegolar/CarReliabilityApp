@@ -1,10 +1,68 @@
-// next.config.js
+// next.config.js - SEO and performance optimized
 const { i18n } = require('./next-i18next.config');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   i18n,
+
+  // SEO and Performance optimizations
+  compress: true,
+  poweredByHeader: false,
+  
+  // Image optimization
+  images: {
+    domains: ['lemnaed.com', 'source.unsplash.com'],
+    formats: ['image/webp', 'image/avif'],
+  },
+
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options', 
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
+    ];
+  },
+
+  // Redirects for SEO
+  async redirects() {
+    return [
+      {
+        source: '/car-reliability-check',
+        destination: '/search',
+        permanent: true,
+      },
+      {
+        source: '/reliability-checker',
+        destination: '/search', 
+        permanent: true,
+      },
+      {
+        source: '/vehicle-check',
+        destination: '/search',
+        permanent: true,
+      },
+    ];
+  },
 
   // Webpack configuration for client-side fallback
   webpack: (config, { isServer }) => {

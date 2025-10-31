@@ -1,10 +1,11 @@
-// pages/search.js - Modified to include specifications section
+// pages/search.js - SEO-optimized car reliability search page
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
+import SEO from '../components/SEO';
 import { useAuth } from '../contexts/AuthContext';
 import SaveSearchButton from '../components/SaveSearchButton';
 import DownloadPdfButton from '../components/DownloadPdfButton';
@@ -253,9 +254,46 @@ export default function Search() {
     }
   };
 
+  // Dynamic SEO based on search results
+  const generateSEO = () => {
+    if (results && formData.year && formData.make && formData.model) {
+      const carString = `${formData.year} ${formData.make} ${formData.model}`;
+      return {
+        title: `${carString} Reliability Score & Report | Is ${carString} Reliable?`,
+        description: `Check ${carString} reliability score and detailed analysis. Get comprehensive report on ${formData.make} ${formData.model} ${formData.year} reliability, common problems, and maintenance costs in Malta.`,
+        keywords: `${formData.year} ${formData.make} ${formData.model} reliability, ${formData.make} ${formData.model} problems, ${carString} reliability score, is ${carString} reliable, ${formData.make} reliability Malta`
+      };
+    }
+    return {
+      title: "Car Reliability Checker Malta | Check Any Vehicle's Reliability Score Free",
+      description: "Free car reliability checker for Malta. Enter any car details to get instant reliability scores, common problems, and detailed analysis. Avoid buying lemons.",
+      keywords: "car reliability checker Malta, vehicle reliability score, car problems check Malta, used car reliability, Toyota Honda BMW Mercedes reliability Malta"
+    };
+  };
+
+  const seoData = generateSEO();
+
   return (
     <Layout title={t('search.title')}>
-      <h1>{t('search.title')}</h1>
+      <SEO
+        title={seoData.title}
+        description={seoData.description}
+        keywords={seoData.keywords}
+        structuredData={results ? {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "name": `${formData.year} ${formData.make} ${formData.model}`,
+          "description": `Reliability analysis for ${formData.year} ${formData.make} ${formData.model}`,
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": results.overallScore / 20,
+            "bestRating": "5",
+            "worstRating": "1",
+            "ratingCount": "1"
+          }
+        } : null}
+      />
+      <h1>{results ? `${formData.year} ${formData.make} ${formData.model} Reliability Analysis` : t('search.title')}</h1>
 
       {/* All users now have full access - no need for premium badge */}
 

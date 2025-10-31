@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+
+# Optimize crawling for important pages
+Allow: /search
+Allow: /blog/
+Allow: /pricing
+
+# Prevent crawling of user-specific pages
+Disallow: /profile
+Disallow: /saved-vehicles
+Disallow: /search-history
+Disallow: /payment-*
+
+# Prevent crawling of API routes
+Disallow: /api/
+
+# Prevent crawling of admin areas (if any)
+Disallow: /admin/
+
+# Allow all search engines to access main sitemap
+Sitemap: https://lemnaed.com/sitemap.xml
+
+# Crawl delay to be respectful to server resources
+Crawl-delay: 1
