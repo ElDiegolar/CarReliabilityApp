@@ -224,7 +224,7 @@ async function handler(req, res) {
     // Draw each score category
     for (const category of scoreCategories) {
       // Skip premium categories if not premium user
-      if (category.premium && !isPremium) continue;
+  // Premium restriction removed: include all categories
       
       ensureSpace(lineHeight * 2);
       

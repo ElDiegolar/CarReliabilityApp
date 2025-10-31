@@ -71,11 +71,11 @@ export default function Home() {
             {t('hero.description')}
           </p>
           <div className="hero-buttons">
-            <Link href="/search" className="btn-primary">
-              {t('hero.search')}
-            </Link>
-            <Link href="/login" className="btn-secondary">
-              {t('hero.signup')}
+            <Link href="/search" className="btn-primary cta-search search-btn">
+              <button type="button" className="search-btn-inner">
+                <span role="img" aria-label="search" style={{fontSize: '1.5em', verticalAlign: 'middle', marginRight: '0.5em'}}>🔍</span>
+                {t('hero.search')}
+              </button>
             </Link>
           </div>
         </div>
@@ -185,6 +185,32 @@ export default function Home() {
       </div>
 
       <style jsx>{`
+        .search-btn {
+          padding: 0;
+          background: none;
+          border: none;
+        }
+        .search-btn-inner {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(90deg, #ff9800 0%, #ff5e62 100%);
+          color: #fff;
+          padding: 1.25rem 2.5rem;
+          border-radius: 40px;
+          font-weight: 800;
+          font-size: 1.35rem;
+          border: none;
+          box-shadow: 0 6px 24px rgba(255, 94, 98, 0.18), 0 1.5px 8px rgba(255, 152, 0, 0.12);
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+          position: relative;
+          animation: pulseGlow 1.8s infinite;
+        }
+        .search-btn-inner:hover {
+          background: linear-gradient(90deg, #ff5e62 0%, #ff9800 100%);
+          box-shadow: 0 0 0 8px rgba(255,152,0,0.12), 0 8px 32px rgba(255, 94, 98, 0.22);
+        }
         .hero {
           position: relative;
           min-height: 70vh;
@@ -288,14 +314,29 @@ export default function Home() {
 
         .btn-primary {
           display: inline-block;
-          background: rgba(255, 255, 255, 0.9);
-          color: #4a5568;
-          padding: 1rem 2rem;
-          border-radius: 30px;
-          font-weight: 600;
+          background: linear-gradient(90deg, #ff9800 0%, #ff5e62 100%);
+          color: #fff;
+          padding: 1.25rem 2.5rem;
+          border-radius: 40px;
+          font-weight: 800;
+          font-size: 1.35rem;
           text-decoration: none;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+          box-shadow: 0 6px 24px rgba(255, 94, 98, 0.18), 0 1.5px 8px rgba(255, 152, 0, 0.12);
+          position: relative;
+          animation: pulseGlow 1.8s infinite;
+        }
+
+        .btn-primary.cta-search {
+          border: 3px solid #fff3e0;
+          box-shadow: 0 0 0 6px rgba(255,152,0,0.08), 0 6px 24px rgba(255, 94, 98, 0.18);
+        }
+
+        @keyframes pulseGlow {
+          0% { box-shadow: 0 0 0 0 rgba(255,152,0,0.25), 0 6px 24px rgba(255, 94, 98, 0.18); }
+          70% { box-shadow: 0 0 0 12px rgba(255,152,0,0.12), 0 6px 24px rgba(255, 94, 98, 0.18); }
+          100% { box-shadow: 0 0 0 0 rgba(255,152,0,0.25), 0 6px 24px rgba(255, 94, 98, 0.18); }
+        }
         }
 
         .btn-primary:hover {

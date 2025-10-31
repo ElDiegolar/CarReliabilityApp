@@ -344,13 +344,13 @@ export default async function handler(req, res) {
       }
 
       // Process data based on premium status
-      if (!isPremium) {
-        const { limitedReliabilityData, limitedSpecificationsData } = limitDataForFreeUsers(reliabilityData, specificationsData);
-        reliabilityData = limitedReliabilityData;
-        specificationsData = limitedSpecificationsData;
-      } else {
+      // if (!isPremium) {
+      //   const { limitedReliabilityData, limitedSpecificationsData } = limitDataForFreeUsers(reliabilityData, specificationsData);
+      //   reliabilityData = limitedReliabilityData;
+      //   specificationsData = limitedSpecificationsData;
+      // } else {
         reliabilityData.isPremium = true;
-      }
+      //}
 
     } catch (openaiError) {
       console.error('OpenAI API Error:', openaiError.message);

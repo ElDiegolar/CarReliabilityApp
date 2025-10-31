@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 import SaveSearchButton from '../components/SaveSearchButton';
 import DownloadPdfButton from '../components/DownloadPdfButton';
 import CarTimeline from '../components/CarTimeline';
+import RevCounterGauge from '../components/RevCounterGauge';
 
 export default function Search() {
   const { t } = useTranslation('common');
@@ -444,32 +445,17 @@ export default function Search() {
           <div className="categories">
             <h3>{t('search.categoryScores') || 'Category Scores'}</h3>
             <div className="category-grid">
-              <div className="category">
-                <h4>{t('search.engine') || 'Engine'}</h4>
-                <div className="category-score">{results.categories.engine}/100</div>
-              </div>
-              <div className="category">
-                <h4>{t('search.transmission') || 'Transmission'}</h4>
-                <div className="category-score">{results.categories.transmission}/100</div>
-              </div>
-
-              {/* All users now get full category breakdowns */}
-              <div className="category">
-                <h4>{t('search.electrical') || 'Electrical System'}</h4>
-                <div className="category-score">{results.categories.electricalSystem || 'N/A'}/100</div>
-              </div>
-              <div className="category">
-                <h4>{t('search.brakes') || 'Brakes'}</h4>
-                <div className="category-score">{results.categories.brakes || 'N/A'}/100</div>
-              </div>
-              <div className="category">
-                <h4>{t('search.suspension') || 'Suspension'}</h4>
-                <div className="category-score">{results.categories.suspension || 'N/A'}/100</div>
-              </div>
-              <div className="category">
-                <h4>{t('search.fuelSystem') || 'Fuel System'}</h4>
-                <div className="category-score">{results.categories.fuelSystem || 'N/A'}/100</div>
-              </div>
+              {/* RevCounterGauge for each category - All users now get full category breakdowns */}
+              {results.categories && (
+                <>
+                  <RevCounterGauge value={results.categories.engine} label={t('search.engine') || 'Engine'} />
+                  <RevCounterGauge value={results.categories.transmission} label={t('search.transmission') || 'Transmission'} />
+                  <RevCounterGauge value={results.categories.electricalSystem} label={t('search.electrical') || 'Electrical System'} />
+                  <RevCounterGauge value={results.categories.brakes} label={t('search.brakes') || 'Brakes'} />
+                  <RevCounterGauge value={results.categories.suspension} label={t('search.suspension') || 'Suspension'} />
+                  <RevCounterGauge value={results.categories.fuelSystem} label={t('search.fuelSystem') || 'Fuel System'} />
+                </>
+              )}
             </div>
           </div>
 

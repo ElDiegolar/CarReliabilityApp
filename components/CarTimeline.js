@@ -69,7 +69,7 @@ export default function CarTimeline({
   }, [year, make, model, isPremium, timelineData, getToken, onTimelineLoaded]);
 
   // If not premium or there's no data to show yet, show upgrade prompt
-  if (!isPremium) {
+  //if (!isPremium) {
     return (
       <div className="upgrade-container">
         <h3>Vehicle Timeline</h3>
@@ -114,7 +114,7 @@ export default function CarTimeline({
         `}</style>
       </div>
     );
-  }
+//  }
 
   if (loading) {
     return (
