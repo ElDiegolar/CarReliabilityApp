@@ -516,19 +516,17 @@ export default function Search() {
           </div>
           
           {/* Timeline - now available for all users */}
-          {timelineData && timelineData.length > 0 && (
-            <div className="timeline-section">
-              <h3>{t('search.timeline') || 'Vehicle Timeline'}</h3>
-              <CarTimeline 
-                year={formData.year}
-                make={formData.make}
-                model={formData.model}
-                isPremium={true} // All users now have premium access
-                timelineData={timelineData}
-                // No need for onTimelineLoaded since we already have the data
-              />
-            </div>
-          )}
+          <div className="timeline-section">
+            <h3>{t('search.timeline') || 'Vehicle Timeline'}</h3>
+            <CarTimeline 
+              year={formData.year}
+              make={formData.make}
+              model={formData.model}
+              isPremium={true} // All users now have premium access
+              timelineData={timelineData}
+              // No need for onTimelineLoaded since we already have the data
+            />
+          </div>
 
           {user && (
             <div className="search-actions">

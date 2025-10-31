@@ -144,23 +144,30 @@ function createTimelinePrompt(year, make, model) {
 
 // Helper function to make OpenAI API call
 async function makeOpenAICall(prompt, systemMessage) {
-  const completion = await openai.createChatCompletion({
-    model: "gpt-4o",
-    messages: [
-      { role: "system", content: systemMessage },
-      { role: "user", content: prompt }
-    ],
-    temperature: 0.1,
-  });
+  try {
+    const completion = await openai.createChatCompletion({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.1,
+    });
 
-  const responseText = completion.data.choices[0].message.content.trim();
-  
-  // Extract JSON if it's wrapped in code blocks
-  const jsonMatch = responseText.match(/```json\n([\s\S]*)\n```/) || 
-                    responseText.match(/```\n([\s\S]*)\n```/) ||
-                    [null, responseText];
+    const responseText = completion.data.choices[0].message.content.trim();
+    
+    // Extract JSON if it's wrapped in code blocks
+    const jsonMatch = responseText.match(/```json\n([\s\S]*)\n```/) || 
+                      responseText.match(/```\n([\s\S]*)\n```/) ||
+                      [null, responseText];
 
-  return JSON.parse(jsonMatch[1]);
+    const parsedResult = JSON.parse(jsonMatch[1]);
+    console.log('OpenAI API call successful, parsed JSON response');
+    return parsedResult;
+  } catch (error) {
+    console.error('Error in OpenAI API call:', error.message);
+    throw error;
+  }
 }
 
 // Helper function to generate fallback data
@@ -308,19 +315,24 @@ export default async function handler(req, res) {
       ];
 
       // Timeline data now available to all users
-      if (true) {
+      console.log(`Timeline generation starting for ${year} ${make} ${model}`);
+      try {
         // Check for cached timeline data first
         await ensureTimelineTable();
         const cachedTimeline = await getCachedTimeline(year, make, model);
         
         if (cachedTimeline) {
-          console.log(`Using cached timeline data for ${year} ${make} ${model}`);
+          console.log(`Using cached timeline data for ${year} ${make} ${model}: ${cachedTimeline.length} items`);
           timelineData = cachedTimeline;
         } else {
-          console.log(`Generating new timeline data for ${year} ${make} ${model}`);
+          console.log(`No cached timeline found. Generating new timeline data for ${year} ${make} ${model}`);
           const timelinePrompt = createTimelinePrompt(year, make, model);
           promises.push(makeOpenAICall(timelinePrompt, timelineSystemMessage));
         }
+      } catch (timelineError) {
+        console.error('Error in timeline preparation:', timelineError);
+        // Continue with empty timeline data rather than failing
+        timelineData = [];
       }
 
       // Execute all API calls in parallel
@@ -338,9 +350,17 @@ export default async function handler(req, res) {
       
       // Handle timeline data if it was generated (not cached) - available to all users
       if (results.length > 2) {
-        timelineData = results[2];
-        // Cache the new timeline data
-        await saveTimelineData(year, make, model, timelineData);
+        console.log('Processing new timeline data from OpenAI response');
+        try {
+          timelineData = results[2];
+          console.log(`Timeline data parsed successfully: ${timelineData.length} items`);
+          // Cache the new timeline data
+          await saveTimelineData(year, make, model, timelineData);
+          console.log('Timeline data cached successfully');
+        } catch (timelineParseError) {
+          console.error('Error processing timeline data:', timelineParseError);
+          timelineData = [];
+        }
       }
 
       // Process data based on premium status
@@ -401,6 +421,40 @@ export default async function handler(req, res) {
     // Log timeline data
     if (timelineData.length > 0) {
       console.log(`Including ${timelineData.length} timeline items in response`);
+    } else {
+      console.log('No timeline data generated, creating fallback timeline');
+      // Generate fallback timeline data if none was created
+      timelineData = [
+        {
+          year: Math.max(1990, parseInt(year) - 15).toString(),
+          title: `${make} ${model} First Generation`,
+          description: `The original ${make} ${model} was introduced with foundational design elements that would define the model line.`,
+          engineeringChanges: ["Initial platform development", "Base engine options", "Standard transmission systems"],
+          imageUrl: null
+        },
+        {
+          year: Math.max(1995, parseInt(year) - 10).toString(),
+          title: "Mid-Generation Updates",
+          description: `Significant improvements were made to the ${make} ${model} including updated safety features and refined mechanics.`,
+          engineeringChanges: ["Enhanced safety systems", "Engine efficiency improvements", "Interior technology updates"],
+          imageUrl: null
+        },
+        {
+          year: Math.max(2000, parseInt(year) - 5).toString(),
+          title: "Modern Generation",
+          description: `The ${make} ${model} received a comprehensive redesign with modern technology and improved reliability standards.`,
+          engineeringChanges: ["Advanced engine management", "Updated transmission systems", "Enhanced electrical architecture"],
+          imageUrl: null
+        },
+        {
+          year: year,
+          title: `${year} Model Year`,
+          description: `The current ${year} ${make} ${model} represents the latest evolution of the model line with current technology and design.`,
+          engineeringChanges: ["Latest generation features", "Current safety standards", "Modern connectivity options"],
+          imageUrl: null
+        }
+      ];
+      console.log(`Generated fallback timeline with ${timelineData.length} items`);
     }
     
     // Return the reliability data, specifications data, and timeline data to the client

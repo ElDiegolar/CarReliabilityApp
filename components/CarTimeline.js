@@ -26,7 +26,7 @@ export default function CarTimeline({
 
     // Otherwise, load the timeline data
     const loadTimelineData = async () => {
-      if (!year || !make || !model || !isPremium) return;
+      if (!year || !make || !model) return;
       
       setLoading(true);
       setError('');
@@ -66,7 +66,7 @@ export default function CarTimeline({
     if (!timelineData || timelineData.length === 0) {
       loadTimelineData();
     }
-  }, [year, make, model, isPremium, timelineData, getToken, onTimelineLoaded]);
+  }, [year, make, model, timelineData, getToken, onTimelineLoaded]);
 
   if (loading) {
     return (
