@@ -1,7 +1,7 @@
 // utils/adminService.js - Admin service for Next.js/React
 
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://car-reliability-app.vercel.app/api'
+  ? 'https://www.lemnaed.com/api'
   : 'http://localhost:3000/api';
 
 const ADMIN_TOKEN_KEY = 'admin_token';
