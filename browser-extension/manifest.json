@@ -1,0 +1,49 @@
+{
+    "manifest_version": 3,
+    "name": "Lemnaed - Car Reliability Checker",
+    "version": "1.0.0",
+    "description": "Check car reliability scores on any vehicle listing in real-time",
+    "permissions": [
+        "scripting",
+        "activeTab",
+        "webRequest"
+    ],
+    "host_permissions": [
+        "https://facebook.com/*",
+        "https://www.facebook.com/*",
+        "https://craigslist.org/*",
+        "https://www.craigslist.org/*",
+        "https://autotrader.com/*",
+        "https://www.autotrader.com/*",
+        "https://cars.usnews.com/*"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://facebook.com/*",
+                "https://www.facebook.com/*",
+                "https://craigslist.org/*",
+                "https://www.craigslist.org/*",
+                "https://autotrader.com/*",
+                "https://www.autotrader.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "styles.css"
+            ]
+        }
+    ],
+    "action": {
+        "title": "Lemnaed - Check Car Reliability"
+    },
+    "icons": {
+        "16": "/images/icon-16.png",
+        "48": "/images/icon-48.png",
+        "128": "/images/icon-128.png"
+    }
+}
