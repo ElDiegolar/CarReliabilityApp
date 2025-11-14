@@ -1,5 +1,5 @@
 // pages/api/viral/metrics.js - Get user's viral growth metrics
-import { query } from '../../lib/database';
+import { query } from '../../../lib/database';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
