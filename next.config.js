@@ -64,7 +64,7 @@ const nextConfig = {
     ];
   },
 
-  // Webpack configuration for client-side fallback
+  // Webpack configuration for client-side fallback and pg-native fix
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Don't resolve 'fs', 'net', etc. on the client to prevent errors
@@ -79,6 +79,12 @@ const nextConfig = {
         "pg-hstore": false, // Use quotes for property names with hyphens
       };
     }
+    
+    // Suppress pg-native warning (optional dependency, not required in production)
+    if (isServer) {
+      config.externals.push('pg-native');
+    }
+    
     return config;
   },
 
