@@ -1,5 +1,5 @@
 // pages/api/generate-roast.js - Generate AI humorous car critiques
-import { openai } from '../../lib/openai';
+import openai from '../../lib/openai';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
