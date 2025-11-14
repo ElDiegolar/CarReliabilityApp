@@ -1,5 +1,5 @@
 // pages/api/community/posts.js - Get community feed posts
-import { query } from '../../lib/database';
+import { query } from '../../../lib/database';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {

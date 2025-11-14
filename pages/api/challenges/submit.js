@@ -1,5 +1,5 @@
 // pages/api/challenges/submit.js - Submit to challenge
-import { query } from '../../lib/database';
+import { query } from '../../../lib/database';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
