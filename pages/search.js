@@ -11,6 +11,11 @@ import SaveSearchButton from '../components/SaveSearchButton';
 import DownloadPdfButton from '../components/DownloadPdfButton';
 import CarTimeline from '../components/CarTimeline';
 import RevCounterGauge from '../components/RevCounterGauge';
+import ShareableBadges from '../components/ShareableBadges';
+import RoastMode from '../components/RoastMode';
+import LemonHuntChallenge from '../components/LemonHuntChallenge';
+import CommunityFeed from '../components/CommunityFeed';
+import ARFilter from '../components/ARFilter';
 
 export default function Search() {
   const { t } = useTranslation('common');
@@ -565,6 +570,38 @@ export default function Search() {
               // No need for onTimelineLoaded since we already have the data
             />
           </div>
+
+          {/* 🔥 VIRAL GROWTH FEATURES */}
+          
+          {/* Shareable Badges */}
+          <ShareableBadges 
+            vehicleData={results}
+            searchParams={formData}
+            reliabilityScore={results.reliability_score}
+          />
+
+          {/* Roast Mode */}
+          <RoastMode
+            vehicleData={results}
+            searchParams={formData}
+            reliabilityScore={results.reliability_score}
+          />
+
+          {/* Lemon Hunt Challenge */}
+          <LemonHuntChallenge
+            vehicleData={results}
+            searchParams={formData}
+            reliabilityScore={results.reliability_score}
+          />
+
+          {/* AR Filter */}
+          <ARFilter
+            vehicleData={formData}
+            reliabilityScore={results.reliability_score}
+          />
+
+          {/* Community Feed */}
+          <CommunityFeed />
 
           {user && (
             <div className="search-actions">
