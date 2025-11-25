@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { trackMicroConversion } from '../lib/analytics';
+import { buildVehicleUrl, getSocialShareUrls, copyToClipboard } from '../lib/url-helpers';
 
 const ShareableBadges = ({ vehicleData, searchParams, reliabilityScore }) => {
   const { t } = useTranslation('common');
@@ -122,31 +123,24 @@ const ShareableBadges = ({ vehicleData, searchParams, reliabilityScore }) => {
       ? `🎯 This ${searchParams.year} ${searchParams.make} ${searchParams.model} scored ${reliabilityScore}/100 on reliability! Saved ~$${savings.toLocaleString()} 💰 Check yours free:`
       : `⚠️ LEMON ALERT: This ${searchParams.year} ${searchParams.make} ${searchParams.model} scored ${reliabilityScore}/100. Dodge it! Check before buying:`;
 
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    const url = `${baseUrl}?year=${searchParams.year}&make=${searchParams.make}&model=${searchParams.model}`;
+    const url = buildVehicleUrl(searchParams);
+    const socialUrls = getSocialShareUrls(shareText, url);
 
-    const platforms = {
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-      reddit: `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(shareText)}`,
-      tiktok: `https://www.tiktok.com/upload?text=${encodeURIComponent(shareText)}`,
-      instagram: `https://www.instagram.com/?url=${encodeURIComponent(url)}`
-    };
-
-    if (platforms[platform]) {
-      window.open(platforms[platform], '_blank', 'width=600,height=400');
+    if (socialUrls[platform]) {
+      window.open(socialUrls[platform], '_blank', 'width=600,height=400');
     }
   };
 
-  const copyShareLink = () => {
+  const copyShareLink = async () => {
     trackMicroConversion('share_link_copied', 'shareable_badge');
 
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    const shareUrl = `${baseUrl}?year=${searchParams.year}&make=${searchParams.make}&model=${searchParams.model}`;
-
-    navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const shareUrl = buildVehicleUrl(searchParams);
+    const success = await copyToClipboard(shareUrl);
+    
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (

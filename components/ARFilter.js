@@ -1,6 +1,7 @@
 // components/ARFilter.js - AR Filter integration for Snapchat/Instagram
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'next-i18next';
+import { getBaseUrl } from '../lib/url-helpers';
 
 const ARFilter = ({ vehicleData, reliabilityScore }) => {
   const { t } = useTranslation('common');
@@ -20,7 +21,7 @@ const ARFilter = ({ vehicleData, reliabilityScore }) => {
 
   const generateARShareLink = () => {
     // Generate shareable link for Snapchat/Instagram AR
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const baseUrl = getBaseUrl();
     const filterUrl = `${baseUrl}/api/ar-filter?score=${reliabilityScore}&vehicle=${vehicleData.year}_${vehicleData.make}_${vehicleData.model}`;
     
     const snapchatShare = `https://www.snapchat.com/unlock/?data=${encodeURIComponent(filterUrl)}`;

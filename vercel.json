@@ -6,7 +6,13 @@
         },
         "pages/api/car-timeline.js": {
             "maxDuration": 60
+        },
+        "pages/api/product-reliability.js": {
+            "maxDuration": 60
         }
+    },
+    "env": {
+        "NEXT_PUBLIC_SITE_URL": "https://www.lemnaed.com"
     },
     "routes": [
         {
@@ -16,6 +22,10 @@
         {
             "src": "/api/car-timeline",
             "dest": "/api/car-timeline.js"
+        },
+        {
+            "src": "/api/product-reliability",
+            "dest": "/api/product-reliability.js"
         }
     ]
 }

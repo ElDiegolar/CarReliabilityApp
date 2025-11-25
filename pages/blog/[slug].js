@@ -6,6 +6,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import Layout from '../../components/Layout';
 import Head from 'next/head';
+import { getBaseUrl, getSocialShareUrls, copyToClipboard } from '../../lib/url-helpers';
 
 // Sample blog posts data - in a real application, this would come from an API or CMS
 const BLOG_POSTS = [
@@ -384,30 +385,25 @@ export default function BlogPost() {
   };
   
   // Handle share functionality
-  const handleShare = (platform) => {
+  const handleShare = async (platform) => {
     if (!post) return;
     
-    const url = `${window.location.origin}/blog/${post.id}`;
+    const baseUrl = getBaseUrl();
+    const url = `${baseUrl}/blog/${post.id}`;
     const title = post.title;
     
-    switch (platform) {
-      case 'twitter':
-        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
-        break;
-      case 'facebook':
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-        break;
-      case 'linkedin':
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
-        break;
-      case 'email':
-        window.open(`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`Check out this article: ${url}`)}`, '_blank');
-        break;
-      default:
-        // Copy to clipboard
-        navigator.clipboard.writeText(url).then(() => {
-          alert('Link copied to clipboard!');
-        });
+    if (platform === 'copy') {
+      const success = await copyToClipboard(url);
+      if (success) {
+        alert('Link copied to clipboard!');
+      }
+      return;
+    }
+    
+    const socialUrls = getSocialShareUrls(title, url);
+    
+    if (socialUrls[platform]) {
+      window.open(socialUrls[platform], '_blank');
     }
   };
   
