@@ -14,6 +14,7 @@ import {
   PRODUCT_CATEGORIES,
   formatProductName 
 } from '../lib/product-categories';
+import styles from '../styles/ProductSearch.module.css';
 
 export default function ProductSearch() {
   const { t } = useTranslation('common');
@@ -127,46 +128,46 @@ export default function ProductSearch() {
         keywords="product reliability, reliability checker, product reviews, consumer reports, reliability score"
       />
       
-      <div className="product-search-container">
+      <div className={styles.productSearchContainer}>
         <h1>{t('productSearch.title') || 'Product Reliability Checker'}</h1>
-        <p className="subtitle">
+        <p className={styles.subtitle}>
           {t('productSearch.subtitle') || 'Check the reliability of any product based on real user reviews and expert testing'}
         </p>
 
         {!showSearchForm && (
-          <button onClick={() => setShowSearchForm(true)} className="reopen-button">
+          <button onClick={() => setShowSearchForm(true)} className={styles.reopenButton}>
             {t('productSearch.modifySearch') || 'Modify Search'}
           </button>
         )}
 
         {showSearchForm && (
-          <div className="search-section">
+          <div className={styles.searchSection}>
             {/* Category Selection */}
-            <div className="category-selection">
+            <div className={styles.categorySelection}>
               <h3>{t('productSearch.selectCategory') || 'Select Product Category'}</h3>
-              <div className="category-grid">
+              <div className={styles.categoryGrid}>
                 {categories.map((cat) => (
                   <button
                     key={cat.id}
-                    className={`category-card ${selectedCategory === cat.id ? 'active' : ''}`}
+                    className={`${styles.categoryCard} ${selectedCategory === cat.id ? styles.active : ''}`}
                     onClick={() => handleCategoryChange(cat.id)}
                   >
-                    <span className="category-icon">{cat.icon}</span>
-                    <span className="category-name">{cat.name}</span>
+                    <span className={styles.categoryIcon}>{cat.icon}</span>
+                    <span className={styles.categoryName}>{cat.name}</span>
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Dynamic Form */}
-            <form onSubmit={handleSubmit} className="product-form">
+            <form onSubmit={handleSubmit} className={styles.productForm}>
               <h3>{t('productSearch.enterDetails') || `Enter ${currentConfig.name} Details`}</h3>
-              <div className="form-grid">
+              <div className={styles.formGrid}>
                 {currentConfig.fields.map((field) => (
-                  <div key={field.name} className="form-group">
+                  <div key={field.name} className={styles.formGroup}>
                     <label htmlFor={field.name}>
                       {field.label}
-                      {field.required && <span className="required">*</span>}
+                      {field.required && <span className={styles.required}>*</span>}
                     </label>
                     <input
                       type={field.type}
@@ -181,15 +182,15 @@ export default function ProductSearch() {
                 ))}
               </div>
 
-              <div className="form-actions">
+              <div className={styles.formActions}>
                 {results && (
-                  <button type="button" onClick={resetSearch} className="reset-button">
+                  <button type="button" onClick={resetSearch} className={styles.resetButton}>
                     {t('productSearch.reset') || 'Reset'}
                   </button>
                 )}
-                <button type="submit" className="search-button" disabled={loading}>
+                <button type="submit" className={styles.searchButton} disabled={loading}>
                   {loading ? (
-                    <><span className="spinner" /> {t('productSearch.analyzing') || 'Analyzing...'}</>
+                    <><span className={styles.spinner} /> {t('productSearch.analyzing') || 'Analyzing...'}</>
                   ) : (
                     t('productSearch.checkReliability') || 'Check Reliability'
                   )}
@@ -199,21 +200,21 @@ export default function ProductSearch() {
           </div>
         )}
 
-        {error && <div className="error">{error}</div>}
+        {error && <div className={styles.error}>{error}</div>}
 
         {/* Results Section */}
         {results && (
-          <div className="results">
+          <div className={styles.results}>
             <h2>{productName} {t('productSearch.reliabilityAnalysis') || 'Reliability Analysis'}</h2>
             
             {/* Overall Score */}
-            <div className="score-card">
+            <div className={styles.scoreCard}>
               <h3>{t('productSearch.overallScore') || 'Overall Reliability Score'}</h3>
-              <div className="score">
-                <span className="score-value">{results.overallScore}</span>
-                <span className="score-max">/100</span>
+              <div className={styles.score}>
+                <span className={styles.scoreValue}>{results.overallScore}</span>
+                <span className={styles.scoreMax}>/100</span>
               </div>
-              <p className="score-description">
+              <p className={styles.scoreDescription}>
                 {results.overallScore >= 80 && (t('productSearch.excellentRating') || 'Excellent reliability rating')}
                 {results.overallScore >= 60 && results.overallScore < 80 && (t('productSearch.goodRating') || 'Good reliability rating')}
                 {results.overallScore >= 40 && results.overallScore < 60 && (t('productSearch.averageRating') || 'Average reliability rating')}
@@ -223,9 +224,9 @@ export default function ProductSearch() {
 
             {/* Category Scores */}
             {results.categories && (
-              <div className="categories">
+              <div className={styles.categories}>
                 <h3>{t('productSearch.categoryScores') || 'Category Breakdown'}</h3>
-                <div className="category-grid-results">
+                <div className={styles.categoryGridResults}>
                   {currentConfig.reliabilityCategories.map((cat) => (
                     <RevCounterGauge 
                       key={cat.key}
@@ -239,7 +240,7 @@ export default function ProductSearch() {
 
             {/* Common Issues */}
             {results.commonIssues && results.commonIssues.length > 0 && (
-              <div className="common-issues">
+              <div className={styles.commonIssues}>
                 <h3>{t('productSearch.commonIssues') || 'Common Issues Reported'}</h3>
                 <ul>
                   {results.commonIssues.map((issue, index) => (
@@ -256,11 +257,11 @@ export default function ProductSearch() {
 
             {/* Analysis */}
             {results.analysis && (
-              <div className="analysis">
+              <div className={styles.analysis}>
                 <h3>{t('productSearch.expertAnalysis') || 'Expert Analysis'}</h3>
                 <p>{results.analysis}</p>
                 {results.sources && results.sources.length > 0 && (
-                  <div className="sources">
+                  <div className={styles.sources}>
                     <strong>{t('productSearch.sources') || 'Sources:'}</strong> {results.sources.join(', ')}
                   </div>
                 )}
@@ -269,9 +270,9 @@ export default function ProductSearch() {
 
             {/* Specifications */}
             {specifications && (
-              <div className="specifications">
+              <div className={styles.specifications}>
                 <h3>{t('productSearch.specifications') || 'Technical Specifications'}</h3>
-                <div className="specs-content">
+                <div className={styles.specsContent}>
                   <pre>{JSON.stringify(specifications, null, 2)}</pre>
                 </div>
               </div>
@@ -279,13 +280,13 @@ export default function ProductSearch() {
 
             {/* Timeline */}
             {timelineData && timelineData.length > 0 && (
-              <div className="timeline-section">
+              <div className={styles.timelineSection}>
                 <h3>{t('productSearch.productHistory') || 'Product History'}</h3>
-                <div className="timeline">
+                <div className={styles.timeline}>
                   {timelineData.map((item, index) => (
-                    <div key={index} className="timeline-item">
-                      <div className="timeline-marker">{item.year}</div>
-                      <div className="timeline-content">
+                    <div key={index} className={styles.timelineItem}>
+                      <div className={styles.timelineMarker}>{item.year}</div>
+                      <div className={styles.timelineContent}>
                         <h4>{item.title}</h4>
                         <p>{item.description}</p>
                         {item.changes && item.changes.length > 0 && (
@@ -305,413 +306,10 @@ export default function ProductSearch() {
         )}
       </div>
 
-      <style jsx>{`
-        .product-search-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 2rem;
-        }
-
-        h1 {
-          text-align: center;
-          font-size: 2.5rem;
-          margin-bottom: 1rem;
-          color: #2d3748;
-        }
-
-        .subtitle {
-          text-align: center;
-          font-size: 1.2rem;
-          color: #718096;
-          margin-bottom: 3rem;
-        }
-
-        .reopen-button {
-          display: block;
-          margin: 0 auto 2rem;
-          padding: 0.75rem 1.5rem;
-          background-color: #f5f5f5;
-          color: #333;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: background-color 0.2s;
-        }
-
-        .reopen-button:hover {
-          background-color: #e5e5e5;
-        }
-
-        .search-section {
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-          padding: 2rem;
-          margin-bottom: 2rem;
-        }
-
-        .category-selection h3 {
-          margin-bottom: 1.5rem;
-          color: #2d3748;
-        }
-
-        .category-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 1rem;
-          margin-bottom: 2rem;
-        }
-
-        .category-card {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 1.5rem 1rem;
-          background: #f7fafc;
-          border: 2px solid #e2e8f0;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .category-card:hover {
-          background: #edf2f7;
-          transform: translateY(-2px);
-        }
-
-        .category-card.active {
-          background: #ebf8ff;
-          border-color: #0070f3;
-        }
-
-        .category-icon {
-          font-size: 2.5rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .category-name {
-          font-size: 0.9rem;
-          font-weight: 500;
-          color: #2d3748;
-          text-align: center;
-        }
-
-        .product-form h3 {
-          margin-bottom: 1.5rem;
-          color: #2d3748;
-        }
-
-        .form-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 1.5rem;
-          margin-bottom: 2rem;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-        }
-
-        label {
-          margin-bottom: 0.5rem;
-          font-weight: 600;
-          color: #333;
-        }
-
-        .required {
-          color: #e53e3e;
-          margin-left: 0.25rem;
-        }
-
-        input {
-          padding: 1rem;
-          border-radius: 8px;
-          border: 1px solid #ddd;
-          font-size: 1rem;
-          transition: border-color 0.2s;
-        }
-
-        input:focus {
-          outline: none;
-          border-color: #0070f3;
-          box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.15);
-        }
-
-        .form-actions {
-          display: flex;
-          justify-content: center;
-          gap: 1rem;
-        }
-
-        .reset-button, .search-button {
-          padding: 0.75rem 2rem;
-          font-size: 1rem;
-          border-radius: 8px;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s;
-          font-weight: 600;
-        }
-
-        .reset-button {
-          background-color: #f5f5f5;
-          color: #333;
-        }
-
-        .reset-button:hover {
-          background-color: #e5e5e5;
-        }
-
-        .search-button {
-          background-color: #0070f3;
-          color: white;
-        }
-
-        .search-button:hover {
-          background-color: #005fc2;
-        }
-
-        .search-button:disabled {
-          background-color: #ccc;
-          cursor: not-allowed;
-        }
-
-        .spinner {
-          width: 16px;
-          height: 16px;
-          border: 2px solid #fff;
-          border-top: 2px solid #0070f3;
-          border-radius: 50%;
-          animation: spin 0.6s linear infinite;
-          display: inline-block;
-          margin-right: 0.5rem;
-        }
-
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        .error {
-          color: red;
-          padding: 1rem;
-          background-color: #fff5f5;
-          border-radius: 8px;
-          margin-bottom: 1rem;
-          border-left: 4px solid #e53e3e;
-        }
-
-        .results {
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-          padding: 2rem;
-        }
-
-        .results h2 {
-          text-align: center;
-          margin-bottom: 2rem;
-          color: #2d3748;
-        }
-
-        .score-card {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 2rem;
-          border-radius: 12px;
-          text-align: center;
-          margin-bottom: 2rem;
-        }
-
-        .score {
-          font-size: 4rem;
-          font-weight: bold;
-          margin: 1rem 0;
-        }
-
-        .score-max {
-          font-size: 2rem;
-          opacity: 0.8;
-        }
-
-        .score-description {
-          font-size: 1.1rem;
-          opacity: 0.9;
-        }
-
-        .categories, .common-issues, .analysis, .specifications, .timeline-section {
-          margin-top: 2rem;
-          padding-top: 2rem;
-          border-top: 1px solid #e2e8f0;
-        }
-
-        .categories h3, .common-issues h3, .analysis h3, 
-        .specifications h3, .timeline-section h3 {
-          margin-bottom: 1.5rem;
-          color: #2d3748;
-        }
-
-        .category-grid-results {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 1.5rem;
-        }
-
-        .common-issues ul {
-          list-style: none;
-          padding: 0;
-        }
-
-        .common-issues li {
-          background: #f7fafc;
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-bottom: 1rem;
-        }
-
-        .common-issues li strong {
-          display: block;
-          margin-bottom: 0.5rem;
-          color: #2d3748;
-        }
-
-        .common-issues li div {
-          margin-top: 0.5rem;
-          color: #4a5568;
-        }
-
-        .analysis p {
-          line-height: 1.8;
-          color: #4a5568;
-        }
-
-        .sources {
-          margin-top: 1rem;
-          padding: 1rem;
-          background: #f7fafc;
-          border-radius: 8px;
-          color: #4a5568;
-        }
-
-        .specs-content pre {
-          background: #f7fafc;
-          padding: 1.5rem;
-          border-radius: 8px;
-          overflow-x: auto;
-        }
-
-        .timeline {
-          position: relative;
-          padding-left: 2rem;
-        }
-
-        .timeline::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 2px;
-          background: #e2e8f0;
-        }
-
-        .timeline-item {
-          position: relative;
-          margin-bottom: 2rem;
-        }
-
-        .timeline-marker {
-          position: absolute;
-          left: -2.75rem;
-          width: 4rem;
-          height: 2.5rem;
-          background: #0070f3;
-          color: white;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
-          font-size: 0.9rem;
-        }
-
-        .timeline-content {
-          background: #f7fafc;
-          padding: 1.5rem;
-          border-radius: 8px;
-          margin-left: 2rem;
-        }
-
-        .timeline-content h4 {
-          margin-top: 0;
-          margin-bottom: 0.75rem;
-          color: #2d3748;
-        }
-
-        .timeline-content p {
-          color: #4a5568;
-          line-height: 1.6;
-        }
-
-        .timeline-content ul {
-          margin-top: 1rem;
-          padding-left: 1.5rem;
-        }
-
-        .timeline-content li {
-          color: #4a5568;
-          margin-bottom: 0.5rem;
-        }
-
-        @media (max-width: 768px) {
-          h1 {
-            font-size: 2rem;
-          }
-
-          .category-grid {
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-          }
-
-          .form-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .category-grid-results {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-
       {loading && (
-        <div className="loading-overlay">
-          <div className="loading-spinner" />
+        <div className={styles.loadingOverlay}>
+          <div className={styles.loadingSpinner} />
           <span>{t('productSearch.analyzing') || 'Analyzing product reliability...'}</span>
-          <style jsx>{`
-            .loading-overlay {
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100vw;
-              height: 100vh;
-              background-color: rgba(255, 255, 255, 0.95);
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-              z-index: 9999;
-            }
-
-            .loading-spinner {
-              width: 50px;
-              height: 50px;
-              border: 6px solid #ccc;
-              border-top: 6px solid #0070f3;
-              border-radius: 50%;
-              animation: spin 1s linear infinite;
-              margin-bottom: 1rem;
-            }
-          `}</style>
         </div>
       )}
     </Layout>

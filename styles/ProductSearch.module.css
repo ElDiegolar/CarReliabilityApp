@@ -1,0 +1,416 @@
+/* Product Search Page Styles */
+
+.productSearchContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.productSearchContainer h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #2d3748;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #718096;
+  margin-bottom: 3rem;
+}
+
+.reopenButton {
+  display: block;
+  margin: 0 auto 2rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #f5f5f5;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reopenButton:hover {
+  background-color: #e5e5e5;
+}
+
+.searchSection {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.categorySelection h3 {
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.categoryCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.categoryCard:hover {
+  background: #edf2f7;
+  transform: translateY(-2px);
+}
+
+.categoryCard.active {
+  background: #ebf8ff;
+  border-color: #0070f3;
+}
+
+.categoryIcon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.categoryName {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #2d3748;
+  text-align: center;
+}
+
+.productForm h3 {
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.required {
+  color: #e53e3e;
+  margin-left: 0.25rem;
+}
+
+.formGroup input {
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #0070f3;
+  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.15);
+}
+
+.formActions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.resetButton,
+.searchButton {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.resetButton {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.resetButton:hover {
+  background-color: #e5e5e5;
+}
+
+.searchButton {
+  background-color: #0070f3;
+  color: white;
+}
+
+.searchButton:hover {
+  background-color: #005fc2;
+}
+
+.searchButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-top: 2px solid #0070f3;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  color: red;
+  padding: 1rem;
+  background-color: #fff5f5;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #e53e3e;
+}
+
+.results {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+}
+
+.results h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #2d3748;
+}
+
+.scoreCard {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.score {
+  font-size: 4rem;
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+.scoreValue {
+  font-size: 4rem;
+  font-weight: bold;
+}
+
+.scoreMax {
+  font-size: 2rem;
+  opacity: 0.8;
+}
+
+.scoreDescription {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.categories,
+.commonIssues,
+.analysis,
+.specifications,
+.timelineSection {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.categories h3,
+.commonIssues h3,
+.analysis h3,
+.specifications h3,
+.timelineSection h3 {
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+}
+
+.categoryGridResults {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.commonIssues ul {
+  list-style: none;
+  padding: 0;
+}
+
+.commonIssues li {
+  background: #f7fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.commonIssues li strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2d3748;
+}
+
+.commonIssues li div {
+  margin-top: 0.5rem;
+  color: #4a5568;
+}
+
+.analysis p {
+  line-height: 1.8;
+  color: #4a5568;
+}
+
+.sources {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  color: #4a5568;
+}
+
+.specsContent pre {
+  background: #f7fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.timelineItem {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.timelineMarker {
+  position: absolute;
+  left: -2.75rem;
+  width: 4rem;
+  height: 2.5rem;
+  background: #0070f3;
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.timelineContent {
+  background: #f7fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-left: 2rem;
+}
+
+.timelineContent h4 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #2d3748;
+}
+
+.timelineContent p {
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.timelineContent ul {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+}
+
+.timelineContent li {
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 6px solid #ccc;
+  border-top: 6px solid #0070f3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .productSearchContainer h1 {
+    font-size: 2rem;
+  }
+
+  .categoryGrid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .categoryGridResults {
+    grid-template-columns: 1fr;
+  }
+}
