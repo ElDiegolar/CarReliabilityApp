@@ -63,24 +63,25 @@ export default function Home() {
   const homeStructuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Lemnaed Car Reliability Checker",
-    "description": "Free car reliability checker worldwide. Get instant reliability scores and detailed vehicle reports to avoid buying lemons.",
+    "name": "Lemnaed Product Reliability Checker",
+    "description": "Free product reliability checker for cars, electronics, appliances, and more. Get instant reliability scores based on real user reviews and expert testing.",
     "url": "https://lemnaed.com",
-    "applicationCategory": "AutomotiveApplication",
+    "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Web",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD",
-      "description": "Free car reliability checking service worldwide"
+      "description": "Free product reliability checking service worldwide"
     },
     "featureList": [
-      "Car reliability scores",
-      "Used car reliability check",
-      "Vehicle history analysis", 
-      "Common car problems database",
-      "Global car market insights",
-      "Worldwide vehicle data"
+      "Product reliability scores",
+      "Multi-category support (automotive, electronics, appliances, tools, etc.)",
+      "AI-powered analysis",
+      "Real user review aggregation",
+      "Expert testing data",
+      "Common issues database",
+      "Worldwide product data"
     ],
     "areaServed": {
       "@type": "Place",
@@ -91,29 +92,32 @@ export default function Home() {
   return (
     <Layout>
       <SEO
-        title="Free Car Reliability Checker | Check Any Vehicle's Reliability Score Worldwide"
-        description="Check any car's reliability score free forever worldwide. Get instant used car reliability reports, avoid buying lemons. Toyota, Honda, BMW, Mercedes reliability data."
-        keywords="used car reliability check, car reliability score, is my car reliable, Toyota reliability, Honda reliability check, BMW reliability, Mercedes problems, avoid lemon cars, car buying guide worldwide"
+        title="Free Product Reliability Checker | Cars, Electronics, Appliances & More"
+        description="Check reliability for any product with review history - cars, electronics, appliances, tools. Get instant reliability reports based on real user reviews and expert testing."
+        keywords="product reliability checker, reliability score, consumer reports, product reviews, car reliability, electronics reliability, appliance reliability, best products"
         structuredData={homeStructuredData}
       />
       <div className="hero">
         <div className="hero-bg"></div>
         <div className="hero-content">
-          <div className="hero-badge">🚗 AI-Powered Vehicle Intelligence Worldwide</div>
+          <div className="hero-badge">🔍 AI-Powered Product Reliability Intelligence</div>
           <h1 className="hero-title">
-            <span className="gradient-text">Check Any Car's Reliability Score</span>
+            <span className="gradient-text">Check Any Product's Reliability</span>
             <br />
-            <span className="hero-subtitle">Free Forever Worldwide</span>
+            <span className="hero-subtitle">Cars • Electronics • Appliances • Tools & More</span>
           </h1>
           <p className="hero-description">
-            Get instant reliability reports for used cars anywhere in the world. Check Toyota, Honda, BMW, Mercedes and all major brands. Avoid buying lemons with our comprehensive vehicle analysis.
+            Get instant reliability reports for any product with review history. Check cars, smartphones, appliances, tools, and more. Make informed purchasing decisions with comprehensive reliability analysis.
           </p>
           <div className="hero-buttons">
-            <Link href="/search" className="btn-primary cta-search search-btn">
+            <Link href="/product-search" className="btn-primary cta-search search-btn">
               <button type="button" className="search-btn-inner">
                 <span role="img" aria-label="search" style={{fontSize: '1.5em', verticalAlign: 'middle', marginRight: '0.5em'}}>🔍</span>
                 {t('hero.search')}
               </button>
+            </Link>
+            <Link href="/search" className="btn-secondary">
+              {t('hero.searchCars') || 'Search Cars (Classic)'}
             </Link>
           </div>
         </div>
@@ -122,7 +126,7 @@ export default function Home() {
       <div className="features-section">
         <div className="section-header">
           <h2>{t('features.title')}</h2>
-          <p className="section-subtitle">Comprehensive vehicle insights powered by AI</p>
+          <p className="section-subtitle">Comprehensive product reliability insights powered by AI</p>
           <div className="section-underline"></div>
         </div>
         <div className="features-grid">
@@ -152,7 +156,7 @@ export default function Home() {
       <div className="process-section">
         <div className="section-header">
           <h2>{t('howItWorks.title')}</h2>
-          <p className="section-subtitle">Simple, fast, and accurate vehicle research</p>
+          <p className="section-subtitle">Simple, fast, and accurate product reliability research</p>
           <div className="section-underline"></div>
         </div>
         <div className="process-timeline">
@@ -174,13 +178,13 @@ export default function Home() {
       <div className="pricing-section">
         <div className="section-header">
           <h2>🎉 All Features Now Free!</h2>
-          <p className="section-subtitle">Get complete access to all vehicle reliability data and analysis tools at no cost.</p>
+          <p className="section-subtitle">Get complete access to all product reliability data and analysis tools at no cost.</p>
           <div className="section-underline"></div>
         </div>
         
         <div className="free-features-card">
           <div className="card-header">
-            <h3>Complete Car Reliability Analysis</h3>
+            <h3>Complete Product Reliability Analysis</h3>
             <div className="price-display">
               <span className="currency">$</span>
               <span className="amount">0</span>
@@ -192,32 +196,32 @@ export default function Home() {
               <h4>✅ Reliability Analysis</h4>
               <ul>
                 <li>Comprehensive reliability scores</li>
-                <li>All vehicle systems data</li>
-                <li>Engine, transmission, electrical</li>
-                <li>Brakes, suspension, fuel system</li>
+                <li>Multi-category support</li>
+                <li>Cars, electronics, appliances</li>
+                <li>Tools, furniture, and more</li>
               </ul>
             </div>
             <div className="feature-column">
               <h4>✅ Advanced Features</h4>
               <ul>
-                <li>Common issues with repair costs</li>
+                <li>Common issues with fix costs</li>
                 <li>AI-powered analysis</li>
-                <li>Vehicle comparison tools</li>
+                <li>Product comparison tools</li>
                 <li>PDF report generation</li>
               </ul>
             </div>
             <div className="feature-column">
               <h4>✅ Full Access</h4>
               <ul>
-                <li>Unlimited vehicle searches</li>
+                <li>Unlimited product searches</li>
                 <li>Complete search history</li>
-                <li>Design timeline data</li>
+                <li>Product history timelines</li>
                 <li>All specifications</li>
               </ul>
             </div>
           </div>
-          <Link href="/search" className="plan-button free-btn">
-            Start Analyzing Vehicles - Free!
+          <Link href="/product-search" className="plan-button free-btn">
+            Start Analyzing Products - Free!
           </Link>
         </div>
       </div>

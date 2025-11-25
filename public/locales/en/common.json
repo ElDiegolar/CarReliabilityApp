@@ -503,5 +503,37 @@
   "button": {
     "generating": "Generating...",
     "downloadPdf": "Download PDF"
+  },
+  "productSearch": {
+    "title": "Product Reliability Checker",
+    "subtitle": "Check the reliability of any product based on real user reviews and expert testing",
+    "selectCategory": "Select Product Category",
+    "enterDetails": "Enter Product Details",
+    "modifySearch": "Modify Search",
+    "reset": "Reset",
+    "checkReliability": "Check Reliability",
+    "analyzing": "Analyzing...",
+    "reliabilityAnalysis": "Reliability Analysis",
+    "overallScore": "Overall Reliability Score",
+    "excellentRating": "Excellent reliability rating",
+    "goodRating": "Good reliability rating",
+    "averageRating": "Average reliability rating",
+    "poorRating": "Below average reliability rating",
+    "categoryScores": "Category Breakdown",
+    "commonIssues": "Common Issues Reported",
+    "expertAnalysis": "Expert Analysis",
+    "sources": "Sources",
+    "specifications": "Technical Specifications",
+    "productHistory": "Product History",
+    "categories": {
+      "automotive": "Automotive",
+      "electronics": "Electronics",
+      "appliances": "Appliances",
+      "tools": "Tools & Equipment",
+      "furniture": "Furniture",
+      "outdoor": "Outdoor Equipment",
+      "sports": "Sports Equipment",
+      "home": "Home Products"
+    }
   }
 }
