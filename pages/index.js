@@ -110,14 +110,14 @@ export default function Home() {
             Get instant reliability reports for any product with review history. Check cars, smartphones, appliances, tools, and more. Make informed purchasing decisions with comprehensive reliability analysis.
           </p>
           <div className="hero-buttons">
-            <Link href="/product-search" className="btn-primary cta-search search-btn">
-              <button type="button" className="search-btn-inner">
+            <Link href="/product-search" className="search-btn-link">
+              <span className="search-btn-inner">
                 <span role="img" aria-label="search" style={{fontSize: '1.5em', verticalAlign: 'middle', marginRight: '0.5em'}}>🔍</span>
                 {t('hero.search')}
-              </button>
+              </span>
             </Link>
             <Link href="/search" className="btn-secondary">
-              {t('hero.searchCars') || 'Search Cars (Classic)'}
+              {t('hero.searchCars')}
             </Link>
           </div>
         </div>
@@ -227,13 +227,13 @@ export default function Home() {
       </div>
 
       <style jsx>{`
-        .search-btn {
+        .search-btn-link {
+          display: inline-block;
           padding: 0;
-          background: none;
-          border: none;
+          text-decoration: none;
         }
         .search-btn-inner {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
           background: linear-gradient(90deg, #ff9800 0%, #ff5e62 100%);
@@ -249,7 +249,7 @@ export default function Home() {
           position: relative;
           animation: pulseGlow 1.8s infinite;
         }
-        .search-btn-inner:hover {
+        .search-btn-link:hover .search-btn-inner {
           background: linear-gradient(90deg, #ff5e62 0%, #ff9800 100%);
           box-shadow: 0 0 0 8px rgba(255,152,0,0.12), 0 8px 32px rgba(255, 94, 98, 0.22);
         }
