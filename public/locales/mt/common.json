@@ -1,7 +1,16 @@
 {
   "hero": {
-    "title": "Ikseb Informazzjoni Affidabbli Dwar il-Vettura Tiegħek qabel ma tixtri!",
-    "description": "Data dettaljata dwar l-affidabilità tal-vetturi, problemi komuni, u analiżi ta' esperti.",
+    "badge": "Intelliġenza ta' Affidabbiltà Immexxi mill-AI",
+    "title": "Sib Prodotti Affidabbli",
+    "titleHighlight": "Qabel Ma Tixtri",
+    "description": "Ikseb punteġġi ta' affidabbiltà instantanji għal karozzi, elettronika, apparat tad-dar u aktar. Agħmel deċiżjonijiet ta' xiri aktar intelliġenti b'analiżi kompleta tad-data.",
+    "checkProductReliability": "Iċċekkja l-Affidabbiltà tal-Prodott",
+    "checkVehicleReliability": "Iċċekkja l-Affidabbiltà tal-Vettura",
+    "stats": {
+      "productsAnalyzed": "Prodotti Analizzati",
+      "accuracyRate": "Rata ta' Preċiżjoni",
+      "instantResults": "Riżultati Instantanji"
+    },
     "search": "Fittex Vettura",
     "searchCars": "Fittex Karozzi (Klassiku)",
     "signup": "Irreġistra għal Premium"

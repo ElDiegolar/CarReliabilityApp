@@ -1,7 +1,16 @@
 {
   "hero": {
-    "title": "¡Obtenga información confiable sobre su vehículo antes de comprar!",
-    "description": "Datos detallados de fiabilidad de vehículos, problemas comunes y análisis de expertos.",
+    "badge": "Inteligencia de Confiabilidad Impulsada por IA",
+    "title": "Encuentra Productos Confiables",
+    "titleHighlight": "Antes de Comprar",
+    "description": "Obtén puntuaciones instantáneas de confiabilidad para automóviles, electrónica, electrodomésticos y más. Toma decisiones de compra más inteligentes con análisis de datos completo.",
+    "checkProductReliability": "Verificar Confiabilidad del Producto",
+    "checkVehicleReliability": "Verificar Confiabilidad del Vehículo",
+    "stats": {
+      "productsAnalyzed": "Productos Analizados",
+      "accuracyRate": "Tasa de Precisión",
+      "instantResults": "Resultados Instantáneos"
+    },
     "search": "Buscar un vehículo",
     "searchCars": "Buscar coches (Clásico)",
     "signup": "Registrarse para Premium"

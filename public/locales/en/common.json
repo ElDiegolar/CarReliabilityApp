@@ -1,7 +1,16 @@
 {
   "hero": {
-    "title": "Get Reliable Information About Your Vehicle before you buy!",
-    "description": "Detailed vehicle reliability data, common issues, and expert analysis.",
+    "badge": "AI-Powered Reliability Intelligence",
+    "title": "Find Reliable Products",
+    "titleHighlight": "Before You Buy",
+    "description": "Get instant reliability scores for cars, electronics, appliances, and more. Make smarter purchasing decisions with comprehensive data analysis.",
+    "checkProductReliability": "Check Product Reliability",
+    "checkVehicleReliability": "Check Vehicle Reliability",
+    "stats": {
+      "productsAnalyzed": "Products Analyzed",
+      "accuracyRate": "Accuracy Rate",
+      "instantResults": "Instant Results"
+    },
     "search": "Search a Vehicle",
     "searchCars": "Search Cars (Classic)",
     "signup": "Sign Up for Premium"

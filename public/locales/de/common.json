@@ -1,7 +1,16 @@
 {
   "hero": {
-    "title": "Erhalten Sie zuverlässige Informationen über Ihr Fahrzeug vor dem Kauf!",
-    "description": "Detaillierte Fahrzeugzuverlässigkeitsdaten, häufige Probleme und Expertenanalysen.",
+    "badge": "KI-gestützte Zuverlässigkeitsintelligenz",
+    "title": "Finden Sie Zuverlässige Produkte",
+    "titleHighlight": "Vor dem Kauf",
+    "description": "Erhalten Sie sofortige Zuverlässigkeitsbewertungen für Autos, Elektronik, Haushaltsgeräte und mehr. Treffen Sie intelligentere Kaufentscheidungen mit umfassender Datenanalyse.",
+    "checkProductReliability": "Produktzuverlässigkeit Prüfen",
+    "checkVehicleReliability": "Fahrzeugzuverlässigkeit Prüfen",
+    "stats": {
+      "productsAnalyzed": "Analysierte Produkte",
+      "accuracyRate": "Genauigkeitsrate",
+      "instantResults": "Sofortige Ergebnisse"
+    },
     "search": "Fahrzeug suchen",
     "searchCars": "Autos suchen (Klassisch)",
     "signup": "Für Premium registrieren"

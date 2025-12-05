@@ -100,25 +100,61 @@ export default function Home() {
       <div className="hero">
         <div className="hero-bg"></div>
         <div className="hero-content">
-          <div className="hero-badge">🔍 AI-Powered Product Reliability Intelligence</div>
+          <div className="hero-badge">
+            <span className="badge-icon">✨</span>
+            {t('hero.badge')}
+          </div>
           <h1 className="hero-title">
-            <span className="gradient-text">Check Any Product's Reliability</span>
+            {t('hero.title')}
             <br />
-            <span className="hero-subtitle">Cars • Electronics • Appliances • Tools & More</span>
+            <span className="gradient-text">{t('hero.titleHighlight')}</span>
           </h1>
           <p className="hero-description">
-            Get instant reliability reports for any product with review history. Check cars, smartphones, appliances, tools, and more. Make informed purchasing decisions with comprehensive reliability analysis.
+            {t('hero.description')}
           </p>
           <div className="hero-buttons">
-            <Link href="/product-search" className="search-btn-link">
-              <span className="search-btn-inner">
-                <span role="img" aria-label="search" style={{fontSize: '1.5em', verticalAlign: 'middle', marginRight: '0.5em'}}>🔍</span>
-                {t('hero.search')}
-              </span>
+            <Link href="/product-search" className="btn-primary">
+              <span className="btn-icon">🔍</span>
+              <span className="btn-text">{t('hero.checkProductReliability')}</span>
+              <span className="btn-arrow">→</span>
             </Link>
             <Link href="/search" className="btn-secondary">
-              {t('hero.searchCars')}
+              <span className="btn-icon">🚗</span>
+              <span className="btn-text">{t('hero.checkVehicleReliability')}</span>
+              <span className="btn-arrow">→</span>
             </Link>
+          </div>
+          <div className="hero-stats">
+            <div className="stat-item">
+              <div className="stat-number">50K+</div>
+              <div className="stat-label">{t('hero.stats.productsAnalyzed')}</div>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+              <div className="stat-number">95%</div>
+              <div className="stat-label">{t('hero.stats.accuracyRate')}</div>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+              <div className="stat-number">24/7</div>
+              <div className="stat-label">{t('hero.stats.instantResults')}</div>
+            </div>
+          </div>
+          <div className="hero-stats">
+            <div className="stat-item">
+              <div className="stat-number">50K+</div>
+              <div className="stat-label">Products Analyzed</div>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+              <div className="stat-number">95%</div>
+              <div className="stat-label">Accuracy Rate</div>
+            </div>
+            <div className="stat-divider"></div>
+            <div className="stat-item">
+              <div className="stat-number">24/7</div>
+              <div className="stat-label">Instant Results</div>
+            </div>
           </div>
         </div>
       </div>
@@ -226,32 +262,118 @@ export default function Home() {
         </div>
       </div>
 
-      <style jsx>{`
-        .search-btn-link {
-          display: inline-block;
-          padding: 0;
+      <style jsx global>{`
+        .btn-primary,
+        .btn-secondary {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 1rem 2.5rem;
+          font-size: 1rem;
+          border-radius: 50px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-weight: 600;
           text-decoration: none;
         }
-        .search-btn-inner {
+
+        .btn-primary {
+          background-color: #0070f3;
+          color: white;
+        }
+
+        .btn-primary:hover {
+          background-color: #005fc2;
+        }
+
+        .btn-secondary {
+          background-color: white;
+          color: #0070f3;
+          border: 2px solid #0070f3;
+        }
+
+        .btn-secondary:hover {
+          background-color: #f0f9ff;
+        }
+
+        .btn-icon {
+          font-size: 20px;
+        }
+
+        .btn-text {
+          font-size: 16px;
+        }
+
+        .btn-arrow {
+          font-size: 18px;
+          transition: transform 0.2s ease;
+        }
+
+        .btn-primary:hover .btn-arrow,
+        .btn-secondary:hover .btn-arrow {
+          transform: translateX(3px);
+        }
+      `}</style>
+
+      <style jsx>{`
+        .btn-hero-primary {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(90deg, #ff9800 0%, #ff5e62 100%);
-          color: #fff;
-          padding: 1.25rem 2.5rem;
-          border-radius: 40px;
-          font-weight: 800;
-          font-size: 1.35rem;
-          border: none;
-          box-shadow: 0 6px 24px rgba(255, 94, 98, 0.18), 0 1.5px 8px rgba(255, 152, 0, 0.12);
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-          position: relative;
-          animation: pulseGlow 1.8s infinite;
+          gap: 0.75rem;
+          background: white;
+          color: #0284c7;
+          padding: 1.125rem 2.5rem;
+          border-radius: 50px;
+          font-weight: 600;
+          font-size: 1.05rem;
+          text-decoration: none;
+          transition: all 0.2s ease;
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
-        .search-btn-link:hover .search-btn-inner {
-          background: linear-gradient(90deg, #ff5e62 0%, #ff9800 100%);
-          box-shadow: 0 0 0 8px rgba(255,152,0,0.12), 0 8px 32px rgba(255, 94, 98, 0.22);
+        
+        .btn-hero-primary:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+          background: #f9fafb;
+        }
+        
+        .btn-hero-secondary {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1.5px solid rgba(255, 255, 255, 0.3);
+          color: white;
+          padding: 1.125rem 2rem;
+          border-radius: 50px;
+          font-weight: 600;
+          font-size: 1.05rem;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        }
+        
+        .btn-hero-secondary:hover {
+          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.5);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-icon {
+          font-size: 1.2rem;
+        }
+        
+        .btn-arrow {
+          font-size: 1.3rem;
+          transition: transform 0.2s ease;
+        }
+        
+        .btn-hero-primary:hover .btn-arrow {
+          transform: translateX(4px);
         }
         .hero {
           position: relative;
@@ -261,6 +383,7 @@ export default function Home() {
           justify-content: center;
           overflow: hidden;
           margin-bottom: 6rem;
+          padding: 4rem 2rem;
         }
 
         .hero-bg {
@@ -269,7 +392,7 @@ export default function Home() {
           left: 0;
           right: 0;
           bottom: 0;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #0284c7 0%, #075985 100%);
           opacity: 0.95;
         }
 
@@ -298,17 +421,24 @@ export default function Home() {
         }
 
         .hero-badge {
-          display: inline-block;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
           background: rgba(255, 255, 255, 0.15);
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.25);
           padding: 0.75rem 1.5rem;
-          border-radius: 30px;
+          border-radius: var(--radius-full);
           color: white;
-          font-size: 0.95rem;
-          font-weight: 500;
+          font-size: 0.9rem;
+          font-weight: 600;
           margin-bottom: 2rem;
           animation: slideInUp 0.8s ease-out;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge-icon {
+          font-size: 1.1rem;
         }
 
         @keyframes slideInUp {
@@ -326,16 +456,17 @@ export default function Home() {
           font-size: clamp(2.5rem, 5vw, 4rem);
           font-weight: 700;
           margin-bottom: 1.5rem;
-          line-height: 1.1;
+          line-height: 1.15;
           animation: slideInUp 0.8s ease-out 0.2s both;
+          letter-spacing: -0.02em;
         }
 
         .gradient-text {
-          background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+          background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          display: inline-block;
         }
 
         .hero-description {
@@ -348,61 +479,94 @@ export default function Home() {
 
         .hero-buttons {
           display: flex;
-          gap: 1.5rem;
+          gap: 1rem;
           justify-content: center;
+          align-items: center;
           flex-wrap: wrap;
+          margin-top: 2.5rem;
           animation: slideInUp 0.8s ease-out 0.6s both;
         }
-
-        .btn-primary {
-          display: inline-block;
-          background: linear-gradient(90deg, #ff9800 0%, #ff5e62 100%);
-          color: #fff;
-          padding: 1.25rem 2.5rem;
-          border-radius: 40px;
-          font-weight: 800;
-          font-size: 1.35rem;
-          text-decoration: none;
-          transition: all 0.3s cubic-bezier(.25,.8,.25,1);
-          box-shadow: 0 6px 24px rgba(255, 94, 98, 0.18), 0 1.5px 8px rgba(255, 152, 0, 0.12);
-          position: relative;
-          animation: pulseGlow 1.8s infinite;
-        }
-
-        .btn-primary.cta-search {
-          border: 3px solid #fff3e0;
-          box-shadow: 0 0 0 6px rgba(255,152,0,0.08), 0 6px 24px rgba(255, 94, 98, 0.18);
-        }
-
-        @keyframes pulseGlow {
-          0% { box-shadow: 0 0 0 0 rgba(255,152,0,0.25), 0 6px 24px rgba(255, 94, 98, 0.18); }
-          70% { box-shadow: 0 0 0 12px rgba(255,152,0,0.12), 0 6px 24px rgba(255, 94, 98, 0.18); }
-          100% { box-shadow: 0 0 0 0 rgba(255,152,0,0.25), 0 6px 24px rgba(255, 94, 98, 0.18); }
-        }
-        }
-
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-          background: white;
-        }
-
-        .btn-secondary {
-          display: inline-block;
-          background: transparent;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          color: white;
-          padding: 1rem 2rem;
-          border-radius: 30px;
-          font-weight: 600;
-          text-decoration: none;
-          transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
+        
+        .hero-stats {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 3rem;
+          margin-top: 4rem;
+          padding: 2rem;
           background: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.5);
-          transform: translateY(-2px);
+          backdrop-filter: blur(10px);
+          border-radius: 24px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          animation: slideInUp 0.8s ease-out 0.8s both;
+          max-width: 700px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        
+        .stat-item {
+          text-align: center;
+        }
+        
+        .stat-number {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: white;
+          line-height: 1;
+          margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+          font-size: 0.9rem;
+          color: rgba(255, 255, 255, 0.8);
+          font-weight: 500;
+        }
+        
+        .stat-divider {
+          width: 1px;
+          height: 50px;
+          background: rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-stats {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 3rem;
+          margin-top: 4rem;
+          padding: 2rem;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border-radius: var(--radius-2xl);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          animation: slideInUp 0.8s ease-out 0.8s both;
+          max-width: 700px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .stat-item {
+          text-align: center;
+        }
+
+        .stat-number {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: white;
+          line-height: 1;
+          margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+          font-size: 0.9rem;
+          color: rgba(255, 255, 255, 0.8);
+          font-weight: 500;
+        }
+
+        .stat-divider {
+          width: 1px;
+          height: 50px;
+          background: rgba(255, 255, 255, 0.2);
         }
 
         .section-header {
@@ -762,15 +926,61 @@ export default function Home() {
         }
 
         @media (max-width: 768px) {
+          .hero {
+            min-height: 600px;
+            padding: 2rem 1rem;
+          }
+
+          .hero-title {
+            font-size: 2rem;
+          }
+
+          .hero-description {
+            font-size: 1.05rem;
+          }
+
           .hero-buttons {
             flex-direction: column;
-            align-items: center;
+            align-items: stretch;
+            gap: 0.75rem;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
           }
 
           .btn-primary,
           .btn-secondary {
             width: 100%;
-            max-width: 280px;
+            min-width: auto;
+            padding: 0.875rem 1.5rem;
+            font-size: 0.9375rem;
+          }
+
+          .btn-icon {
+            font-size: 1.125rem;
+          }
+
+          .btn-text {
+            font-size: 0.9375rem;
+          }
+
+          .btn-arrow {
+            font-size: 1rem;
+          }
+
+          .hero-stats {
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1.5rem;
+          }
+
+          .stat-divider {
+            width: 50px;
+            height: 1px;
+          }
+
+          .stat-number {
+            font-size: 2rem;
           }
 
           .timeline-item {
