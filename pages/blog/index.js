@@ -31,6 +31,83 @@ const BLOG_POSTS = [
     slug: 'how-to-avoid-lemon-used-car-buying-worldwide'
   },
   {
+    id: 'most-reliable-electronics-2025',
+    title: 'Most Reliable Consumer Electronics to Buy in 2025',
+    excerpt: 'Discover which smartphones, laptops, tablets and other electronics have the best reliability ratings and longest lifespan in 2025.',
+    date: '2025-02-01',
+    author: 'Lemnaed Team',
+    category: 'Electronics Guide',
+    image: '/images/blog/reliable-electronics-2025.jpg',
+    readTime: '10 min read',
+    slug: 'most-reliable-electronics-2025'
+  },
+  {
+    id: 'best-kitchen-appliances-reliability',
+    title: 'Best Kitchen Appliances for Reliability and Longevity',
+    excerpt: 'Find out which refrigerators, dishwashers, ovens and other kitchen appliances offer the best reliability and value for money.',
+    date: '2025-02-05',
+    author: 'Lemnaed Team',
+    category: 'Appliances Guide',
+    image: '/images/blog/kitchen-appliances-reliability.jpg',
+    readTime: '9 min read',
+    slug: 'best-kitchen-appliances-reliability'
+  },
+  {
+    id: 'most-durable-power-tools-2025',
+    title: 'Most Durable Power Tools for DIY and Professional Use 2025',
+    excerpt: 'Professional review of the most reliable drills, saws, sanders and other power tools that stand the test of time.',
+    date: '2025-02-10',
+    author: 'Lemnaed Team',
+    category: 'Tools Guide',
+    image: '/images/blog/durable-power-tools.jpg',
+    readTime: '11 min read',
+    slug: 'most-durable-power-tools-2025'
+  },
+  {
+    id: 'reliable-furniture-brands-guide',
+    title: 'Guide to Buying Reliable Furniture That Lasts',
+    excerpt: 'Learn which furniture brands and materials offer the best durability and reliability for sofas, beds, tables and more.',
+    date: '2025-02-15',
+    author: 'Lemnaed Team',
+    category: 'Furniture Guide',
+    image: '/images/blog/reliable-furniture-guide.jpg',
+    readTime: '8 min read',
+    slug: 'reliable-furniture-brands-guide'
+  },
+  {
+    id: 'best-outdoor-equipment-reliability',
+    title: 'Best Outdoor Equipment for Reliability in All Weather',
+    excerpt: 'Discover the most reliable camping gear, grills, patio furniture and outdoor equipment tested in extreme conditions.',
+    date: '2025-02-20',
+    author: 'Lemnaed Team',
+    category: 'Outdoor Guide',
+    image: '/images/blog/outdoor-equipment-reliability.jpg',
+    readTime: '10 min read',
+    slug: 'best-outdoor-equipment-reliability'
+  },
+  {
+    id: 'most-durable-sports-equipment-2025',
+    title: 'Most Durable Sports Equipment and Gear 2025',
+    excerpt: 'Find the most reliable bikes, fitness equipment, and sports gear that professionals and enthusiasts trust.',
+    date: '2025-02-25',
+    author: 'Lemnaed Team',
+    category: 'Sports Guide',
+    image: '/images/blog/durable-sports-equipment.jpg',
+    readTime: '9 min read',
+    slug: 'most-durable-sports-equipment-2025'
+  },
+  {
+    id: 'reliable-home-improvement-products',
+    title: 'Most Reliable Home Improvement Products and Materials',
+    excerpt: 'Expert guide to choosing durable HVAC systems, water heaters, flooring and other home improvement products.',
+    date: '2025-03-01',
+    author: 'Lemnaed Team',
+    category: 'Home Guide',
+    image: '/images/blog/home-improvement-reliability.jpg',
+    readTime: '12 min read',
+    slug: 'reliable-home-improvement-products'
+  },
+  {
     id: 'understanding-reliability-scores',
     title: 'Understanding Lemnaed Reliability Scores - Complete Guide',
     excerpt: 'Learn what reliability scores really mean and how they can help you make better car-buying decisions in Malta.',
