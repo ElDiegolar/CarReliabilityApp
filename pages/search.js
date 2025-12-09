@@ -9,6 +9,7 @@ import SEO from '../components/SEO';
 import { useAuth } from '../contexts/AuthContext';
 import SaveSearchButton from '../components/SaveSearchButton';
 import DownloadPdfButton from '../components/DownloadPdfButton';
+import ShareReportButton from '../components/ShareReportButton';
 import CarTimeline from '../components/CarTimeline';
 import RevCounterGauge from '../components/RevCounterGauge';
 import ShareableBadges from '../components/ShareableBadges';
@@ -481,6 +482,15 @@ export default function Search() {
               searchParams={formData}
               timelineData={timelineData}
               specificationsData={specifications}
+            />
+            <ShareReportButton
+              year={formData.year}
+              make={formData.make}
+              model={formData.model}
+              mileage={formData.mileage}
+              reliabilityData={results}
+              specifications={specifications}
+              timeline={timelineData}
             />
           </div>
 

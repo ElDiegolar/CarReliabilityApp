@@ -8,6 +8,7 @@ import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 import { useAuth } from '../contexts/AuthContext';
 import RevCounterGauge from '../components/RevCounterGauge';
+import ShareReportButton from '../components/ShareReportButton';
 import { 
   getAllCategories, 
   getCategoryConfig, 
@@ -32,6 +33,46 @@ export default function ProductSearch() {
 
   const categories = getAllCategories();
   const currentConfig = getCategoryConfig(selectedCategory);
+
+  // Load data from URL parameters (from shared reports or direct links)
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const { category, ...queryParams } = router.query;
+
+    // If category is provided in URL, set it
+    if (category && PRODUCT_CATEGORIES[category.toUpperCase()]) {
+      setSelectedCategory(PRODUCT_CATEGORIES[category.toUpperCase()]);
+    }
+
+    // If there are query params with product data, populate the form
+    if (Object.keys(queryParams).length > 0) {
+      const formData = {};
+      const categoryConfig = getCategoryConfig(category || selectedCategory);
+      
+      // Map URL params to form fields
+      categoryConfig.fields.forEach(field => {
+        if (queryParams[field.name]) {
+          formData[field.name] = queryParams[field.name];
+        }
+      });
+
+      if (Object.keys(formData).length > 0) {
+        setProductData(formData);
+        // Auto-submit if we have required fields
+        const hasRequiredFields = categoryConfig.fields
+          .filter(f => f.required)
+          .every(f => formData[f.name]);
+        
+        if (hasRequiredFields) {
+          // Delay to ensure state is updated
+          setTimeout(() => {
+            handleSubmit(null, formData, category || selectedCategory);
+          }, 100);
+        }
+      }
+    }
+  }, [router.isReady, router.query]);
 
   // Handle category change
   const handleCategoryChange = (newCategory) => {
@@ -60,21 +101,24 @@ export default function ProductSearch() {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e, dataOverride = null, categoryOverride = null) => {
+    if (e) e.preventDefault();
     setLoading(true);
     setError('');
     setResults(null);
     setSpecifications(null);
     setTimelineData([]);
 
+    const submitCategory = categoryOverride || selectedCategory;
+    const submitData = dataOverride || productData;
+
     try {
       const requestBody = {
         productData: {
-          ...productData,
-          category: selectedCategory
+          ...submitData,
+          category: submitCategory
         },
-        category: selectedCategory,
+        category: submitCategory,
         locale: router.locale,
         ...(user && { userId: user.id })
       };
@@ -109,6 +153,13 @@ export default function ProductSearch() {
       
       setResults(data);
       setShowSearchForm(false);
+
+      // Update URL with search parameters for sharing/bookmarking
+      const queryParams = new URLSearchParams({
+        category: submitCategory,
+        ...submitData
+      });
+      router.push(`/product-search?${queryParams.toString()}`, undefined, { shallow: true });
 
     } catch (err) {
       console.error('Error fetching reliability data:', err);
@@ -205,7 +256,17 @@ export default function ProductSearch() {
         {/* Results Section */}
         {results && (
           <div className={styles.results}>
-            <h2>{productName} {t('productSearch.reliabilityAnalysis') || 'Reliability Analysis'}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2>{productName} {t('productSearch.reliabilityAnalysis') || 'Reliability Analysis'}</h2>
+              <ShareReportButton
+                reportType="product"
+                category={selectedCategory}
+                productData={productData}
+                reliabilityData={results}
+                specifications={specifications}
+                timeline={timelineData}
+              />
+            </div>
             
             {/* Overall Score */}
             <div className={styles.scoreCard}>
