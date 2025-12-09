@@ -21,22 +21,27 @@ export default function SharedReport() {
 
     const fetchReport = async () => {
       try {
+        console.log('Fetching report for shareId:', shareId);
         const response = await fetch(`/api/reports/get-shared?shareId=${shareId}`);
         
         if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API error:', response.status, errorData);
+          
           if (response.status === 404) {
             setError('Report not found or has expired');
           } else {
-            setError('Failed to load report');
+            setError(errorData.error || 'Failed to load report');
           }
           return;
         }
 
         const data = await response.json();
+        console.log('Report data received:', data);
         setReportData(data);
       } catch (err) {
         console.error('Error fetching report:', err);
-        setError('Failed to load report');
+        setError(`Failed to load report: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -83,8 +88,13 @@ export default function SharedReport() {
       <Layout>
         <SEO title="Report Not Found" />
         <div className="error-container">
-          <h1>😕 {error || 'Report not found'}</h1>
-          <p>This report may have expired or the link is invalid.</p>
+          <h1>😕 Report Not Found</h1>
+          <p>{error || 'This report may have expired or the link is invalid.'}</p>
+          {shareId && (
+            <p style={{ fontSize: '0.9rem', color: '#999', marginTop: '0.5rem' }}>
+              Share ID: {shareId}
+            </p>
+          )}
           <Link href="/" className="home-btn">
             Go to Homepage
           </Link>

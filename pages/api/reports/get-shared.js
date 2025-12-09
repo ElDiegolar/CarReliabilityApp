@@ -27,10 +27,19 @@ export default async function handler(req, res) {
     );
 
     if (result.rows.length === 0) {
+      console.log('Report not found for shareId:', shareId);
       return res.status(404).json({ error: 'Report not found or expired' });
     }
 
     const report = result.rows[0];
+    console.log('Found report:', { shareId, report_type: report.report_type });
+    
+    // Increment view count
+    await query(
+      `UPDATE shared_reports SET view_count = view_count + 1 WHERE share_id = $1`,
+      [shareId]
+    );
+    
     const reportType = report.report_type || 'vehicle';
 
     const response = {

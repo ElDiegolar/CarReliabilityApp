@@ -16,6 +16,11 @@ export default async function handler(req, res) {
   try {
     const { category, productData, reliability_data, specifications_data, timeline_data } = req.body;
     
+    // Log data structure for debugging
+    console.log('PDF Generation - Data received:');
+    console.log('commonIssues:', reliability_data?.commonIssues);
+    console.log('specifications:', specifications_data);
+    
     // Validate required fields
     if (!category || !productData || !reliability_data) {
       return res.status(400).json({ error: 'Missing required product information' });
@@ -207,9 +212,21 @@ export default async function handler(req, res) {
         checkAndAddPage();
         
         // Handle both string and object formats
-        const issueText = typeof issue === 'string' 
-          ? issue 
-          : issue.description || issue.issue || JSON.stringify(issue);
+        let issueText;
+        if (typeof issue === 'string') {
+          issueText = issue;
+        } else if (typeof issue === 'object' && issue !== null) {
+          // Try common property names
+          issueText = issue.description || issue.issue || issue.title || issue.name;
+          // If none found, stringify the object
+          if (!issueText) {
+            issueText = Object.entries(issue)
+              .map(([key, val]) => `${key}: ${val}`)
+              .join(', ');
+          }
+        } else {
+          issueText = 'Unknown issue';
+        }
         
         const issueLines = wrapText(`• ${issueText}`, maxWidth, textSize, helveticaFont);
         for (const line of issueLines) {
@@ -245,9 +262,21 @@ export default async function handler(req, res) {
         checkAndAddPage();
         
         // Handle both string and object formats
-        const strengthText = typeof strength === 'string' 
-          ? strength 
-          : strength.description || strength.strength || JSON.stringify(strength);
+        let strengthText;
+        if (typeof strength === 'string') {
+          strengthText = strength;
+        } else if (typeof strength === 'object' && strength !== null) {
+          // Try common property names
+          strengthText = strength.description || strength.strength || strength.title || strength.name;
+          // If none found, stringify the object
+          if (!strengthText) {
+            strengthText = Object.entries(strength)
+              .map(([key, val]) => `${key}: ${val}`)
+              .join(', ');
+          }
+        } else {
+          strengthText = 'Unknown strength';
+        }
         
         const strengthLines = wrapText(`• ${strengthText}`, maxWidth, textSize, helveticaFont);
         for (const line of strengthLines) {
@@ -321,7 +350,17 @@ export default async function handler(req, res) {
           font: helveticaBoldFont,
         });
         
-        const valueLines = wrapText(String(value), maxWidth - 150, textSize, helveticaFont);
+        // Convert value to string, handling objects properly
+        let valueStr;
+        if (typeof value === 'object' && value !== null) {
+          valueStr = JSON.stringify(value, null, 2);
+        } else if (value === null || value === undefined) {
+          valueStr = 'N/A';
+        } else {
+          valueStr = String(value);
+        }
+        
+        const valueLines = wrapText(valueStr, maxWidth - 150, textSize, helveticaFont);
         for (let i = 0; i < valueLines.length; i++) {
           if (i > 0) {
             currentY -= lineHeight;
