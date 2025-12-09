@@ -6,6 +6,7 @@ import Layout from '../../components/Layout';
 import SEO from '../../components/SEO';
 import RevCounterGauge from '../../components/RevCounterGauge';
 import CarTimeline from '../../components/CarTimeline';
+import DownloadPdfButton from '../../components/DownloadPdfButton';
 
 export default function SharedReport() {
   const router = useRouter();
@@ -148,6 +149,18 @@ export default function SharedReport() {
           {reportType === 'product' && category && (
             <p className="mileage">Category: {category}</p>
           )}
+          <div style={{ marginTop: '1rem' }}>
+            <DownloadPdfButton
+              reportType={reportType}
+              vehicleData={reportType === 'vehicle' ? reliability_data : undefined}
+              searchParams={reportType === 'vehicle' ? { year, make, model, mileage } : undefined}
+              category={reportType === 'product' ? category : undefined}
+              productData={reportType === 'product' ? product_data : undefined}
+              reliabilityData={reportType === 'product' ? reliability_data : undefined}
+              specifications={specifications_data}
+              timelineData={timeline_data}
+            />
+          </div>
         </div>
 
         <div className="overall-score-section">

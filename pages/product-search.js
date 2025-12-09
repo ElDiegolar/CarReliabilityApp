@@ -1,5 +1,5 @@
 // pages/product-search.js - Generic product reliability search page
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
@@ -9,6 +9,7 @@ import SEO from '../components/SEO';
 import { useAuth } from '../contexts/AuthContext';
 import RevCounterGauge from '../components/RevCounterGauge';
 import ShareReportButton from '../components/ShareReportButton';
+import DownloadPdfButton from '../components/DownloadPdfButton';
 import { 
   getAllCategories, 
   getCategoryConfig, 
@@ -21,6 +22,7 @@ export default function ProductSearch() {
   const { t } = useTranslation('common');
   const { user, getToken } = useAuth();
   const router = useRouter();
+  const hasLoadedFromUrl = useRef(false);
 
   const [selectedCategory, setSelectedCategory] = useState(PRODUCT_CATEGORIES.AUTOMOTIVE);
   const [productData, setProductData] = useState({});
@@ -36,9 +38,15 @@ export default function ProductSearch() {
 
   // Load data from URL parameters (from shared reports or direct links)
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router.isReady || hasLoadedFromUrl.current) return;
 
     const { category, ...queryParams } = router.query;
+
+    // If no query params, nothing to load
+    if (Object.keys(queryParams).length === 0) return;
+
+    // Mark that we've processed URL params to prevent re-running
+    hasLoadedFromUrl.current = true;
 
     // If category is provided in URL, set it
     if (category && PRODUCT_CATEGORIES[category.toUpperCase()]) {
@@ -46,30 +54,28 @@ export default function ProductSearch() {
     }
 
     // If there are query params with product data, populate the form
-    if (Object.keys(queryParams).length > 0) {
-      const formData = {};
-      const categoryConfig = getCategoryConfig(category || selectedCategory);
-      
-      // Map URL params to form fields
-      categoryConfig.fields.forEach(field => {
-        if (queryParams[field.name]) {
-          formData[field.name] = queryParams[field.name];
-        }
-      });
+    const formData = {};
+    const categoryConfig = getCategoryConfig(category || selectedCategory);
+    
+    // Map URL params to form fields
+    categoryConfig.fields.forEach(field => {
+      if (queryParams[field.name]) {
+        formData[field.name] = queryParams[field.name];
+      }
+    });
 
-      if (Object.keys(formData).length > 0) {
-        setProductData(formData);
-        // Auto-submit if we have required fields
-        const hasRequiredFields = categoryConfig.fields
-          .filter(f => f.required)
-          .every(f => formData[f.name]);
-        
-        if (hasRequiredFields) {
-          // Delay to ensure state is updated
-          setTimeout(() => {
-            handleSubmit(null, formData, category || selectedCategory);
-          }, 100);
-        }
+    if (Object.keys(formData).length > 0) {
+      setProductData(formData);
+      // Auto-submit if we have required fields
+      const hasRequiredFields = categoryConfig.fields
+        .filter(f => f.required)
+        .every(f => formData[f.name]);
+      
+      if (hasRequiredFields) {
+        // Delay to ensure state is updated
+        setTimeout(() => {
+          handleSubmit(null, formData, category || selectedCategory);
+        }, 100);
       }
     }
   }, [router.isReady, router.query]);
@@ -98,6 +104,8 @@ export default function ProductSearch() {
     setSpecifications(null);
     setShowSearchForm(true);
     setProductData({});
+    hasLoadedFromUrl.current = false; // Allow URL params to be loaded again
+    router.push('/product-search', undefined, { shallow: true });
   };
 
   // Handle form submission
@@ -256,16 +264,26 @@ export default function ProductSearch() {
         {/* Results Section */}
         {results && (
           <div className={styles.results}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '1rem', flexWrap: 'wrap' }}>
               <h2>{productName} {t('productSearch.reliabilityAnalysis') || 'Reliability Analysis'}</h2>
-              <ShareReportButton
-                reportType="product"
-                category={selectedCategory}
-                productData={productData}
-                reliabilityData={results}
-                specifications={specifications}
-                timeline={timelineData}
-              />
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <DownloadPdfButton
+                  reportType="product"
+                  category={selectedCategory}
+                  productData={productData}
+                  reliabilityData={results}
+                  specifications={specifications}
+                  timelineData={timelineData}
+                />
+                <ShareReportButton
+                  reportType="product"
+                  category={selectedCategory}
+                  productData={productData}
+                  reliabilityData={results}
+                  specifications={specifications}
+                  timeline={timelineData}
+                />
+              </div>
             </div>
             
             {/* Overall Score */}
