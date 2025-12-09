@@ -310,6 +310,33 @@
   overflow-x: auto;
 }
 
+.specsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.specItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  border-left: 3px solid #0070f3;
+}
+
+.specItem strong {
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+.specItem span {
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
 .timeline {
   position: relative;
   padding-left: 2rem;

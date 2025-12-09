@@ -322,14 +322,27 @@ export default function ProductSearch() {
               <div className={styles.commonIssues}>
                 <h3>{t('productSearch.commonIssues') || 'Common Issues Reported'}</h3>
                 <ul>
-                  {results.commonIssues.map((issue, index) => (
-                    <li key={index}>
-                      <strong>{issue.description}</strong>
-                      {issue.costToFix && <div><strong>Cost to Fix:</strong> {issue.costToFix}</div>}
-                      {issue.occurrence && <div><strong>Occurrence:</strong> {issue.occurrence}</div>}
-                      {issue.timeframe && <div><strong>Timeframe:</strong> {issue.timeframe}</div>}
-                    </li>
-                  ))}
+                  {results.commonIssues.map((issue, index) => {
+                    // Handle both string and object formats
+                    const issueText = typeof issue === 'string' 
+                      ? issue 
+                      : issue.description || issue.issue || JSON.stringify(issue);
+                    
+                    return (
+                      <li key={index}>
+                        {typeof issue === 'object' && issue !== null ? (
+                          <>
+                            <strong>{issue.description || issue.issue || 'Issue'}</strong>
+                            {issue.costToFix && <div><strong>Cost to Fix:</strong> {issue.costToFix}</div>}
+                            {issue.occurrence && <div><strong>Occurrence:</strong> {issue.occurrence}</div>}
+                            {issue.timeframe && <div><strong>Timeframe:</strong> {issue.timeframe}</div>}
+                          </>
+                        ) : (
+                          issueText
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
@@ -351,8 +364,19 @@ export default function ProductSearch() {
             {specifications && (
               <div className={styles.specifications}>
                 <h3>{t('productSearch.specifications') || 'Technical Specifications'}</h3>
-                <div className={styles.specsContent}>
-                  <pre>{JSON.stringify(specifications, null, 2)}</pre>
+                <div className={styles.specsGrid}>
+                  {typeof specifications === 'object' && specifications !== null ? (
+                    Object.entries(specifications).map(([key, value]) => (
+                      <div key={key} className={styles.specItem}>
+                        <strong>{key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}:</strong>
+                        <span>{typeof value === 'object' ? JSON.stringify(value) : String(value)}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className={styles.specsContent}>
+                      <pre>{JSON.stringify(specifications, null, 2)}</pre>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

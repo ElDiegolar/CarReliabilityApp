@@ -206,7 +206,12 @@ export default async function handler(req, res) {
       for (const issue of reliability_data.commonIssues) {
         checkAndAddPage();
         
-        const issueLines = wrapText(`• ${issue}`, maxWidth, textSize, helveticaFont);
+        // Handle both string and object formats
+        const issueText = typeof issue === 'string' 
+          ? issue 
+          : issue.description || issue.issue || JSON.stringify(issue);
+        
+        const issueLines = wrapText(`• ${issueText}`, maxWidth, textSize, helveticaFont);
         for (const line of issueLines) {
           checkAndAddPage();
           page.drawText(line, {
@@ -239,7 +244,12 @@ export default async function handler(req, res) {
       for (const strength of reliability_data.strengths) {
         checkAndAddPage();
         
-        const strengthLines = wrapText(`• ${strength}`, maxWidth, textSize, helveticaFont);
+        // Handle both string and object formats
+        const strengthText = typeof strength === 'string' 
+          ? strength 
+          : strength.description || strength.strength || JSON.stringify(strength);
+        
+        const strengthLines = wrapText(`• ${strengthText}`, maxWidth, textSize, helveticaFont);
         for (const line of strengthLines) {
           checkAndAddPage();
           page.drawText(line, {
