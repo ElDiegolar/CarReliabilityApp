@@ -139,8 +139,8 @@ export default function SharedReport() {
   
   // Generate title based on report type
   const reportTitle = reportType === 'vehicle' 
-    ? `${year} ${make} ${model}`
-    : `${product_data?.brand || ''} ${product_data?.model || 'Product'}`;
+    ? `${year || ''} ${make || ''} ${model || ''}`.trim() || 'Vehicle'
+    : `${product_data?.brand || ''} ${product_data?.model || ''}`.trim() || 'Product';
 
   return (
     <Layout>
@@ -183,17 +183,17 @@ export default function SharedReport() {
           )}
         </div>
 
-        {reliability_data?.categoryScores && (
+        {reliability_data?.categoryScores && typeof reliability_data.categoryScores === 'object' && (
           <div className="category-scores">
             <h2>Category Breakdown</h2>
             <div className="categories-grid">
               {Object.entries(reliability_data.categoryScores).map(([category, score]) => (
                 <div key={category} className="category-card">
-                  <h3>{category.charAt(0).toUpperCase() + category.slice(1).replace(/([A-Z])/g, ' $1')}</h3>
+                  <h3>{category?.charAt(0).toUpperCase() + category?.slice(1).replace(/([A-Z])/g, ' $1')}</h3>
                   <div className="score-bar">
-                    <div className="score-fill" style={{ width: `${score}%` }}></div>
+                    <div className="score-fill" style={{ width: `${score || 0}%` }}></div>
                   </div>
-                  <p className="score-value">{score}/100</p>
+                  <p className="score-value">{score || 0}/100</p>
                 </div>
               ))}
             </div>
@@ -204,17 +204,30 @@ export default function SharedReport() {
           <div className="common-issues">
             <h2>Common Issues</h2>
             <div className="issues-list">
-              {reliability_data.commonIssues.map((issue, index) => (
-                <div key={index} className="issue-card">
-                  <h3>{issue.issue}</h3>
-                  <div className="issue-details">
-                    {issue.costToFix && <span className="detail">💰 {issue.costToFix}</span>}
-                    {issue.occurrence && <span className="detail">📊 {issue.occurrence}</span>}
-                    {issue.typicalMileage && <span className="detail">🔧 {issue.typicalMileage}</span>}
+              {reliability_data.commonIssues.map((issue, index) => {
+                // Handle both string and object formats
+                const issueText = typeof issue === 'string' 
+                  ? issue 
+                  : issue?.description || issue?.issue || issue?.title || JSON.stringify(issue);
+                
+                return (
+                  <div key={index} className="issue-card">
+                    <h3>{issueText}</h3>
+                    {typeof issue === 'object' && issue !== null && (
+                      <>
+                        <div className="issue-details">
+                          {issue.costToFix && <span className="detail">💰 {issue.costToFix}</span>}
+                          {issue.occurrence && <span className="detail">📊 {issue.occurrence}</span>}
+                          {issue.typicalMileage && <span className="detail">🔧 {issue.typicalMileage}</span>}
+                        </div>
+                        {issue.description && issue.description !== issueText && (
+                          <p className="issue-description">{issue.description}</p>
+                        )}
+                      </>
+                    )}
                   </div>
-                  {issue.description && <p className="issue-description">{issue.description}</p>}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -226,16 +239,23 @@ export default function SharedReport() {
           </div>
         )}
 
-        {specifications_data && (
+        {specifications_data && typeof specifications_data === 'object' && (
           <div className="specifications">
             <h2>Specifications</h2>
             <div className="specs-grid">
-              {Object.entries(specifications_data).map(([key, value]) => (
-                <div key={key} className="spec-item">
-                  <strong>{key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}:</strong>
-                  <span>{value}</span>
-                </div>
-              ))}
+              {Object.entries(specifications_data).map(([key, value]) => {
+                // Handle object values properly
+                const displayValue = typeof value === 'object' && value !== null
+                  ? JSON.stringify(value)
+                  : String(value || 'N/A');
+                
+                return (
+                  <div key={key} className="spec-item">
+                    <strong>{key?.charAt(0).toUpperCase() + key?.slice(1).replace(/([A-Z])/g, ' $1')}:</strong>
+                    <span>{displayValue}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

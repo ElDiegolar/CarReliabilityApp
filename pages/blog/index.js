@@ -549,7 +549,7 @@ const BLOG_POSTS = [
         <li>Historical maintenance records from thousands of vehicles</li>
         <li>Reported problems from certified mechanics</li>
         <li>Recall information and technical service bulletins</li>
-        <li>Owner-reported issues across major forums and databases</li>
+        <li>Owner-reported issues across major forums 
         <li>Parts replacement frequency data</li>
       </ul>
       
