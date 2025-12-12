@@ -18,12 +18,21 @@ export default async function handler(req, res) {
     
     // Log data structure for debugging
     console.log('PDF Generation - Data received:');
-    console.log('commonIssues:', reliability_data?.commonIssues);
-    console.log('specifications:', specifications_data);
+    console.log('category:', category);
+    console.log('productData:', productData);
+    console.log('reliability_data keys:', reliability_data ? Object.keys(reliability_data) : 'null');
+    console.log('commonIssues type:', typeof reliability_data?.commonIssues);
+    console.log('specifications type:', typeof specifications_data);
     
     // Validate required fields
-    if (!category || !productData || !reliability_data) {
-      return res.status(400).json({ error: 'Missing required product information' });
+    if (!category) {
+      return res.status(400).json({ error: 'Missing category', details: 'Category is required' });
+    }
+    if (!productData) {
+      return res.status(400).json({ error: 'Missing product data', details: 'Product data is required' });
+    }
+    if (!reliability_data) {
+      return res.status(400).json({ error: 'Missing reliability data', details: 'Reliability data is required' });
     }
 
     // Initialize PDF document
@@ -56,6 +65,10 @@ export default async function handler(req, res) {
 
     // Helper function to wrap text
     const wrapText = (text, maxWidth, fontSize, font) => {
+      if (!text || typeof text !== 'string') {
+        return [''];
+      }
+      
       const words = text.split(' ');
       const lines = [];
       let currentLine = '';
@@ -76,7 +89,7 @@ export default async function handler(req, res) {
         lines.push(currentLine);
       }
       
-      return lines;
+      return lines.length > 0 ? lines : [''];
     };
 
     // Add header
@@ -195,7 +208,7 @@ export default async function handler(req, res) {
     }
     
     // Common Issues
-    if (reliability_data.commonIssues && reliability_data.commonIssues.length > 0) {
+    if (reliability_data.commonIssues && Array.isArray(reliability_data.commonIssues) && reliability_data.commonIssues.length > 0) {
       checkAndAddPage();
       
       page.drawText('Common Issues', {
@@ -245,7 +258,7 @@ export default async function handler(req, res) {
     }
     
     // Strengths
-    if (reliability_data.strengths && reliability_data.strengths.length > 0) {
+    if (reliability_data.strengths && Array.isArray(reliability_data.strengths) && reliability_data.strengths.length > 0) {
       checkAndAddPage();
       
       page.drawText('Strengths', {
@@ -381,7 +394,7 @@ export default async function handler(req, res) {
     }
     
     // Timeline
-    if (timeline_data && timeline_data.length > 0) {
+    if (timeline_data && Array.isArray(timeline_data) && timeline_data.length > 0) {
       checkAndAddPage();
       
       page.drawText('Product Timeline', {
@@ -397,8 +410,8 @@ export default async function handler(req, res) {
       for (const event of timeline_data) {
         checkAndAddPage();
         
-        const dateText = event.date || event.year || 'N/A';
-        const titleText = event.title || event.event || 'Event';
+        const dateText = String(event?.date || event?.year || 'N/A');
+        const titleText = String(event?.title || event?.event || 'Event');
         
         page.drawText(dateText, {
           x: margin,
@@ -422,7 +435,7 @@ export default async function handler(req, res) {
           currentY -= lineHeight;
         }
         
-        if (event.description) {
+        if (event?.description && typeof event.description === 'string') {
           const detailLines = wrapText(event.description, maxWidth, textSize - 1, helveticaFont);
           for (const line of detailLines) {
             checkAndAddPage();

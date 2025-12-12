@@ -103,7 +103,9 @@ export default function DownloadPdfButton({
         });
 
         if (!response.ok) {
-          throw new Error('Failed to generate PDF');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('PDF generation failed:', response.status, errorData);
+          throw new Error(errorData.error || errorData.details || 'Failed to generate PDF');
         }
 
         const blob = await response.blob();
@@ -119,7 +121,7 @@ export default function DownloadPdfButton({
       }
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF. Please try again.');
+      alert(`Failed to download PDF: ${error.message}\n\nPlease try again or contact support if the issue persists.`);
     } finally {
       setLoading(false);
     }
