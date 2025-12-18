@@ -21,10 +21,12 @@ export default function DownloadPdfButton({
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async () => {
+    console.log('DownloadPdfButton clicked, reportType:', reportType);
     setLoading(true);
 
     try {
       if (reportType === 'vehicle') {
+        console.log('Starting vehicle PDF generation...');
         // Vehicle PDF generation
         let timelineDataToUse = timelineData;
 
@@ -61,8 +63,10 @@ export default function DownloadPdfButton({
           mileage: searchParams.mileage,
           reliability_data: vehicleData,
           timeline_data: timelineDataToUse,
+          specifications_data: specificationsData,
         };
 
+        console.log('Sending vehicle PDF request:', { ...requestData, reliability_data: '...', timeline_data: '...', specifications_data: '...' });
         const response = await fetch('/api/generate-pdf', {
           method: 'POST',
           headers: {
@@ -71,11 +75,16 @@ export default function DownloadPdfButton({
           body: JSON.stringify(requestData),
         });
 
+        console.log('Vehicle PDF fetch response status:', response.status, response.ok);
         if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Vehicle PDF failed with response:', errorText);
           throw new Error('Failed to generate PDF');
         }
 
+        console.log('Creating blob from vehicle PDF response...');
         const blob = await response.blob();
+        console.log('Blob created, size:', blob.size, 'type:', blob.type);
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -85,6 +94,7 @@ export default function DownloadPdfButton({
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
       } else {
+        console.log('Starting product PDF generation...');
         // Product PDF generation
         const requestData = {
           category,
@@ -94,6 +104,7 @@ export default function DownloadPdfButton({
           timeline_data: timelineData,
         };
 
+        console.log('Sending product PDF request:', { category, hasProductData: !!productData, hasReliabilityData: !!reliabilityData });
         const response = await fetch('/api/generate-product-pdf', {
           method: 'POST',
           headers: {
@@ -102,13 +113,16 @@ export default function DownloadPdfButton({
           body: JSON.stringify(requestData),
         });
 
+        console.log('Product PDF fetch response status:', response.status, response.ok);
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          console.error('PDF generation failed:', response.status, errorData);
+          console.error('Product PDF generation failed:', response.status, errorData);
           throw new Error(errorData.error || errorData.details || 'Failed to generate PDF');
         }
 
+        console.log('Creating blob from product PDF response...');
         const blob = await response.blob();
+        console.log('Blob created, size:', blob.size, 'type:', blob.type);
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;

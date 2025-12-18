@@ -13,6 +13,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  console.log('PDF Generation Request received');
+
   try {
     const { category, productData, reliability_data, specifications_data, timeline_data } = req.body;
     
@@ -26,23 +28,34 @@ export default async function handler(req, res) {
     
     // Validate required fields
     if (!category) {
+      console.error('Validation failed: Missing category');
       return res.status(400).json({ error: 'Missing category', details: 'Category is required' });
     }
     if (!productData) {
+      console.error('Validation failed: Missing product data');
       return res.status(400).json({ error: 'Missing product data', details: 'Product data is required' });
     }
     if (!reliability_data) {
+      console.error('Validation failed: Missing reliability data');
       return res.status(400).json({ error: 'Missing reliability data', details: 'Reliability data is required' });
     }
 
+    console.log('Starting PDF document creation...');
+
+    console.log('Starting PDF document creation...');
+
     // Initialize PDF document
     const pdfDoc = await PDFDocument.create();
+    console.log('PDF document created');
+    
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    console.log('Fonts embedded');
     
     // Add a page to the PDF
     let page = pdfDoc.addPage([612, 792]); // Letter size
     const { width, height } = page.getSize();
+    console.log('Page added to PDF');
 
     // Set some initial variables for positioning
     let currentY = height - 50;
@@ -477,17 +490,21 @@ export default async function handler(req, res) {
     });
 
     // Serialize the PDF to bytes
+    console.log('Serializing PDF...');
     const pdfBytes = await pdfDoc.save();
+    console.log('PDF serialized successfully, size:', pdfBytes.length, 'bytes');
 
     // Set response headers
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${productData.brand || 'product'}-${productData.model || 'report'}-reliability.pdf"`);
     
+    console.log('Sending PDF response');
     // Send PDF
     return res.status(200).send(Buffer.from(pdfBytes));
 
   } catch (error) {
     console.error('Error generating product PDF:', error);
-    return res.status(500).json({ error: 'Failed to generate PDF', details: error.message });
+    console.error('Error stack:', error.stack);
+    return res.status(500).json({ error: 'Failed to generate PDF', details: error.message, stack: process.env.NODE_ENV === 'development' ? error.stack : undefined });
   }
 }

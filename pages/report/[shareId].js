@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import Layout from '../../components/Layout';
 import SEO from '../../components/SEO';
 import RevCounterGauge from '../../components/RevCounterGauge';
@@ -9,6 +11,7 @@ import CarTimeline from '../../components/CarTimeline';
 import DownloadPdfButton from '../../components/DownloadPdfButton';
 
 export default function SharedReport() {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const { shareId } = router.query;
 
@@ -38,6 +41,12 @@ export default function SharedReport() {
 
         const data = await response.json();
         console.log('Report data received:', data);
+        console.log('Reliability data structure:', {
+          hasReliabilityData: !!data.reliability_data,
+          reliabilityDataKeys: data.reliability_data ? Object.keys(data.reliability_data) : 'null',
+          overallScore: data.reliability_data?.overallScore,
+          rawReliabilityData: data.reliability_data
+        });
         setReportData(data);
       } catch (err) {
         console.error('Error fetching report:', err);
@@ -135,7 +144,14 @@ export default function SharedReport() {
 
   const reportType = reportData.report_type || 'vehicle';
   const { year, make, model, mileage, category, product_data, reliability_data, specifications_data, timeline_data } = reportData;
-  const overallScore = reliability_data?.overallScore || 0;
+  
+  // Extract overall score - handle different data structures
+  const overallScore = reliability_data?.overallScore || 
+                       reliability_data?.score || 
+                       reliability_data?.overall_score || 
+                       0;
+  
+  console.log('Rendering shared report:', { reportType, overallScore, reliability_data });
   
   // Generate title based on report type
   const reportTitle = reportType === 'vehicle' 
@@ -490,4 +506,12 @@ export default function SharedReport() {
       `}</style>
     </Layout>
   );
+}
+
+export async function getServerSideProps({ locale }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  };
 }

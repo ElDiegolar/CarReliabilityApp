@@ -16,22 +16,28 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('Vehicle PDF Generation Request received');
     const { year, make, model, mileage, reliability_data, timeline_data, specifications_data, imageUrl } = req.body;
     
     // Validate required fields
     if (!year || !make || !model || !mileage || !reliability_data) {
+      console.error('Validation failed - missing required fields');
       return res.status(400).json({ error: 'Missing required vehicle information' });
     }
 
+    console.log('Starting vehicle PDF document creation...');
     // Initialize PDF document
     const pdfDoc = await PDFDocument.create();
+    console.log('Vehicle PDF document created');
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
     const timesRomanBoldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    console.log('Fonts embedded');
     
     // Add a page to the PDF
     let page = pdfDoc.addPage([612, 792]); // Letter size - use let instead of const
+    console.log('Page added to vehicle PDF');
     const { width, height } = page.getSize();
 
     // Function to convert miles to kilometers
@@ -954,16 +960,20 @@ export default async function handler(req, res) {
     });
     
     // Serialize the PDF to bytes
+    console.log('Serializing vehicle PDF...');
     const pdfBytes = await pdfDoc.save();
+    console.log('Vehicle PDF serialized successfully, size:', pdfBytes.length, 'bytes');
     
     // Set the content type and send the PDF bytes
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="Lemnaed ${year}-${make}-${model}-reliability-report.pdf"`);
+    console.log('Sending vehicle PDF response');
     res.status(200).send(Buffer.from(pdfBytes));
     
   } catch (error) {
-    console.error('Error generating PDF:', error);
-    return res.status(500).json({ error: 'Failed to generate PDF report' });
+    console.error('Error generating vehicle PDF:', error);
+    console.error('Error stack:', error.stack);
+    return res.status(500).json({ error: 'Failed to generate PDF report', details: error.message, stack: process.env.NODE_ENV === 'development' ? error.stack : undefined });
   }
 }
 

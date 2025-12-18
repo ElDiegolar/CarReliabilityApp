@@ -32,7 +32,12 @@ export default async function handler(req, res) {
     }
 
     const report = result.rows[0];
-    console.log('Found report:', { shareId, report_type: report.report_type });
+    console.log('Found report:', { 
+      shareId, 
+      report_type: report.report_type,
+      reliability_data_keys: report.reliability_data ? Object.keys(report.reliability_data) : 'null',
+      overallScore: report.reliability_data?.overallScore
+    });
     
     // Increment view count
     await query(

@@ -137,8 +137,9 @@ function createTimelinePrompt(productData, category) {
 
 /**
  * Make OpenAI API call with error handling
- */
-async function makeOpenAICall(prompt, systemMessage) {
+  */
+async function makeOpenAICall(prompt, systemMessage, callName = 'OpenAI') {
+  console.log(`Starting ${callName} API call...`);
   try {
     const completion = await openai.createChatCompletion({
       model: "gpt-4o",
@@ -157,10 +158,11 @@ async function makeOpenAICall(prompt, systemMessage) {
                       [null, responseText];
 
     const parsedResult = JSON.parse(jsonMatch[1]);
-    console.log('OpenAI API call successful');
+    console.log(`${callName || 'OpenAI'} API call successful, returning data`);
     return parsedResult;
   } catch (error) {
-    console.error('Error in OpenAI API call:', error.message);
+    console.error(`Error in ${callName || 'OpenAI'} API call:`, error.message);
+    console.error('Error details:', error.response?.data || error.stack);
     throw error;
   }
 }
@@ -248,29 +250,59 @@ export default async function handler(req, res) {
 
       // Execute API calls in parallel
       const promises = [
-        makeOpenAICall(reliabilityPrompt, reliabilitySystemMessage),
-        makeOpenAICall(specificationsPrompt, specificationsSystemMessage),
-        makeOpenAICall(timelinePrompt, timelineSystemMessage)
+        makeOpenAICall(reliabilityPrompt, reliabilitySystemMessage, 'Reliability'),
+        makeOpenAICall(specificationsPrompt, specificationsSystemMessage, 'Specifications'),
+        makeOpenAICall(timelinePrompt, timelineSystemMessage, 'Timeline')
       ];
 
-      console.log('Making parallel OpenAI API calls');
+      console.log('Making parallel OpenAI API calls (Reliability, Specifications, Timeline)');
       const startTime = Date.now();
-      const results = await Promise.all(promises);
+      const results = await Promise.allSettled(promises);
       const endTime = Date.now();
       console.log(`Parallel API calls completed in ${endTime - startTime}ms`);
 
-      reliabilityData = results[0];
-      specificationsData = results[1];
-      timelineData = results[2] || [];
+      // Process results
+      reliabilityData = results[0].status === 'fulfilled' ? results[0].value : null;
+      specificationsData = results[1].status === 'fulfilled' ? results[1].value : null;
+      timelineData = results[2].status === 'fulfilled' ? results[2].value : [];
+      
+      console.log('Results status:', {
+        reliability: results[0].status,
+        specifications: results[1].status,
+        timeline: results[2].status
+      });
+      
+      // Log any failures
+      if (results[0].status === 'rejected') console.error('Reliability call failed:', results[0].reason);
+      if (results[1].status === 'rejected') console.error('Specifications call failed:', results[1].reason);
+      if (results[2].status === 'rejected') console.error('Timeline call failed:', results[2].reason);
 
+      // Check if we got at least reliability data
+      if (!reliabilityData) {
+        console.error('Failed to get reliability data, using fallback');
+        const fallback = generateFallbackData(productData, category);
+        reliabilityData = fallback.reliabilityData;
+      }
+      
+      if (!specificationsData) {
+        console.warn('Failed to get specifications, using fallback');
+        specificationsData = { general: "Specifications data temporarily unavailable" };
+      }
+      
+      if (!timelineData || timelineData.length === 0) {
+        console.warn('Failed to get timeline data');
+        timelineData = [];
+      }
+      
       reliabilityData.isPremium = true;
       reliabilityData.category = category;
 
     } catch (openaiError) {
       console.error('OpenAI API Error:', openaiError.message);
+      console.error('Stack:', openaiError.stack);
       
       // Use fallback data
-      console.log('Using fallback data');
+      console.log('Using complete fallback data due to error');
       const fallback = generateFallbackData(productData, category);
       reliabilityData = fallback.reliabilityData;
       specificationsData = fallback.specificationsData;
